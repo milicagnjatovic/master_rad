@@ -3,10 +3,9 @@ package org.example;
 
 //import org.hibernate.annotations.Table;
 
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.Id;
-import javax.persistence.Table;
+import org.json.JSONObject;
+
+import javax.persistence.*;
 import java.util.Date;
 
 
@@ -21,10 +20,11 @@ public class Task {
 
     @Id
     @Column(name = "ID")
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     public Integer Id;
     @Column(name="task")
     public String Task;
-    @Column(name="endpoint")
+    @Column(name="endppoint")
     public String Endpoint;
     @Column(name="created_date")
     public Date Created_date;
@@ -32,4 +32,9 @@ public class Task {
     @Column(name = "solution")
     public String Solution;
     public Task(){}
+
+    public Task(JSONObject obj){
+        this.Task = obj.getString("z");
+        this.Solution=obj.getJSONArray("r").getString(0);
+    }
 }
