@@ -1,25 +1,23 @@
 package org.example;
 
-import org.hibernate.Session;
-import org.hibernate.query.Query;
+import org.glassfish.jersey.server.ResourceConfig;
+import org.glassfish.jersey.server.Uri;
 
-import org.example.Task;
-import org.json.JSONArray;
-import org.json.JSONObject;
+import javax.ws.rs.core.UriBuilder;
+import java.net.URI;
+import org.glassfish.jersey.grizzly2.httpserver.GrizzlyHttpServerFactory;
 
-import java.io.File;
-import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.util.Date;
-import java.util.List;
-import java.util.Objects;
-
-// Press Shift twice to open the Search Everywhere dialog and type `show whitespaces`,
-// then press Enter. You can now see whitespace characters in your code.
 public class Main {
-    public static void main(String[] args) {
-        TaskHandler.generateSolutions();
+    public static void main(String[] args) throws InterruptedException {
+        URI base = UriBuilder.fromUri("http://localhost/").port(51000).build();
+        System.out.println(base);
+        ResourceConfig config = new ResourceConfig(SolutionController.class);
+        GrizzlyHttpServerFactory.createHttpServer(base, config);
+
+        Thread.currentThread().join();
+
+
+        //        TaskHandler.generateSolutions();
 
 //        JSONObject obj = new JSONObject();
 //        obj.put("taskId", 22);
@@ -30,10 +28,13 @@ public class Main {
 
 //        try {
 //            String text = new String(Files.readAllBytes(Path.of("zadaci.json")));
-////            System.out.println(text);
+//            System.out.println(text);
 //            JSONArray arr = new JSONObject(text).getJSONArray("zadaci");
+//            TaskHandler.generateSolutions(arr);
 //            TaskHandler.insertNewTasks(arr);
 //        } catch (IOException e) {
+//            throw new RuntimeException(e);
+//        } catch (InterruptedException e) {
 //            throw new RuntimeException(e);
 //        }
     }

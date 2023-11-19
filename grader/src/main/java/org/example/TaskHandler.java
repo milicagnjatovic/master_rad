@@ -68,7 +68,6 @@ public class TaskHandler {
     }
     public static void generateSolutions(JSONArray arr) throws InterruptedException, IOException {
 //        List<TaskPayload> tasks = parseJSON(arr);
-
         String fileName = "results/generate" + new Date().getTime();
 
         parseJSONtoFile(arr, new File(fileName));

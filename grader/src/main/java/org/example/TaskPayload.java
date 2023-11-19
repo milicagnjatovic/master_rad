@@ -13,8 +13,7 @@ public class TaskPayload {
         this.task = obj.getString("task");
         this.solution = obj.getString("solution");
         this.sorting = obj.optString("ordering", "");
-        this.id = IDS;
-        IDS++;
+        this.id = obj.optInt("id", IDS++);
     }
 
     public String getSolution() {
