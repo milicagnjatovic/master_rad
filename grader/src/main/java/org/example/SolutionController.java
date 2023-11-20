@@ -5,10 +5,7 @@ import org.json.JSONObject;
 
 import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
-import java.awt.*;
-import java.io.File;
 import java.io.IOException;
-import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 
@@ -32,8 +29,7 @@ public class SolutionController {
     @Path("/getSolution")
     public String getSolution(@QueryParam("id") String id){
         try {
-            String solution = new String(Files.readAllBytes(Paths.get("results", id)), StandardCharsets.UTF_8);
-            return solution;
+            return Files.readString(Paths.get("results", id));
         } catch (IOException e) {
             return "Solution not found";
         }

@@ -4,14 +4,15 @@ import org.json.JSONObject;
 
 public class TaskPayload {
     public static Integer IDS = 0;
-    public String task;
     public String solution;
     public String sorting;
     public Integer id;
 
     public TaskPayload(JSONObject obj){
-        this.task = obj.getString("task");
-        this.solution = obj.getString("solution");
+        this.solution = obj.getString("solution")
+                .toUpperCase()
+                .replaceAll("CURRENT[_ ]DATE", "DATE('10.10.2023')")
+                .replaceAll("CURRENT[_ ]TIME", "TIME('10:55')");
         this.sorting = obj.optString("ordering", "");
         this.id = obj.optInt("id", IDS++);
     }
