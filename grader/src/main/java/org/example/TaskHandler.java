@@ -2,7 +2,6 @@ package org.example;
 
 import org.hibernate.Session;
 import org.hibernate.Transaction;
-import org.hibernate.query.Query;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
@@ -16,11 +15,9 @@ public class TaskHandler {
         List<Task> tasks = new ArrayList<>();
 
 
-        Session session = null;
-        try {
-            session = HibernateUtil.getSessionFactory().openSession();
+        try (Session session = HibernateUtil.getSessionFactory().openSession()) {
             Transaction transaction = session.beginTransaction();
-            for (int i=0; i<len; i++){
+            for (int i = 0; i < len; i++) {
                 JSONObject obj = array.getJSONObject(i);
                 Task task = new Task(obj);
                 tasks.add(task);
@@ -31,18 +28,16 @@ public class TaskHandler {
             System.out.println(tasks);
         } catch (Error err) {
             System.err.println("Error while inserting new tasks");
-        } finally {
-            session.close();
         }
     }
 
-    private static List<TaskPayload> parseJSON(JSONArray arr) throws FileNotFoundException {
+    private static List<TaskPayload> parseJSON(JSONArray arr) {
         List<TaskPayload> tasks = new LinkedList<>();
         for(int i=0; i< arr.length(); i++){
             JSONObject obj = arr.getJSONObject(i);
             TaskPayload task = new TaskPayload(obj);
-            System.out.println(task.id);
-            System.out.println(task.task);
+            System.out.println(task.taskId);
+//            System.out.println(task.task);
             System.out.println(task.getSolution());
             System.out.println("--------------------------------");
             tasks.add(task);
@@ -51,17 +46,17 @@ public class TaskHandler {
     }
 
     private static void parseJSONtoFile(JSONArray arr, File file) throws FileNotFoundException {
-        List<TaskPayload> tasks = new LinkedList<>();
+//        List<TaskPayload> tasks = new LinkedList<>();
         PrintStream ps = new PrintStream(file);
         for(int i=0; i< arr.length(); i++){
             JSONObject obj = arr.getJSONObject(i);
             TaskPayload task = new TaskPayload(obj);
 //            System.out.println(task.id);
 //            System.out.println(task.getSolution());
-            ps.println(task.id);
+            ps.println(task.taskId);
             ps.println(task.getSolution());
 //            System.out.println("--------------------------------");
-            tasks.add(task);
+//            tasks.add(task);
         }
         ps.flush();
         ps.close();
@@ -130,58 +125,28 @@ public class TaskHandler {
 //        System.out.println("DONE");
     }
 
-    public static void checkTask(String response){
-        JSONObject resp = new JSONObject(response);
-        int taskId = resp.getInt("taskId");
-        String solution = resp.getString("solution");
-        String user = resp.getString("user");
-        String outFile = "student_results/" + user + new Date().getTime();
-        String correctSolution = "results/"+taskId;
-        try {
-//            Process pwd = new ProcessBuilder("ls").start();
-//            pwd.waitFor();
-//            printConsoleResponse(pwd.getInputStream());
+    public static JSONObject checkTask(String request) throws IOException, InterruptedException {
+        TaskPayloadUser task = new TaskPayloadUser(new JSONObject(request));
 
-            Process connectToDatabase = new ProcessBuilder("db2", "connect to stud2020").start();
-            connectToDatabase.waitFor();
-            System.out.println("connected to db");
+        ProcessBuilder executeCheckPB = new ProcessBuilder("./scripts/check_solution.sh", task.userId, task.taskId.toString(), task.solution);
+        Process executeCheckP = executeCheckPB.start();
 
-            System.out.println(solution);
-            ProcessBuilder executeQueryPB = new ProcessBuilder("db2", solution);
-            executeQueryPB.redirectOutput(new File(outFile));
-            Process executeQueryP = executeQueryPB.start();
-            executeQueryP.waitFor();
+        String diff = new String(executeCheckP.getInputStream().readAllBytes());
+//        System.out.println(ret);
+        executeCheckP.waitFor();
 
-            System.out.println(correctSolution);
-            System.out.println(outFile);
-            ProcessBuilder executeDiffB = new ProcessBuilder("diff", outFile, correctSolution);
-//            executeDiffB.redirectOutput(new File(outFile+'_'));
-            Process executeDiff = executeDiffB.start();
-            printConsoleResponse(executeDiff.getInputStream());
-            executeDiff.waitFor();
-//            printConsoleResponse(executeDiff.getInputStream());
-            System.out.println("diff executed");
-            executeDiff.destroy();
-
-
-            Process deleteFile = new ProcessBuilder("rm",outFile).start();
-            deleteFile.waitFor();
-            System.out.println("deleted file");
-
-            Process disconectFromDatabase = new ProcessBuilder("db2", "connect reset").start();
-            disconectFromDatabase.waitFor();
-
-            printConsoleResponse(disconectFromDatabase.getInputStream());
-
-            executeQueryP.destroy();
-//            connectToDatabase.destroy();
-            disconectFromDatabase.destroy();
-//            deleteFile.destroy();
-        } catch (InterruptedException e) {
-            throw new RuntimeException(e);
-        } catch (IOException e) {
-            throw new RuntimeException(e);
+        JSONObject ret = new JSONObject();
+        if (diff.isEmpty()){
+            ret.put("ok", true);
+        } else if (diff.contains("--------")) {
+            ret.put("ok", false);
+            ret.put("checkColumns", true);
+        } else {
+            ret.put("ok", false);
+            ret.put("checkColumns", false);
         }
+
+        return ret;
     }
 
     public static void printConsoleResponse(InputStream is) throws IOException {

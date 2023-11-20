@@ -35,4 +35,20 @@ public class SolutionController {
         }
     }
 
+    @POST
+    @Path("/checkSolution")
+    @Consumes(MediaType.APPLICATION_JSON)
+    public String checkSolution(String body){
+//        JSONObject solution = new JSONObject(body);
+        System.out.println(body);
+        try {
+            return TaskHandler.checkTask(body).toString();
+        } catch (IOException | InterruptedException e) {
+            JSONObject err = new JSONObject();
+            err.put("ok", false);
+            err.put("message", e.getMessage());
+            return err.toString();
+        }
+    }
+
 }
