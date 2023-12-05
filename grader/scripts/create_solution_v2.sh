@@ -5,6 +5,8 @@ fi
 
 db2 connect to stud2020
 
+mkdir -p results
+
 startX=$(date +%s)
 
 while read -r task_id; do
