@@ -11,9 +11,8 @@ public class TaskPayload {
     public TaskPayload(JSONObject obj){
         this.sorting = obj.optString("ordering", "");
         this.solution = obj.getString("solution")
-                .toUpperCase()
-                .replaceAll("CURRENT[_ ]DATE", "DATE('10.10.2023')")
-                .replaceAll("CURRENT[_ ]TIME", "TIME('10:55')");
+                .replaceAll("(?i)CURRENT[_ ]DATE", "DATE('10.10.2023')")
+                .replaceAll("(?i)CURRENT[_ ]TIME", "TIME('10:55')");
         if(!this.sorting.isBlank()){
             this.solution = solution.replace(";",  " ORDER BY " + sorting + ";");
         }
