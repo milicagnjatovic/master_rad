@@ -8,12 +8,10 @@ import jakarta.ws.rs.QueryParam;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
-//import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
-import java.util.logging.Level;
 
 @Path("/grader")
 public class SolutionController {
@@ -46,7 +44,6 @@ public class SolutionController {
     @Path("/checkSolution")
     @Consumes(MediaType.APPLICATION_JSON)
     public String checkSolution(String body){
-//        JSONObject solution = new JSONObject(body);
         System.out.println("[checkSolution]");
 //        System.out.println(body);
         try {
