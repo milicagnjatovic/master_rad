@@ -9,6 +9,7 @@ import org.json.JSONArray;
 import org.json.JSONObject;
 
 import javax.ws.rs.core.MediaType;
+import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
@@ -60,7 +61,9 @@ public class SolutionController {
     @Path("/createDatabase")
     public String createDatabase(){
         try {
-            ProcessBuilder generateSolutionsPB = new ProcessBuilder("./scripts/stud2020/create.sh");
+            System.out.println("[createDatabase]");
+            ProcessBuilder generateSolutionsPB = new ProcessBuilder("./create.sh");
+            generateSolutionsPB.directory(new File("/home/scripts/stud2020"));
             Process generateSolutionP = generateSolutionsPB.start();
             TaskHandler.printConsoleResponse(generateSolutionP.getInputStream());
             generateSolutionP.waitFor();

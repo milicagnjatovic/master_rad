@@ -14,11 +14,13 @@ query="$3"
 
 db2 connect to stud2020 > /dev/null
 
-db2 "$query" > "$user_path"
+if db2 "$query" > "$user_path"; then
+  diff -bB "$user_path" "$solution_path" | head -n 10
+else
+  echo "error"
+fi
 
-#diff -y $user_id_tmp $solution_path | head -n 4 > $user_id
-
-diff -bB "$user_path" "$solution_path" | head -n 10
+#diff -bB "$user_path" "$solution_path" | head -n 10
 
 db2 connect reset > /dev/null
 rm "$user_path"
