@@ -66,6 +66,7 @@ public class SolutionController {
             generateSolutionsPB.directory(new File("/home/scripts/stud2020"));
             Process generateSolutionP = generateSolutionsPB.start();
             TaskHandler.printConsoleResponse(generateSolutionP.getInputStream());
+            TaskHandler.printConsoleResponse(generateSolutionP.getErrorStream());
             generateSolutionP.waitFor();
             generateSolutionP.destroy();
             return "Databsse created";
