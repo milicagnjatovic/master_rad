@@ -58,6 +58,28 @@ public class SolutionController {
     }
 
     @POST
+    @Path("/checkSolutionBulk")
+    @Consumes(MediaType.APPLICATION_JSON)
+    public String checkSolutionBulk(String body){
+        System.out.println("[checkSolutionBulk]");
+//        System.out.println(body);
+        try {
+            JSONArray arr = new JSONArray(body);
+            JSONArray response = new JSONArray();
+            for(int i=0; i < arr.length(); i++){
+                String req = arr.getJSONObject(i).toString();
+                JSONObject resp = TaskHandler.checkTask(req);
+                response.put(resp);
+            }
+            return response.toString();
+        } catch (IOException | InterruptedException e) {
+            JSONObject err = new JSONObject();
+            err.put("ok", false);
+            err.put("message", e.getMessage());
+            return err.toString();
+        }
+    }
+    @POST
     @Path("/createDatabase")
     public String createDatabase(){
         try {

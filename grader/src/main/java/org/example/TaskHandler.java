@@ -54,13 +54,14 @@ public class TaskHandler {
     public static JSONObject checkTask(String request) throws IOException, InterruptedException {
         TaskPayloadUser task = new TaskPayloadUser(new JSONObject(request));
 
-        ProcessBuilder executeCheckPB = new ProcessBuilder("./scripts/check_solution.sh", task.userId, task.taskId.toString(), task.solution);
+        ProcessBuilder executeCheckPB = new ProcessBuilder("./scripts/check_solution.sh", task.requestId, task.taskId.toString(), task.solution);
         Process executeCheckP = executeCheckPB.start();
 
         String diff = new String(executeCheckP.getInputStream().readAllBytes());
         executeCheckP.waitFor();
 
         JSONObject ret = new JSONObject();
+        ret.put("requestId", task.requestId);
         if (diff.isEmpty()){
             ret.put("ok", true);
         } else if (diff.contains("--------")) {
