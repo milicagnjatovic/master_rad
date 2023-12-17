@@ -14,11 +14,23 @@ query="$3"
 db2 connect to stud2020 > /dev/null
 
 
-db2 "$query" > "$user_path" || echo "error"
+db2 "$query" > "$user_path"
 
-if [ ! -e "$solution_path" ] || [ ! -e "$user_path" ]
+if [ $? -ne 0 ]; then
+  if [ ! -e "$user_path"  ]; then
+    echo "E100 | file creation failed"
+    exit 1
+  fi
+  echo "E200 | syntax error"
+  rm "$user_path"
+  exit 1
+fi
+
+if [ ! -e "$solution_path"  ];
 then
-    echo "User file or result file is missing"
+    echo "E300 | result file is missing"
+    rm "$user_path"
+    exit 1
 else
   diff -bB "$user_path" "$solution_path" | head -n 10
 fi

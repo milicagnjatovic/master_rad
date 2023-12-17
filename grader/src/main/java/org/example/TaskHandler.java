@@ -60,18 +60,32 @@ public class TaskHandler {
         String diff = new String(executeCheckP.getInputStream().readAllBytes());
         executeCheckP.waitFor();
 
-        JSONObject ret = new JSONObject();
-        ret.put("requestId", task.requestId);
-        if (diff.isEmpty()){
-            ret.put("ok", true);
-        } else if (diff.contains("--------")) {
-            ret.put("ok", false);
-            ret.put("checkColumns", true);
-        } else {
-            ret.put("ok", false);
-            ret.put("checkColumns", false);
-        }
+        System.out.println(diff);
 
+        if (diff.isEmpty()){
+            return createReturnObject(task.requestId, null);
+        } else if (diff.contains("--------")) {
+            return createReturnObject(task.requestId, "Check columns.");
+        } else if (diff.startsWith("E100")) {
+            return createReturnObject(task.requestId, "Server error. File creation failed.");
+        } else if(diff.startsWith("E200")){
+            return createReturnObject(task.requestId, "Check syntax");
+        } else if(diff.startsWith("E300")){
+            return createReturnObject(task.requestId, "Server error. File with result is mising.");
+        }else {
+            return createReturnObject(task.requestId, "Wrong query");
+        }
+    }
+
+    public static JSONObject createReturnObject(String requestId, String message){
+        JSONObject ret = new JSONObject();
+        ret.put("requestId", requestId);
+        if (message == null){
+            ret.put("ok", true);
+            return ret;
+        }
+        ret.put("ok", false);
+        ret.put("message", message);
         return ret;
     }
 

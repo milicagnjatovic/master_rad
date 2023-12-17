@@ -2,13 +2,11 @@ package org.example;
 
 import org.json.JSONObject;
 
-import java.util.Date;
-
 public class TaskPayloadUser extends TaskPayload {
     public String requestId;
     public TaskPayloadUser(JSONObject obj) {
         super(obj);
-        this.requestId = obj.getString("requestId") + new Date().getTime();
+        this.requestId = obj.getString("requestId"); // + new Date().getTime();
     }
 
     @Override
