@@ -4,7 +4,8 @@ target/
 !**/src/main/**/target/
 !**/src/test/**/target/
 
-results
+/results
+/student_results
 
 ### IntelliJ IDEA ###
 .idea/modules.xml

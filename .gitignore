@@ -1,0 +1,16 @@
+.idea/dataSources.xml
+.idea/compiler.xml
+.idea/encodings.xml
+.idea/jarRepositories.xml
+.idea/master_rad.iml
+.idea/modules.xml
+.idea/misc.xml
+.idea/uiDesigner.xml
+.idea/vcs.xml
+grader/web.xml
+grader/scripts/radovi_sep.json
+grader/scripts/radovi_jun.json
+grader/scripts/radovi_jan1.json
+grader/scripts/radovi_feb.json
+grader/czentgr/sqllib/db2tss/log/commandLineTools0.log
+grader/run_docker
