@@ -51,7 +51,7 @@ public class SolutionController {
             return TaskHandler.checkTask(body).toString();
         } catch (IOException | InterruptedException e) {
             JSONObject err = new JSONObject();
-            err.put("ok", false);
+            err.put("result", false);
             err.put("message", e.getMessage());
             return err.toString();
         }
@@ -74,7 +74,7 @@ public class SolutionController {
             return response.toString();
         } catch (IOException | InterruptedException e) {
             JSONObject err = new JSONObject();
-            err.put("ok", false);
+            err.put("results", false);
             err.put("message", e.getMessage());
             return err.toString();
         }

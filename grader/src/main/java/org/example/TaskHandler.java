@@ -60,7 +60,7 @@ public class TaskHandler {
         String diff = new String(executeCheckP.getInputStream().readAllBytes());
         executeCheckP.waitFor();
 
-        System.out.println(diff);
+//        System.out.println(diff);
 
         if (diff.isEmpty()){
             return createReturnObject(task.requestId, null);
