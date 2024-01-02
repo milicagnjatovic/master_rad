@@ -14,7 +14,7 @@ while read -r task_id; do
   start=$(date +%s)
 #  echo "$task_id $query"
 #  echo "------------------------"
-  db2 "$query" > "results/$task_id"
+  db2 "$query" | sed '/^$/d' > "results/$task_id"
   end=$(date +%s)
   echo "$task_id: $((end - start))"
 done < $1
