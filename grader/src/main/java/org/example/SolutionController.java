@@ -23,11 +23,10 @@ public class SolutionController {
         System.out.println("[generateSolution]");
         try {
             JSONArray arr = new JSONObject(body).getJSONArray("tasks");
-            TaskHandler.generateSolutions(arr);
+            return TaskHandler.generateSolutions(arr);
         } catch (InterruptedException | IOException e) {
             return "Error occurred: " + e.getMessage();
         }
-        return "done";
     }
 
     @GET

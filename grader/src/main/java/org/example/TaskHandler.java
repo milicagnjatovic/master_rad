@@ -31,32 +31,30 @@ public class TaskHandler {
         ps.flush();
         ps.close();
     }
-    public static void generateSolutions(JSONArray arr) throws InterruptedException, IOException {
+    public static String generateSolutions(JSONArray arr) throws InterruptedException, IOException {
         String fileName = "generate" + new Date().getTime();
 
         parseJSONtoFile(arr, new File(fileName));
 
-        long startTime = System.nanoTime();
-
-        ProcessBuilder generateSolutionsPB = new ProcessBuilder("./scripts/create_solution_v2.sh", fileName);
+        ProcessBuilder generateSolutionsPB = new ProcessBuilder("bash", "./scripts/create_solution_v2.sh", fileName);
         Process generateSolutionP = generateSolutionsPB.start();
-        printConsoleResponse(generateSolutionP.getInputStream());
+        String response = new String(generateSolutionP.getInputStream().readAllBytes());
+        printConsoleResponse(generateSolutionP.getErrorStream());
+
         generateSolutionP.waitFor();
         generateSolutionP.destroy();
 
-        long timeDiff = (System.nanoTime() - startTime) / 1000000;
-
-        System.out.println("Execution time: " + timeDiff);
-
+        return response;
     }
 
     public static JSONObject checkTask(String request) throws IOException, InterruptedException {
         TaskPayloadUser task = new TaskPayloadUser(new JSONObject(request));
 
-        ProcessBuilder executeCheckPB = new ProcessBuilder("./scripts/check_solution.sh", task.requestId, task.taskId.toString(), task.solution);
+        ProcessBuilder executeCheckPB = new ProcessBuilder("bash", "./scripts/check_solution.sh", task.requestId, task.taskId.toString(), task.solution);
         Process executeCheckP = executeCheckPB.start();
 
         String diff = new String(executeCheckP.getInputStream().readAllBytes());
+        printConsoleResponse(executeCheckP.getErrorStream());
         executeCheckP.waitFor();
 
 //        System.out.println(diff);
