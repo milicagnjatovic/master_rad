@@ -21,7 +21,6 @@ public class TaskHandler {
     }
 
     private static void parseJSONtoFile(JSONArray arr, File file) throws FileNotFoundException {
-//        List<TaskPayload> tasks = new LinkedList<>();
         PrintStream ps = new PrintStream(file);
         for(int i=0; i< arr.length(); i++){
             JSONObject obj = arr.getJSONObject(i);
@@ -64,16 +63,8 @@ public class TaskHandler {
 
         if (diff.isEmpty()){
             return createReturnObject(task.requestId, null);
-        } else if (diff.contains("--------")) {
-            return createReturnObject(task.requestId, "Check columns.");
-        } else if (diff.startsWith("E100")) {
-            return createReturnObject(task.requestId, "Server error. File creation failed.");
-        } else if(diff.startsWith("E200")){
-            return createReturnObject(task.requestId, "Check syntax");
-        } else if(diff.startsWith("E300")){
-            return createReturnObject(task.requestId, "Server error. File with result is mising.");
         }else {
-            return createReturnObject(task.requestId, "Wrong query");
+            return createReturnObject(task.requestId, diff);
         }
     }
 
