@@ -17,12 +17,12 @@ while read -r task_id; do
 
   skip=true
 
+#  db2 "$query" | sed '/^$/d' > "results/$task_id"
+
   db2 "$query" | sed '/^$/d' > "results/$task_id" &
   pid=$!
-
-
-  for ((i=0; i<50; i++)); do
-    sleep 0.2s
+  for ((i=0; i<200; i++)); do
+    sleep 0.02s
     if ! ps -p $pid > /dev/null; then
       skip=false
       break
