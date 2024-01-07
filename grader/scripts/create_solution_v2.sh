@@ -14,7 +14,26 @@ while read -r task_id; do
   start=$(date +%s.%N)
 #  echo "$task_id $query"
 #  echo "------------------------"
-  db2 "$query" | sed '/^$/d' > "results/$task_id"
+
+  skip=true
+
+  db2 "$query" | sed '/^$/d' > "results/$task_id" &
+  pid=$!
+
+
+  for ((i=0; i<50; i++)); do
+    sleep 0.2s
+    if ! ps -p $pid > /dev/null; then
+      skip=false
+      break
+    fi
+  done
+
+  if $skip; then
+    kill $pid
+    echo "$task_id | Time limit exceeded"
+    continue
+  fi
 
   if [ ! -e "results/$task_id"  ];
   then
@@ -40,6 +59,6 @@ echo "Total time: $duration"
 
 db2 connect reset > /dev/null
 
-rm "$1"
+ rm "$1"
 
 exit 0
