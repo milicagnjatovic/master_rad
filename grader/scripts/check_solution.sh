@@ -74,16 +74,20 @@ if [ "$student_end" != "$solution_end" ]; then
   exit 1
 fi
 
-# Check colum names (case insensitive)
-shopt -s nocasematch # case insensitive
-if [[ "$student_start" != "$solution_start" ]]; then
+# difference between column names: case insensitive ignoring white spaces
+first_row_diff=$(diff -bBi <(echo "$student_start") <(echo "$solution_start"))
+if [ "$first_row_diff" ]; then
   echo "User error | Wrong column names"
   rm "$user_path"
   exit 1
 fi
 shopt -u nocasematch
 
-diff -bBi "$user_path" "$solution_path" | head -n 10
+difference=$(diff -bBi <(tail -n +3 "$user_path") <(tail -n +3 "$solution_path") | head -n 5)
+# if diff is not empty return incorrect, could be due incorrect order by and typos
+if [ -n "$difference" ]; then
+    echo "User error | Incorrect"
+fi
 
 #db2 connect reset > /dev/null
 rm "$user_path"
