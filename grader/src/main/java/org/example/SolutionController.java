@@ -13,6 +13,14 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
+import java.time.Duration;
+import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
 
 @Path("/grader")
 public class SolutionController {
@@ -62,16 +70,33 @@ public class SolutionController {
     public String checkSolutionBulk(String body){
         System.out.println("[checkSolutionBulk]");
 //        System.out.println(body);
+        LocalDateTime startTime = LocalDateTime.now();
         try {
             JSONArray arr = new JSONArray(body);
             JSONArray response = new JSONArray();
+            ExecutorService executorService = Executors.newFixedThreadPool(10);
+            List<Future<JSONObject>> futureResponses = new ArrayList<>();
             for(int i=0; i < arr.length(); i++){
                 String req = arr.getJSONObject(i).toString();
-                JSONObject resp = TaskHandler.checkTask(req);
-                response.put(resp);
+                Future<JSONObject> future = executorService.submit(() -> {
+                    return TaskHandler.checkTask(req);
+                });
+                futureResponses.add(future);
             }
-            return response.toString();
-        } catch (IOException | InterruptedException e) {
+
+            executorService.shutdown();
+
+            for (Future<JSONObject> f : futureResponses){
+                response.put(f.get());
+            }
+
+            LocalDateTime endTime = LocalDateTime.now();
+            Duration duration = Duration.between(startTime, endTime);
+            JSONObject responseJSON = new JSONObject();
+            responseJSON.put("results", response);
+            responseJSON.put("executionTime", duration);
+            return responseJSON.toString();
+        } catch (InterruptedException | ExecutionException e) {
             JSONObject err = new JSONObject();
             err.put("results", false);
             err.put("message", e.getMessage());
