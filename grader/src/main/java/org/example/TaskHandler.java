@@ -59,21 +59,18 @@ public class TaskHandler {
 
 //        System.out.println(diff);
 
-        if (diff.isEmpty()){
-            return createReturnObject(task.requestId, null);
-        }else {
-            return createReturnObject(task.requestId, diff);
-        }
+        return createReturnObject(task.requestId, diff);
     }
 
     public static JSONObject createReturnObject(String requestId, String message){
         JSONObject ret = new JSONObject();
         ret.put("requestId", requestId);
-        if (message == null){
+        if (message.startsWith("OK")){
             ret.put("ok", true);
-            return ret;
         }
-        ret.put("ok", false);
+        else {
+            ret.put("ok", false);
+        }
         ret.put("message", message);
         return ret;
     }

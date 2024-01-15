@@ -35,7 +35,9 @@ export -f execute_query
 export query="$query"
 export user_path="$user_path"
 
+start=$(date +%s.%N)
 timeout 5 bash -c "execute_query"
+end=$(date +%s.%N)
 
 # if last command failed
 if [ $? -ne 0 ]; then
@@ -87,6 +89,9 @@ difference=$(diff -bBi <(tail -n +3 "$user_path") <(tail -n +3 "$solution_path")
 # if diff is not empty return incorrect, could be due incorrect order by and typos
 if [ -n "$difference" ]; then
     echo "User error | Incorrect"
+else
+  duration=$(echo "$end - $start" | bc)
+  echo "OK | Execution time $duration"
 fi
 
 #db2 connect reset > /dev/null
