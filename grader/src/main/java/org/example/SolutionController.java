@@ -78,9 +78,7 @@ public class SolutionController {
             List<Future<JSONObject>> futureResponses = new ArrayList<>();
             for(int i=0; i < arr.length(); i++){
                 String req = arr.getJSONObject(i).toString();
-                Future<JSONObject> future = executorService.submit(() -> {
-                    return TaskHandler.checkTask(req);
-                });
+                Future<JSONObject> future = executorService.submit(() -> TaskHandler.checkTask(req));
                 futureResponses.add(future);
             }
 

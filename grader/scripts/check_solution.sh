@@ -37,8 +37,6 @@ export user_path="$user_path"
 
 start=$(date +%s.%N)
 timeout 5 bash -c "execute_query"
-end=$(date +%s.%N)
-
 # if last command failed
 if [ $? -ne 0 ]; then
   echo "User error | Time limit exceeded"
@@ -48,6 +46,8 @@ if [ $? -ne 0 ]; then
     exit 1
   fi
 fi
+end=$(date +%s.%N)
+
 
 if [ ! -e "$user_path"  ]; then
   echo "Server error | User file creation failed"
