@@ -10,7 +10,9 @@ public class Main {
     public static void main(String[] args) {
         URI base = UriBuilder.fromUri("http://0.0.0.0").port(52000).build();
         System.out.println(base);
-        ResourceConfig config = new ResourceConfig(Controller.class);
+        ResourceConfig config = new ResourceConfig();
+        config.register(TaskController.class);
+        config.register(UserController.class);
         HttpServer server = GrizzlyHttpServerFactory.createHttpServer(base, config);
 
         try {

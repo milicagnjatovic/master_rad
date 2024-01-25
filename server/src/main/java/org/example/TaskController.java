@@ -3,24 +3,17 @@ package org.example;
 import jakarta.ws.rs.Consumes;
 import jakarta.ws.rs.POST;
 import jakarta.ws.rs.Path;
-import org.json.JSONObject;
 
 import javax.ws.rs.core.MediaType;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.HttpURLConnection;
-import java.net.ProtocolException;
-import java.net.URI;
 import java.net.URL;
-import java.net.http.HttpClient;
-import java.net.http.HttpRequest;
-import java.net.http.HttpResponse;
 import java.nio.charset.StandardCharsets;
-import java.util.Arrays;
 
 @Path("/server")
-public class Controller {
+public class TaskController {
     public static String STUD2020GRADER = "http://localhost:51000/grader/";
 
     private static String sendRequest(String action, String body) throws IOException {
