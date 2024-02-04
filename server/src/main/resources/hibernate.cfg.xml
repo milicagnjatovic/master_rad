@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<hibernate-configuration>
+  <session-factory>
+    <property name="connection.url">
+      jdbc:db2://localhost:25000/grader
+    </property>
+    <property name="connection.driver_class">
+      com.ibm.db2.jcc.DB2Driver
+    </property>
+    <property name="hibernate.connection.username">
+    milica
+    </property>
+    <property name="hibernate.connection.password">
+    mg1805mg
+    </property>
+    <property name="hibernate.dialect">
+      org.hibernate.dialect.DB2Dialect
+    </property>
+  </session-factory>
+</hibernate-configuration>
