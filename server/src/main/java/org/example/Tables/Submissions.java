@@ -1,20 +1,17 @@
 package org.example.Tables;
 
-import org.glassfish.grizzly.nio.SelectorHandler;
-
 import javax.persistence.*;
 import java.util.Date;
 
 @Entity
 @Table(name = "SUBMISSIONS")
-@IdClass(SubmissionsID.class)
 public class Submissions {
     @EmbeddedId
     public SubmissionsID SubmissionId;
 
     @ManyToOne
     @JoinColumn(name = "TASK_ID", referencedColumnName = "ID")
-    public Tasks Task;
+    public org.example.Tables.Task Task;
 
     @ManyToOne
     @JoinColumn(name = "USER_ID", referencedColumnName = "ID")
