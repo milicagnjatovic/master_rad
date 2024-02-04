@@ -1,12 +1,12 @@
 package org.example;
 
-import org.example.Tables.Roles;
+import org.example.Tables.*;
 import org.hibernate.SessionFactory;
 import org.hibernate.boot.MetadataSources;
 import org.hibernate.boot.registry.StandardServiceRegistry;
 import org.hibernate.boot.registry.StandardServiceRegistryBuilder;
 
-class HibernateUtil {
+public class HibernateUtil {
     private static SessionFactory sessionFactory = null;
 
     static {
@@ -15,7 +15,12 @@ class HibernateUtil {
                     .configure()
                     .build();
             sessionFactory = new MetadataSources(registry)
+                    .addAnnotatedClass(Grader.class)
                     .addAnnotatedClass(Roles.class)
+//                    .addAnnotatedClass(SubmissionsID.class)
+//                    .addAnnotatedClass(Submissions.class)
+                    .addAnnotatedClass(Task.class)
+                    .addAnnotatedClass(Users.class)
                     .buildMetadata()
                     .buildSessionFactory();
 
@@ -29,7 +34,7 @@ class HibernateUtil {
         }
     }
 
-    static SessionFactory getSessionFactory() {
+    public static SessionFactory getSessionFactory() {
         return sessionFactory;
     }
 }
