@@ -3,71 +3,62 @@ package org.example.Conreollers;
 import jakarta.ws.rs.Consumes;
 import jakarta.ws.rs.POST;
 import jakarta.ws.rs.Path;
-import org.hibernate.Session;
-import org.hibernate.query.Query;
+import org.example.RequestHandlers;
+import org.example.Tables.Grader;
+import org.example.Tables.Task;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
 import javax.ws.rs.core.MediaType;
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.net.HttpURLConnection;
-import java.net.URL;
-import java.nio.charset.StandardCharsets;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.Future;
+
+
 
 @Path("/server")
 public class TaskController {
-    public static String STUD2020GRADER = "http://localhost:51000/grader/";
 
-    private static String sendRequest(String action, String body) throws IOException {
-        HttpURLConnection connection = (HttpURLConnection) new URL(STUD2020GRADER+action).openConnection();
-        connection.setRequestMethod(POST);
-        connection.setDoOutput(true);
-        connection.setRequestProperty("Content-Type", "application/json");
-        try (OutputStream os = connection.getOutputStream()){
-            os.write(body.getBytes(StandardCharsets.UTF_8));
-        }
 
-        int responseCode = connection.getResponseCode();
-        System.out.println("Response code " + responseCode);
-        String responseMessage = "";
-        try (InputStream is = connection.getInputStream()){
-            byte[] response = is.readAllBytes();
-            responseMessage = new String(response, StandardCharsets.UTF_8);
-            System.out.println(responseMessage);
-
-        }
-
-        connection.disconnect();
-        return responseMessage;
-    }
-
-    public static String POST = "POST";
     @POST
     @Path("/addTasks")
     @Consumes(MediaType.APPLICATION_JSON)
     public String addTasks(String body){
-        System.out.println("[add task]");
-//        System.out.println(body);
+        System.out.println("[addTasks]");
+        System.out.println(body);
 
-        Session session = null;
-        try {
-            JSONArray arr = new JSONArray(body);
-            for(int i=0; i < arr.length(); i++){
+        JSONObject request = new JSONObject(body);
 
-            }
-
-
-        } catch (Error e) {
-            return "ERROR | " + e.getMessage();
+        if(!request.has("graderId") || !request.has("tasks")){
+            JSONObject ret = new JSONObject();
+            ret.put("message", "Error | Request must have following format: {graderId: number, tasks: [...]}");
+            return ret.toString();
         }
-        return "ok";
+
+        Integer graderId = request.getInt("graderId");
+        Grader grader = Grader.getById(graderId);
+        if (grader == null){
+            return "Error | Grader does not exists";
+        }
+
+        JSONArray taskArray = request.getJSONArray("tasks");
+
+        JSONObject insertionResponse = Task.insertTasks(taskArray, grader);
+        JSONArray errors = insertionResponse.getJSONArray("errors");
+        JSONArray tasks = insertionResponse.getJSONArray("tasks");
+
+        JSONObject graderRequest = new JSONObject();
+        graderRequest.put("tasks", tasks);
+        String graderResponse;
+        try {
+            graderResponse = RequestHandlers.sendRequest(grader.Endpoint, RequestHandlers.GraderAction.GENERATE, graderRequest.toString());
+        } catch (IOException e) {
+            graderResponse = "Error | " + e.getMessage();
+        }
+
+        JSONObject returnObject = new JSONObject();
+        returnObject.put("errors", errors);
+        returnObject.put("graderResponse", graderResponse);
+
+        return returnObject.toString();
     }
 
     @POST
@@ -77,12 +68,13 @@ public class TaskController {
         System.out.println("[check task]");
 //        System.out.println(body);
 
-        try {
-            String response = sendRequest("checkSolution", body);
-            return response;
-        } catch (IOException e) {
-            return "ERROR | " + e.getMessage();
-        }
+//        try {
+//            String response = RequestHandlers.sendRequest("checkSolution", body);
+//            return response;
+//        } catch (IOException e) {
+//            return "ERROR | " + e.getMessage();
+//        }
+        return "ok";
     }
 
     @POST
@@ -91,12 +83,13 @@ public class TaskController {
     public String checkTaskBulk(String body){
         System.out.println("[check task bulk]");
         System.out.println(body);
-        try {
-            String response = sendRequest("checkSolutionBulk", body);
-            return response;
-        } catch (IOException e) {
-            return "ERROR | " + e.getMessage();
-        }
+//        try {
+//            String response = RequestHandlers.sendRequest("checkSolutionBulk", body);
+//            return response;
+//        } catch (IOException e) {
+//            return "ERROR | " + e.getMessage();
+//        }
+        return "ok";
     }
 
     @POST
@@ -106,11 +99,12 @@ public class TaskController {
         System.out.println("[check task bulk]");
 //        System.out.println(body);
 //        TODO update task in database
-        try {
-            String response = sendRequest("generate", body);
-            return response;
-        } catch (IOException e) {
-            return "ERROR | " + e.getMessage();
-        }
+//        try {
+//            String response = RequestHandlers.sendRequest("generate", body);
+//            return response;
+//        } catch (IOException e) {
+//            return "ERROR | " + e.getMessage();
+//        }
+        return "ok";
     }
 }
