@@ -96,7 +96,7 @@ public class TaskController {
             }
 
             submission.WaitingForResponse = true;
-            submission.LastUpdateTime = new Date();
+            submission.TotalSubmissions = submission.TotalSubmissions + 1;
             submission.Query = solution;
             submission.Message = null;
             System.out.println("Task " + submission.Task);
@@ -125,6 +125,8 @@ public class TaskController {
             JSONObject responseJson = new JSONObject(response);
             submission.Message = responseJson.getString("message");
             submission.IsCorrect = responseJson.getBoolean("ok");
+            if(submission.IsCorrect)
+                submission.CorrectSubmissions = submission.CorrectSubmissions+1;
             submission.WaitingForResponse = false;
             Submission.updateOrInsert(submission);
 

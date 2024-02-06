@@ -93,7 +93,7 @@ public class Grader {
         Session session = null;
         try {
             session = HibernateUtil.getSessionFactory().openSession();
-            Grader grader = (Grader) session.get(Grader.class, id);
+            Grader grader = session.get(Grader.class, id);
             session.close();
             return grader;
         } catch (Error err) {

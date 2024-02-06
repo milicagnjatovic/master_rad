@@ -35,6 +35,12 @@ public class Submission {
     @Column(name = "WAITING_FOR_RESPONSE")
     public boolean WaitingForResponse = false;
 
+    @Column(name = "NO_CORRECT_SUBMISSIONS")
+    public Integer CorrectSubmissions = 0;
+
+    @Column(name = "NO_SUBMISSIONS")
+    public Integer TotalSubmissions = 0;
+
     @Override
     public String toString() {
         return Task.Id + " " + User.Id + " " + this.Query;
@@ -59,6 +65,7 @@ public class Submission {
         try {
             session = HibernateUtil.getSessionFactory().openSession();
             session.beginTransaction();
+            submission.LastUpdateTime = new Date();
             session.saveOrUpdate(submission);
             session.getTransaction().commit();
             session.close();
