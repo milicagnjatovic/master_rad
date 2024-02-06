@@ -46,6 +46,11 @@ public class Task {
         this.Ordering = obj.optString("ordering", "");
     }
 
+    @Override
+    public String toString() {
+        return this.Grader.Id + " " + this.Id;
+    }
+
     public static JSONObject insertTasks(JSONArray tasks, Grader grader){
         JSONArray responseArray = new JSONArray();
         JSONArray errorArray = new JSONArray();
@@ -75,7 +80,7 @@ public class Task {
             session.getTransaction().commit();
             session.close();
 
-        } catch (Error err){
+        } catch (Exception err){
             System.err.println("Error" + err.getMessage());
             JSONObject ret = new JSONObject();
             ret.put("message", "Error | " + err.getMessage());
@@ -85,5 +90,17 @@ public class Task {
         retObj.put("tasks", responseArray);
 
         return retObj;
+    }
+
+    public static Task getById(Integer id){
+        Session session = null;
+        try {
+            session = HibernateUtil.getSessionFactory().openSession();
+            Task task = session.get(Task.class, id);
+            session.close();
+            return task;
+        } catch (Exception err) {
+            return null;
+        }
     }
 }

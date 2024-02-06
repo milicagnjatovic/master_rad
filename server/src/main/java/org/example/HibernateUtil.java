@@ -17,14 +17,14 @@ public class HibernateUtil {
             sessionFactory = new MetadataSources(registry)
                     .addAnnotatedClass(Grader.class)
                     .addAnnotatedClass(Roles.class)
-//                    .addAnnotatedClass(SubmissionsID.class)
-//                    .addAnnotatedClass(Submissions.class)
+                    .addAnnotatedClass(SubmissionID.class)
+                    .addAnnotatedClass(Submission.class)
                     .addAnnotatedClass(Task.class)
                     .addAnnotatedClass(Users.class)
                     .buildMetadata()
                     .buildSessionFactory();
 
-      } catch (Throwable e) {
+      } catch (Exception e) {
             System.err.println("Session factory error");
             System.err.println(e.getMessage());
             System.err.println(e.getMessage());
