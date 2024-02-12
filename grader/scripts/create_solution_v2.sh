@@ -50,7 +50,8 @@ while read -r task_id; do
 
   end=$(date +%s.%N)
   duration=$(echo "$end - $start" | bc)
-  echo "$task_id | time: $duration"
+  numberOfRows=$(echo "$lastline" | sed 's/[^0-9]*\([0-9]\+\).*/\1/')
+  echo "ID: $task_id | Time: $duration | No. rows: $numberOfRows"
 done < $1
 
 endX=$(date +%s.%N)

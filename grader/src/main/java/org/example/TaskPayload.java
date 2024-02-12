@@ -16,8 +16,10 @@ public class TaskPayload {
                 .trim();
         if(!this.sorting.isBlank()){
             if (!this.solution.endsWith(";"))
-                this.solution = this.solution + ';'
-;            this.solution = solution.replace(";",  " ORDER BY " + sorting + ";");
+                this.solution = this.solution + ';';
+            // add sorting or append to the existing one
+            String replacement = this.sorting.startsWith(",") ? sorting : " ORDER BY " + sorting;
+            this.solution = solution.replace(";", replacement + ";");
         }
         this.taskId = obj.optInt("taskId", IDS++);
     }
