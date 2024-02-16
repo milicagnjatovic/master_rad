@@ -27,8 +27,9 @@ function execute_query() {
   #  echo "execute query"
   #  echo "$user_path"
   #  echo "$query"
-  db2 connect to stud2020 > /dev/null;
+  db2 connect to stud2020 user student using matf2024. > /dev/null;
   db2 "$query" | sed '/^$/d' > "$user_path"
+#  db2 connect reset > /dev/null
 }
 
 export -f execute_query
@@ -36,7 +37,7 @@ export query="$query"
 export user_path="$user_path"
 
 start=$(date +%s.%N)
-timeout 5 bash -c "execute_query"
+timeout 15 bash -c "execute_query"
 # if last command failed
 if [ $? -ne 0 ]; then
   echo "User error | Time limit exceeded"

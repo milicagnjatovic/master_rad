@@ -1,7 +1,11 @@
--- revoke alterin on schema da from public by all;
--- revoke createin on schema da from public by all;
--- revoke dropin on schema da from public by all;
-
+revoke alterin on schema da from public by all;
+revoke createin on schema da from public by all;
+revoke dropin on schema da from public by all;
+-----------------------------------------------------------
+create schema student;
+revoke alterin on schema student from public by all;
+revoke createin on schema student from public by all;
+revoke dropin on schema student from public by all;
 ----------------------------------------------------------------------------
 grant select
 on table da.NivoKvalifikacije
