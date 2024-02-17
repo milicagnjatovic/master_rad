@@ -26,12 +26,6 @@ public class Task {
     @Column(name = "SOLUTION", nullable = false)
     public String Solution;
 
-    @Column(name = "CORRECT_SUBMISSIONS")
-    public Integer CorrectSubmission = 0;
-
-    @Column(name = "INCORRECT_SUBMISSIONS")
-    public Integer IncorrectSubmission = 0;
-
     @Column(name = "LAST_GENERATED_DATE")
     public Date LastGeneratedDate = new Date();
 
@@ -44,6 +38,16 @@ public class Task {
         this.Solution = obj.getString("solution");
         this.Grader = g;
         this.Ordering = obj.optString("ordering", "");
+    }
+
+    public Task(Integer id){
+        this.Id = id;
+    }
+
+    public Task(Integer id, String ordering, Integer graderId){
+        this.Id = id;
+        this.Grader = new Grader(graderId);
+        this.Ordering = ordering;
     }
 
     @Override
@@ -85,6 +89,9 @@ public class Task {
             JSONObject ret = new JSONObject();
             ret.put("message", "Error | " + err.getMessage());
             errorArray.put(ret);
+        } finally {
+            if (session!=null && session.isOpen())
+                session.close();
         }
         retObj.put("errors", errorArray);
         retObj.put("tasks", responseArray);
@@ -101,6 +108,9 @@ public class Task {
             return task;
         } catch (Exception err) {
             return null;
+        } finally {
+            if (session!=null && session.isOpen())
+                session.close();
         }
     }
 }

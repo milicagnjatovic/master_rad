@@ -20,7 +20,7 @@ public class HibernateUtil {
                     .addAnnotatedClass(SubmissionID.class)
                     .addAnnotatedClass(Submission.class)
                     .addAnnotatedClass(Task.class)
-                    .addAnnotatedClass(Users.class)
+                    .addAnnotatedClass(User.class)
                     .buildMetadata()
                     .buildSessionFactory();
 

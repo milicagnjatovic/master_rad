@@ -45,6 +45,7 @@ public class Grader {
             graderObj.put("name", grader.Name);
             graderJsonArray.put(graderObj);
         }
+        session.close();
 
         gradersString = graderJsonArray.toString();
     }
@@ -84,8 +85,11 @@ public class Grader {
         } catch (ConstraintViolationException err) {
             System.err.println("Error | " + err.getMessage());
             return "Error | Unique constraint error.";
-        } catch (Error err) {
+        } catch (Exception err) {
             return "Error | " + err.getMessage();
+        } finally {
+            if (session!=null && session.isOpen())
+                session.close();
         }
     }
 
@@ -96,10 +100,19 @@ public class Grader {
             Grader grader = session.get(Grader.class, id);
             session.close();
             return grader;
-        } catch (Error err) {
+        } catch (Exception err) {
             return null;
+        } finally {
+            if (session!=null && session.isOpen())
+                session.close();
         }
     }
+
+    public Grader(Integer id){
+        this.Id = id;
+    }
+
+    public Grader(){}
 
     public static String getAllGraders(){
         Session session = null;
@@ -124,8 +137,11 @@ public class Grader {
                 retJsonArray.put(graderObj);
             }
             return retJsonArray.toString();
-        } catch (Error err) {
+        } catch (Exception err) {
             return "ERROR | " + err.getMessage();
+        } finally {
+            if (session!=null && session.isOpen())
+                session.close();
         }
     }
 }

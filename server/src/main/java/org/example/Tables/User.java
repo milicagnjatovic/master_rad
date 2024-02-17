@@ -4,7 +4,7 @@ import javax.persistence.*;
 
 @Entity
 @Table(name = "USERS")
-public class Users {
+public class User {
     @Id
     @Column(name = "ID")
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -35,6 +35,10 @@ public class Users {
     @JoinColumn(name = "ROLE_ID", referencedColumnName = "ID")
     public Roles Role;
 
+    public User(Integer id){
+        this.Id = id;
+    }
 
+    public User(){}
 
 }
