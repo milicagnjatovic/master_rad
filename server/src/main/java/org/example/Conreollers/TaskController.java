@@ -189,15 +189,44 @@ public class TaskController {
     @Path("/updateTasks")
     @Consumes(MediaType.APPLICATION_JSON)
     public String updateTask(String body){
-        System.out.println("[check task bulk]");
-//        System.out.println(body);
-//        TODO update task in database
-//        try {
-//            String response = RequestHandlers.sendRequest("generate", body);
-//            return response;
-//        } catch (IOException e) {
-//            return "ERROR | " + e.getMessage();
-//        }
-        return "ok";
+        System.out.println("[updateTask]");
+        System.out.println(body);
+
+        JSONObject request = new JSONObject(body);
+
+        if(!request.has("graderId") || !request.has("tasks")){
+            JSONObject ret = new JSONObject();
+            ret.put("message", "Error | Request must have following format: {graderId, tasks: [{taskId, solution, ordering}, {}, ...]");
+            return ret.toString();
+        }
+
+        Integer graderId = request.getInt("graderId");
+        Grader grader = Grader.getById(graderId);
+        if (grader == null){
+            return "Error | Grader does not exists";
+        }
+
+        JSONArray taskArray = request.getJSONArray("tasks");
+
+        JSONObject updateTasksResponse = Task.updateTasks(taskArray, grader);
+        JSONArray errors = updateTasksResponse.getJSONArray("errors");
+        JSONArray tasks = updateTasksResponse.getJSONArray("tasks");
+
+        System.out.println("[Tasks] " + tasks);
+
+        JSONObject graderRequest = new JSONObject();
+        graderRequest.put("tasks", tasks);
+        String graderResponse;
+        try {
+            graderResponse = RequestHandlers.sendRequest(grader.Endpoint, RequestHandlers.GraderAction.GENERATE, graderRequest.toString());
+        } catch (IOException e) {
+            graderResponse = "Error | " + e.getMessage();
+        }
+
+        JSONObject returnObject = new JSONObject();
+        returnObject.put("errors", errors);
+        returnObject.put("graderResponse", graderResponse);
+
+        return returnObject.toString();
     }
 }

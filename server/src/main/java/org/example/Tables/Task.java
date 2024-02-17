@@ -2,11 +2,12 @@ package org.example.Tables;
 
 import org.example.HibernateUtil;
 import org.hibernate.Session;
+import org.hibernate.query.Query;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
 import javax.persistence.*;
-import java.util.Date;
+import java.util.*;
 
 @Entity
 @Table(name = "TASKS")
@@ -34,10 +35,15 @@ public class Task {
 
     public Task(){}
     public Task(JSONObject obj, Grader g){
-        this.Text = obj.getString("task");
-        this.Solution = obj.getString("solution");
+        if (obj.has("task"))
+            this.Text = obj.getString("task");
+
+        if(obj.has("taskId"))
+            this.Id = obj.getInt("taskId");
+
+        this.Solution = obj.optString("solution", null);
         this.Grader = g;
-        this.Ordering = obj.optString("ordering", "");
+        this.Ordering = obj.optString("ordering", null);
     }
 
     public Task(Integer id){
@@ -52,7 +58,9 @@ public class Task {
 
     @Override
     public String toString() {
-        return this.Grader.Id + " " + this.Id;
+
+        return this.Grader.Id + " " + this.Id + "\n" +
+                this.Text + "\n" + this.Ordering + "\n" + this.Solution;
     }
 
     public static JSONObject insertTasks(JSONArray tasks, Grader grader){
@@ -99,6 +107,76 @@ public class Task {
         return retObj;
     }
 
+    public static JSONObject updateTasks(JSONArray tasks, Grader grader){
+        JSONArray responseArray = new JSONArray();
+        JSONArray errorArray = new JSONArray();
+        Session session = null;
+        JSONObject retObj = new JSONObject();
+
+        try {
+            session = HibernateUtil.getSessionFactory().openSession();
+
+            Map<Integer, Task> taskIdToTask = new HashMap<>();
+            for (int i = 0; i < tasks.length(); i++) {
+                JSONObject taskObject = tasks.getJSONObject(i);
+                if (!taskObject.has("taskId")) {
+                    JSONObject obj = new JSONObject();
+                    obj.put("message", "Error | Missing taskId for task no. " + i );
+                    errorArray.put(obj);
+                    continue;
+                }
+                Task task = new Task(taskObject, grader);
+                taskIdToTask.put(task.Id, task);
+            }
+
+            Query<Task> query = session.createQuery("from Task where Id in :ids");
+            query.setParameter("ids", taskIdToTask.keySet());
+            List<Task> tasksForUpdate = query.list();
+
+            System.out.println("Tasks for update " + tasksForUpdate);
+
+            session.beginTransaction();
+
+            for(Task task : tasksForUpdate){
+                Task newTask = taskIdToTask.get(task.Id);
+                if (newTask.Solution != null && !newTask.Solution.isBlank())
+                    task.Solution = newTask.Solution;
+
+                if (newTask.Text != null && !newTask.Text.isBlank())
+                    task.Text = newTask.Text;
+
+                if (newTask.Ordering != null && !newTask.Ordering.isBlank())
+                    task.Ordering = newTask.Ordering;
+
+                task.LastGeneratedDate = new Date();
+
+                session.update(task);
+
+                JSONObject obj = new JSONObject();
+                obj.put("taskId", task.Id);
+                obj.put("solution", task.Solution);
+                obj.put("ordering", task.Ordering);
+                responseArray.put(obj);
+            }
+
+            session.getTransaction().commit();
+            session.close();
+
+        } catch (Exception err){
+            System.err.println("Error " + err.getMessage() + err.getCause() + err.getLocalizedMessage());
+            JSONObject ret = new JSONObject();
+            ret.put("message", "Error | " + err.getMessage());
+            errorArray.put(ret);
+        } finally {
+            if (session!=null && session.isOpen())
+                session.close();
+        }
+        retObj.put("errors", errorArray);
+        retObj.put("tasks", responseArray);
+
+        return retObj;
+    }
+
     public static Task getById(Integer id){
         Session session = null;
         try {
@@ -113,4 +191,5 @@ public class Task {
                 session.close();
         }
     }
+
 }
