@@ -66,13 +66,14 @@ public class Submission {
     }
 
     public static JSONObject prepareGraderRequest(Integer userId, Integer taskId, String query, String ordering){
+        System.out.println("[prepareGraderRequest]");
         JSONObject graderRequest = new JSONObject();
         graderRequest.put("requestId", taskId + "-" + userId);
         graderRequest.put("taskId", taskId);
         graderRequest.put("solution", query);
         if (ordering != null && !ordering.isEmpty())
             graderRequest.put("ordering", ordering);
-        System.out.println("Prepared " + graderRequest.toString());
+//        System.out.println("Prepared " + graderRequest.toString());
         return graderRequest;
     }
 
@@ -142,7 +143,7 @@ public class Submission {
             session = HibernateUtil.getSessionFactory().openSession();
             session.beginTransaction();
             submission.LastUpdateTime = new Date();
-            submission.WaitingForResponse = false;
+//            submission.WaitingForResponse = false;
             session.saveOrUpdate(submission);
             session.getTransaction().commit();
             session.close();

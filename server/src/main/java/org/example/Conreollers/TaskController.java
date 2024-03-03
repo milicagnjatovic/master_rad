@@ -74,7 +74,7 @@ public class TaskController {
     @Produces(MediaType.APPLICATION_JSON)
     public String checkTask(String body){
         System.out.println("[check task]");
-        System.out.println(body);
+//        System.out.println(body);
 
         try {
             JSONObject request = new JSONObject(body);
@@ -84,9 +84,8 @@ public class TaskController {
             SubmissionID submissionID = new SubmissionID(userId, taskId);
 
             Submission submission = Submission.getById(submissionID);
-            System.out.println(submission);
             if (submission != null && submission.WaitingForResponse){
-                return "Already waiting for response";
+                return "Already waiting for response " + userId + " " + taskId;
             }
 
             if (submission == null) {
@@ -94,31 +93,20 @@ public class TaskController {
                 submission.SubmissionId = submissionID;
                 Task task = Task.getById(submissionID.TaskId);
                 if (task==null)
-                    return "Error | Task does not exist";
+                    return "Error | Task does not exist " + submissionID.TaskId;
                 submission.Task = task;
-                System.out.println("Submission null " + submission.Task.Text);
-                System.out.println("ordering null " + submission.Task.Ordering);
             }
 
             submission.WaitingForResponse = true;
             submission.TotalSubmissions = submission.TotalSubmissions + 1;
             submission.Query = solution;
             submission.Message = null;
-            System.out.println("Task " + submission.Task);
+            Submission.updateOrInsert(submission);
 
             JSONObject graderRequest = Submission.prepareGraderRequest(userId, taskId, submission.Query, submission.Task.Ordering);
 
             Grader grader = Grader.activeGraders.get(submission.Task.Grader.Id);
             String requestEndpoint = grader.Endpoint;
-
-            System.out.println(graderRequest.toString());
-            System.out.println(requestEndpoint);
-            System.out.println("--------------------");
-
-            System.out.println(submission.User);
-            System.out.println(submission.Query);
-            System.out.println(submission.Query.length());
-            Submission.updateOrInsert(submission);
 
             String response = RequestHandlers.sendRequest(requestEndpoint, RequestHandlers.GraderAction.CHECK, graderRequest.toString());
 
