@@ -78,8 +78,8 @@ public class TaskController {
 
         try {
             JSONObject request = new JSONObject(body);
-            Integer userId = request.getInt("userid");
-            Integer taskId = request.getInt("taskid");
+            Integer userId = request.getInt("userId");
+            Integer taskId = request.getInt("taskId");
             String solution = request.getString("solution");
             SubmissionID submissionID = new SubmissionID(userId, taskId);
 

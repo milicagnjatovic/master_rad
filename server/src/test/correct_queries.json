@@ -1,71 +1,71 @@
 [
     {
-        "taskid": "26",
+        "taskId": "26",
         "solution": "select case when pol ='m' then 'student ' || prezime || ' '||ime else 'studentkinja ' || prezime||' ' ||ime end , d.indeks, datupisa, sp.naziv, case when p.naziv is null then 'Nema polozenih predmeta' else p.naziv end, ocena  from da.dosije  d left join da.ispit i on d.indeks=i.indeks and ocena>5 and status='o'  left join da.studijskiprogram sp on d.idprograma =sp.id left join da.predmet p on p.id=i.idpredmeta where datupisa= (select min(datupisa)     from da.dosije d2     where d2.idprograma=sp.id and mestorodjenja like 'Beograd%') and mestorodjenja like 'Beograd%';",
         "ordering": "2, 5"
     },
     {
-        "taskid": "27",
+        "taskId": "27",
         "solution": "WITH TMP AS (  SELECT D.MESTORODJENJA, COALESCE(AVG(OCENA*1.0),5.0) AS \"PROSEK\"  FROM DA.DOSIJE D LEFT JOIN DA.ISPIT I    ON D.INDEKS = I.INDEKS    AND I.OCENA > 5    AND I.STATUS = 'o'    AND D.DATDIPLOMIRANJA IS NOT NULL  GROUP BY D.MESTORODJENJA ) SELECT D.INDEKS,  D.IME || ' ' || D.PREZIME || ' ima bolji prosek od proseka mesta ' || D.MESTORODJENJA AS \"komentar\",  AVG(I.OCENA*1.0) - T.PROSEK AS \"Razlika proseka studenta i proseka mesta\" FROM DA.DOSIJE D JOIN TMP T   ON D.MESTORODJENJA = T.MESTORODJENJA  JOIN DA.ISPIT I   ON I.INDEKS = D.INDEKS   AND I.OCENA > 5 AND I.STATUS = 'o' WHERE D.DATDIPLOMIRANJA IS NULL  AND 4 < (   SELECT COUNT(DISTINCT SKGODINA)   FROM DA.UPISGODINE UG   WHERE UG.INDEKS = D.INDEKS  ) GROUP BY D.IME, D.PREZIME, D.MESTORODJENJA, T.PROSEK, D.INDEKS HAVING AVG(I.OCENA*1.0) > T.PROSEK ORDER BY D.MESTORODJENJA ASC, AVG(I.OCENA*1.0) DESC;",
         "ordering": ""
     },
     {
-        "taskid": "28",
+        "taskId": "28",
         "solution": "SELECT DISTINCT SP.NAZIV || ' ' || D.IME|| ' ' || D.PREZIME AS \"NISKA\",D.INDEKS,D.DATUPISA, COALESCE(P.NAZIV,'Nema polozenih kurseva'),CASE WHEN P.NAZIV IS NULL THEN -1 ELSE I.OCENA END AS OCENA FROM DA.DOSIJE D JOIN DA.STUDIJSKIPROGRAM  SP ON SP.ID=D.IDPROGRAMA LEFT JOIN DA.ISPIT I ON I.INDEKS=D.INDEKS AND I.OCENA>5 AND STATUS='o' LEFT JOIN DA.PREDMET P ON P.ID=I.IDPREDMETA AND P.NAZIV LIKE 'P%' WHERE NOT EXISTS(  SELECT * FROM DA.DOSIJE D1  WHERE D1.IDPROGRAMA=D.IDPROGRAMA AND D1.IME=D.IME AND D1.INDEKS<>D.INDEKS) AND D.MESTORODJENJA LIKE '_a%';",
         "ordering": "2"
     },
     {
-        "taskid": "29",
+        "taskId": "29",
         "solution": "WITH PROSEK_GRADA AS(  SELECT D.MESTORODJENJA,COALESCE(AVG(CASE WHEN D.DATDIPLOMIRANJA IS NOT NULL AND  OCENA>5 AND STATUS='o' THEN OCENA*1.0 ELSE NULL END),7.5) AS PROSEK  FROM DA.DOSIJE D LEFT JOIN DA.ISPIT I ON I.INDEKS=D.INDEKS  GROUP BY D.MESTORODJENJA ), PROSEK_D AS(  SELECT I.INDEKS,AVG(CASE WHEN I.OCENA>5 AND STATUS='o' THEN OCENA*1.0 ELSE NULL END) AS AVG_OCENA  FROM DA.ISPIT I  GROUP BY I.INDEKS ), REZ_NEUREDJENI AS(  SELECT D.INDEKS,D.MESTORODJENJA,D.IME || ' ' || D.PREZIME || ' ima losiji prosek od svojih sugradjana' AS KOMENTAR,  PG.PROSEK-P.AVG_OCENA AS RAZLIKA,P.AVG_OCENA  FROM DA.DOSIJE D JOIN PROSEK_GRADA PG ON PG.MESTORODJENJA=D.MESTORODJENJA  JOIN PROSEK_D P ON P.INDEKS=D.INDEKS  WHERE D.DATDIPLOMIRANJA IS NOT NULL AND YEARS_BETWEEN(D.DATDIPLOMIRANJA,D.DATUPISA)=5  AND P.AVG_OCENA<PG.PROSEK AND P.AVG_OCENA+1>=PG.PROSEK  UNION  SELECT D.INDEKS,D.MESTORODJENJA,D.IME || ' ' || D.PREZIME || ' ima bolji prosek od svojih sugradjana' AS KOMENTAR,  P.AVG_OCENA-PG.PROSEK AS RAZLIKA,P.AVG_OCENA  FROM DA.DOSIJE D JOIN PROSEK_GRADA PG ON PG.MESTORODJENJA=D.MESTORODJENJA  JOIN PROSEK_D P ON P.INDEKS=D.INDEKS  WHERE D.DATDIPLOMIRANJA IS NOT NULL AND YEARS_BETWEEN(D.DATDIPLOMIRANJA,D.DATUPISA)=5  AND P.AVG_OCENA>PG.PROSEK AND P.AVG_OCENA-1<=PG.PROSEK  ) SELECT R.INDEKS,R.KOMENTAR AS \"komentar\",R.RAZLIKA AS \"Razlika proseka studenta i proseka mesta\" FROM REZ_NEUREDJENI R ORDER BY R.MESTORODJENJA DESC,R.AVG_OCENA ASC;",
         "ordering": ""
     },
     {
-        "taskid": "30",
+        "taskId": "30",
         "solution": "SELECT d1.indeks  || ', ' || d1.ime  || ', ' || d1.prezime  ,d2.indeks  || ', ' || d2.ime  || ', ' || d2.prezime  ,upper(   substr(d1.mestorodjenja,1,4)    || substr(d1.ime,1,1) || substr(d2.ime,1,1))\"Naziv para\" FROM da.dosije d1 join da.dosije d2 on d1.indeks<>d2.indeks and substr(d1.mestorodjenja,1,4)=substr(d2.mestorodjenja,1,4) and year(d1.datupisa) = year(d2.datupisa) WHERE exists(  SELECT *  FROM da.ispit i1  WHERE i1.indeks=d1.indeks and i1.status='o' and i1.ocena>5  and exists(   SELECT *   FROM da.ispit i2   WHERE i2.indeks=d2.indeks and i1.idpredmeta=i2.idpredmeta   and i2.status='o' and i2.ocena>5 and i1.poeni = i2.poeni + 5  ) )",
         "ordering": "1"
     },
     {
-        "taskid": "31",
+        "taskId": "31",
         "solution": "with prosek_smer_dip as ( select d.idprograma, avg(ocena + 0.0) prosek from da.ispit i right join da.dosije d on d.indeks = i.indeks and d.datdiplomiranja is not null and i.ocena > 5 and i.status = 'o' group by d.idprograma ), student_prosek as( select d.indeks, coalesce(avg(ocena + 0.0), -1.0) prosek, count(ocena) br_polozenih from da.dosije d left join da.ispit i on d.indeks = i.indeks and i.ocena > 5 and i.status = 'o' group by d.indeks ), prosek_smer_nije as ( select d.idprograma, avg(ocena + 0.0) prosek from da.ispit i join da.dosije d on d.indeks = i.indeks and d.datdiplomiranja is null where i.ocena > 5 and i.status = 'o' group by d.idprograma ) select d.ime, d.prezime, sp.prosek \"prosek\", case when d.datdiplomiranja is not null and sp.prosek >= 7.5 and sp.prosek <= 9 and sp.prosek > psd.prosek then 'Prosek bolji od proseka smera' when d.datdiplomiranja is not null and sp.prosek >= 7.5 and sp.prosek <= 9 and sp.prosek <= psd.prosek then sp.naziv || ' ima bolji prosek' when d.datdiplomiranja is null and sp.br_polozenih = 0 then 'Nema ispita' when d.datdiplomiranja is null and sp.br_polozenih in (2,3,5,7,9) then case when sp.prosek > psn.prosek then 'Odlicno za sad' else 'moze bolje' end else null end \"komentar za studenta\" from da.dosije d join student_prosek sp on d.indeks = sp.indeks join prosek_smer_dip psd on d.idprograma = psd.idprograma join prosek_smer_nije psn on d.idprograma = psn.idprograma join da.studijskiprogram sp on d.idprograma = sp.id order by \"komentar za studenta\" desc;",
         "ordering": ",1,2,3"
     },
     {
-        "taskid": "32",
+        "taskId": "32",
         "solution": "select case    when d.pol = 'm' then 'Student '    when d.pol = 'z' then 'Studentkinja '     end || ime || ' ' || prezime  \"Student/kinja\", d.indeks,sp.naziv, CASE WHEN POSITION(' ', SP.NAZIV) = 0 THEN SP.NAZIV   ELSE SUBSTR(SP.NAZIV, 1, POSITION(' ', SP.NAZIV)) END AS \"Nivo studija\" from da.dosije as d join da.studijskiprogram as sp on      d.idprograma = sp.id where year(d.datupisa) <= all(select year(d1.datupisa)       from da.dosije as d1       where d1.idprograma = d.idprograma);",
         "ordering": "2"
     },
     {
-        "taskid": "33",
+        "taskId": "33",
         "solution": "WITH PNAJBOD AS (  SELECT P.ID  FROM DA.PREDMET P  WHERE P.ESPB IN (SELECT MAX(P.ESPB) FROM DA.PREDMET P) ), TMP AS (  SELECT D.INDEKS, COUNT(*) AS BROJ  FROM DA.DOSIJE D   JOIN DA.ISPIT I    ON D.INDEKS=I.INDEKS AND I.OCENA>5 AND I.STATUS='o'   JOIN DA.PREDMET P    ON I.IDPREDMETA=P.ID AND P.ESPB <= 20  WHERE P.ESPB=6  GROUP BY D.INDEKS  HAVING COUNT(*) > 10 ), TMP2 AS (  SELECT D.INDEKS, D.IME || ' ' || D.PREZIME AS IMEPREZIME,  'Polozeno ' || (SELECT BROJ FROM TMP WHERE D.INDEKS=INDEKS) || ' predmeta od 6ESPB' AS KOMENTAR  FROM DA.DOSIJE D  WHERE D.INDEKS IN (SELECT INDEKS FROM TMP) ), TMP3 AS (  SELECT D.INDEKS, D.IME || ' ' || D.PREZIME AS IMEPREZIME, 'Polozen najtezi predmet' AS KOMENTAR  FROM DA.DOSIJE D   JOIN DA.ISPIT I    ON D.INDEKS=I.INDEKS AND I.OCENA>5 AND I.STATUS='o'   JOIN DA.PREDMET P    ON I.IDPREDMETA=P.ID  WHERE P.ID IN (SELECT ID FROM PNAJBOD) ) SELECT INDEKS, IMEPREZIME AS \"Ime i prezime\", KOMENTAR FROM TMP2 UNION SELECT * FROM TMP3 ORDER BY INDEKS DESC",
         "ordering": ""
     },
     {
-        "taskid": "34",
+        "taskId": "34",
         "solution": "select d1.ime, d1.prezime, d1.indeks, d2.ime, d2.prezime, d2.indeks from da.dosije d1 left join da.dosije d2 on d1.idprograma = d2.idprograma and year(d1.datupisa) = year(d2.datupisa) where d1.indeks < d2.indeks and exists (  select *  from da.ispit i join da.predmet p  on i.idpredmeta = p.id  where i.indeks = d1.indeks and p.espb = 8 and i.status = 'o' and i.ocena > 5 ) and exists (  select *  from da.ispit i join da.predmet p  on i.idpredmeta = p.id  where i.indeks = d2.indeks and p.espb = 8 and i.status = 'o' and i.ocena > 5 )",
         "ordering": "3,6"
     },
     {
-        "taskid": "35",
+        "taskId": "35",
         "solution": "select d.indeks, d.ime || ' ' || d.prezime || ' je pao ' || count(*) || ' ispita' \"komentar\" from da.dosije d join da.ispit i on d.indeks = i.indeks  join  da.studentskistatus ss on d.idstatusa = ss.id where ss.naziv = 'Budzet' and not exists (   select *   from da.ispit i1   where i1.indeks = d.indeks and i1.status = 'o'    and i1.ocena = 10 and year(i1.datpolaganja) = 2019 ) and i.status = 'o' and i.ocena = 5 group by d.indeks, d.ime, d.prezime having count(*) > 5 union select d.indeks, d.ime || ' ' || d.prezime || ' nije pao ni jedan ispit' \"komentar\" from da.dosije d join da.studentskistatus ss  on d.idstatusa = ss.id where ss.naziv = 'Samofinansiranje' and not exists (   select *   from da.ispit i   where i.indeks = d.indeks and i.status = 'o' and i.ocena = 5 )",
         "ordering": ""
     },
     {
-        "taskid": "36",
+        "taskId": "36",
         "solution": "select d.indeks, ime, prezime, mestorodjenja, decimal(avg(case when ocena > 5 and status = 'o' then ocena*1.0 else null end), 4, 2), ime || ' ' || prezime || ' (' || replace(mestorodjenja, 'Beograd', 'Bg') || ')' \"Kod\" from da.dosije d join da.ispit i on d.indeks = i.indeks join da.studijskiprogram sp on d.idprograma = sp.id where sp.naziv = 'Informatika' and 2 > (select count(*) from da.ispit i1                   where i1.indeks = d.indeks and status = 'x') group by d.indeks, ime, prezime, mestorodjenja",
         "ordering": "1"
     },
     {
-        "taskid": "37",
+        "taskId": "37",
         "solution": "WITH OBAVEZNI_POLOZENI AS (  SELECT I.INDEKS, COUNT(*) AS BROJ_POLOZENIH  FROM da.dosije d join DA.ISPIT I on d.indeks=i.indeks JOIN DA.PREDMETPROGRAMA PP ON PP.IDPREDMETA = I.IDPREDMETA   and pp.idprograma=d.idprograma  WHERE PP.VRSTA = 'obavezan' AND I.OCENA > 5 AND I.STATUS = 'o'  GROUP BY I.INDEKS  HAVING COUNT(*) < 5  UNION  SELECT D.INDEKS, 0  FROM DA.DOSIJE D  WHERE NOT EXISTS (   SELECT *   FROM DA.ISPIT I JOIN DA.PREDMETPROGRAMA PP ON PP.IDPREDMETA = I.IDPREDMETA    and d.idprograma=pp.idprograma   WHERE I.INDEKS = D.INDEKS AND PP.VRSTA = 'obavezan' AND I.OCENA > 5 AND I.STATUS = 'o'  ) ) SELECT D.IME || ' ' || D.PREZIME AS \"Ime i prezime\",  CASE LCASE(POL)   WHEN 'm' THEN ('Student je jedini iz mesta ' || D.MESTORODJENJA || ' koji je upisao ' || CHAR(UG.SKGODINA) || ' skolsku godinu')   WHEN 'z' THEN ('Studentkinja je jedina iz mesta ' || D.MESTORODJENJA || ' koji je upisao ' || CHAR(UG.SKGODINA) || ' skolsku godinu')  END AS \"Komentar\", DAYS_BETWEEN(CURRENT DATE, D.DATUPISA) AS \"Proteklo dana\" FROM DA.DOSIJE D JOIN DA.UPISGODINE UG ON D.INDEKS = UG.INDEKS WHERE NOT EXISTS (  SELECT *  FROM DA.DOSIJE D1  WHERE D1.INDEKS <> D.INDEKS AND D1.MESTORODJENJA = D.MESTORODJENJA AND EXISTS(   SELECT *   FROM DA.UPISGODINE UG1   WHERE UG1.INDEKS = D1.INDEKS AND UG1.SKGODINA = UG.SKGODINA  ) ) AND D.INDEKS IN (   SELECT INDEKS   FROM OBAVEZNI_POLOZENI  ) ORDER BY 3 desc ; ",
         "ordering": ",1,2"
     },
     {
-        "taskid": "38",
+        "taskId": "38",
         "solution": "select p1.naziv, p2.naziv from da.predmet p1 join da.predmet p2 on p1.espb = p2.espb and p1.id <> p2.id where p1.naziv like '___ri%' and p2.naziv like '%____%' and exists (select *  from da.ispit i  where i.idpredmeta = p1.id and ocena > 5 and status = 'o'  and exists (select *  from da.ispit i1  where year(i1.datpolaganja) = year(i.datpolaganja)  and i1.idpredmeta = p2.id and  i1.ocena > 5 and i1.status = 'o' and  i1.indeks = i.indeks))  ",
         "ordering": "1, 2"
     },
     {
-        "taskid": "39",
+        "taskId": "39",
         "solution": "WITH TMP AS (  SELECT INDEKS, IDPREDMETA, COUNT(*) Br  FROM DA.UPISANKURS  GROUP BY INDEKS, IDPREDMETA) SELECT D.INDEKS, IME || ' ' || PREZIME \"Ime i prezime\", SP.NAZIV komentar, DAYNAME(DATUPISA) \"naziv dana\" FROM TMP JOIN DA.DOSIJE D  ON TMP.INDEKS=D.INDEKS  JOIN DA.STUDENTSKISTATUS SS  ON SS.ID=D.IDSTATUSA  JOIN DA.STUDIJSKIPROGRAM SP  ON SP.ID=D.IDPROGRAMA WHERE BR>4 AND SS.NAZIV='Budzet' UNION SELECT D.INDEKS, IME || ' ' || PREZIME, P.NAZIV || ' ' || COALESCE(I.OCENA, 5), DAYNAME(DATPOLAGANJA) FROM TMP JOIN DA.DOSIJE D  ON TMP.INDEKS=D.INDEKS  JOIN DA.PREDMET P  ON P.ID=TMP.IDPREDMETA  left JOIN DA.ISPIT I  ON I.INDEKS=D.INDEKS AND I.IDPREDMETA=TMP.IDPREDMETA and ocena>5 and status='o' WHERE BR=5 ORDER BY 1 ASC, 4 DESC;"
     }
 ]
