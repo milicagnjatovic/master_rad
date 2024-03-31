@@ -21,6 +21,12 @@ public class Roles {
     @Column(name = "CREATED_DATE")
     public Date CreatedDate;
 
-    public Roles() {}
+    public Roles() {
+        this.Id = 4;
+    }
 
+    @Override
+    public String toString() {
+        return this.Name + " " + this.Id;
+    }
 }
