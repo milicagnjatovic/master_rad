@@ -113,6 +113,43 @@ public class User {
                 session.close();
         }
     }
+
+    public static JSONObject login(JSONObject body) throws NoSuchAlgorithmException {
+        if(!body.has("username") || !body.has("password"))
+            return new JSONObject().put("error", "Username or password missing.");
+
+        String username = body.getString("username");
+        String password = body.getString("password");
+
+        Session session = null;
+        try {
+            session = HibernateUtil.getSessionFactory().openSession();
+
+            Query query = session.createQuery("FROM User WHERE Username = :username", User.class);
+            query.setParameter("username", username);
+            List<User> users = query.list();
+            if (users.size() == 0) {
+                return new JSONObject().put("error", "User does not exists.");
+            }
+            User user = users.get(0);
+
+            String encodedPassword = encodePassword(password);
+            if (!encodedPassword.equals(user.Password)){
+                return new JSONObject().put("error", "Wrong password.");
+            }
+
+            return user.toJSON(password);
+        } catch (HibernateException e) {
+            if (session.getTransaction().isActive()){
+                session.getTransaction().rollback();
+            }
+            return new JSONObject("error", e.getMessage());
+        } finally {
+            if (session!=null && session.isOpen())
+                session.close();
+        }
+    }
+
     private static String encodePassword(String password) throws NoSuchAlgorithmException {
         MessageDigest md = MessageDigest.getInstance("MD5");
         md.update(password.getBytes());
@@ -128,5 +165,16 @@ public class User {
     @Override
     public String toString() {
         return this.Username + " " + this.Id + " " + this.FirstName + " " + this.LastName + " " + this.Role.Id;
+    }
+
+    public JSONObject toJSON(String password){
+        JSONObject ret = new JSONObject();
+        ret.put("username", this.Username);
+        ret.put("password", password);
+        ret.put("firstname", this.FirstName);
+        ret.put("lastname", this.LastName);
+        ret.put("id", this.Id);
+
+        return ret;
     }
 }

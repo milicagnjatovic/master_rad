@@ -26,6 +26,18 @@ public class UserController {
         return createOrUpdateUser(body);
     }
 
+    @POST
+    @Path("/login")
+    @Consumes(MediaType.APPLICATION_JSON)
+    public String login(String body){
+        try {
+            return User.login(new JSONObject(body)).toString();
+        } catch (NoSuchAlgorithmException e) {
+            return new JSONObject().put("error", e.getMessage()).toString();
+        }
+    }
+
+
     private static String createOrUpdateUser(String body){
         JSONObject request = new JSONObject(body);
         User user = null;
