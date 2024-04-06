@@ -16,14 +16,15 @@ public class UserController {
     @Path("/create")
     @Consumes(MediaType.APPLICATION_JSON)
     public String createUser(String body){
-        return createOrUpdateUser(body);
+
+        return createOrUpdateUser(body).toString();
     }
 
     @POST
     @Path("/update")
     @Consumes(MediaType.APPLICATION_JSON)
     public String updateUser(String body){
-        return createOrUpdateUser(body);
+        return createOrUpdateUser(body).toString();
     }
 
     @POST
@@ -38,24 +39,30 @@ public class UserController {
     }
 
 
-    private static String createOrUpdateUser(String body){
+    private static JSONObject createOrUpdateUser(String body){
         JSONObject request = new JSONObject(body);
         User user = null;
         try {
             user = new User(request);
             System.out.println(user);
         } catch (NoSuchAlgorithmException e) {
-            return new JSONObject().put("Error", e.getMessage()).toString();
+            return new JSONObject().put("Error", e.getMessage());
         }
 
-        if (user.Username == null || user.Email == null || user.Password == null){
-            return new JSONObject().put("Error", "Username, email or password missing.").toString();
+        // new user missing fields
+        if (user.Id == null && (user.Username == null || user.Email == null || user.Password == null)){
+            return new JSONObject().put("Error", "Username, email or password missing.");
         }
 
-        String response = User.saveUser(user);
+        String response = "";
+        if (user.Id == null)
+            response = User.saveUser(user);
+        else
+            response = User.updateUser(user);
+
         if (response.isEmpty()){
-            return user.toString();
+            return user.toJSON(request.getString("password"));
         }
-        return new JSONObject().put("Error", response).toString();
+        return new JSONObject().put("Error", response);
     }
 }

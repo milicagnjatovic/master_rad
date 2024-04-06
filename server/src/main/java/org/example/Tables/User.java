@@ -3,6 +3,7 @@ package org.example.Tables;
 import org.example.HibernateUtil;
 import org.hibernate.HibernateException;
 import org.hibernate.Session;
+import org.hibernate.annotations.DynamicUpdate;
 import org.hibernate.exception.ConstraintViolationException;
 import org.hibernate.query.Query;
 import org.json.JSONObject;
@@ -16,6 +17,7 @@ import java.util.List;
 
 @Entity
 @Table(name = "USERS")
+@DynamicUpdate
 public class User {
     @Id
     @Column(name = "ID")
@@ -63,8 +65,8 @@ public class User {
 
         this.Username = obj.optString("username", null);
         this.Email = obj.optString("email", null);
-        this.FirstName = obj.optString("firstname", "");
-        this.LastName = obj.optString("lastname", "");
+        this.FirstName = obj.optString("firstname", null);
+        this.LastName = obj.optString("lastname", null);
         this.Role = new Roles();
 
         if(obj.has("role"))
@@ -82,21 +84,19 @@ public class User {
             session = HibernateUtil.getSessionFactory().openSession();
             session.beginTransaction();
 
-            if (user.Id == null) {
-                Query query = session.createQuery("SELECT Id FROM User WHERE Email = :email OR Username = :username");
-                query.setParameter("email", user.Email);
-                query.setParameter("username", user.Username);
-                List<Object[]> users = query.list();
-                if (users.size() > 0){
-                    return "Username or email are taken";
-                }
+            Query query = session.createQuery("SELECT Id FROM User WHERE Email = :email OR Username = :username");
+            query.setParameter("email", user.Email);
+            query.setParameter("username", user.Username);
+            List<Object[]> users = query.list();
+            if (users.size() > 0){
+                return "Username or email are taken";
             }
 
             Roles role = session.load(Roles.class, user.Role.Id);
             System.out.println(role);
             user.Role = role;
 
-            session.saveOrUpdate(user);
+            session.save(user);
             session.getTransaction().commit();
             session.close();
             return "";
@@ -113,6 +113,54 @@ public class User {
                 session.close();
         }
     }
+
+    public static String updateUser(User user){
+        Session session = null;
+        try {
+            session = HibernateUtil.getSessionFactory().openSession();
+            session.beginTransaction();
+
+            Query query = session.createQuery("SELECT Id FROM User WHERE (Email = :email OR Username = :username) AND Id != :id");
+            query.setParameter("email", user.Email);
+            query.setParameter("username", user.Username);
+            query.setParameter("id", user.Id);
+            List<Object[]> users = query.list();
+            if (users.size() > 0){
+                return "Username or email are taken";
+            }
+
+            User existingUser = session.get(User.class, user.Id);
+            if (user.FirstName!=null) existingUser.FirstName = user.FirstName;
+            if (user.LastName!=null) existingUser.LastName = user.LastName;
+            if (user.Username!=null) existingUser.Username = user.Username;
+            if (user.Email!=null) existingUser.Email = user.Email;
+            if (user.Password!=null) existingUser.Password = user.Password;
+            if (user.Role!=null) existingUser.Role = session.load(Roles.class, user.Role.Id);
+
+            session.update(existingUser);
+
+            user.FirstName = existingUser.FirstName;
+            user.LastName = existingUser.LastName;
+            user.Username = existingUser.Username;
+            user.Email = existingUser.Email;
+
+            session.getTransaction().commit();
+            session.close();
+            return "";
+        } catch (ConstraintViolationException e){
+            return "Error | Constraint " + e.getMessage();
+        }
+        catch (HibernateException e) {
+            if (session.getTransaction().isActive()){
+                session.getTransaction().rollback();
+            }
+            return "Error | " + e.getMessage();
+        } finally {
+            if (session!=null && session.isOpen())
+                session.close();
+        }
+    }
+
 
     public static JSONObject login(JSONObject body) throws NoSuchAlgorithmException {
         if(!body.has("username") || !body.has("password"))
