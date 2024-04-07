@@ -192,4 +192,34 @@ public class Task {
         }
     }
 
+    public static List<Task> getAllTasks(){
+        Session session = null;
+        try {
+            session = HibernateUtil.getSessionFactory().openSession();
+            Query query = session.createQuery("FROM Task WHERE Grader.Active = true", Task.class);
+            List<Task> tasks = query.list();
+            session.close();
+            return tasks;
+        } catch (Exception err) {
+            return null;
+        } finally {
+            if (session!=null && session.isOpen())
+                session.close();
+        }
+    }
+
+    public static JSONArray tasksToJSONArray(List<Task> tasks){
+        JSONArray ret = new JSONArray();
+
+        for (Task task : tasks){
+            JSONObject obj = new JSONObject();
+            obj.put("taskId", task.Id);
+            obj.put("text", task.Text);
+            obj.put("graderId", task.Grader.Id);
+            ret.put(obj);
+        }
+
+        return ret;
+    }
+
 }
