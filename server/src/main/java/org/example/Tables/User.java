@@ -88,7 +88,7 @@ public class User {
             query.setParameter("email", user.Email);
             query.setParameter("username", user.Username);
             List<Object[]> users = query.list();
-            if (users.size() > 0){
+            if (users.isEmpty()){
                 return "Username or email are taken";
             }
 
@@ -125,7 +125,7 @@ public class User {
             query.setParameter("username", user.Username);
             query.setParameter("id", user.Id);
             List<Object[]> users = query.list();
-            if (users.size() > 0){
+            if (users.isEmpty()){
                 return "Username or email are taken";
             }
 
@@ -218,6 +218,7 @@ public class User {
     public JSONObject toJSON(String password){
         JSONObject ret = new JSONObject();
         ret.put("username", this.Username);
+        ret.put("email", this.Email);
         ret.put("password", password);
         ret.put("firstname", this.FirstName);
         ret.put("lastname", this.LastName);

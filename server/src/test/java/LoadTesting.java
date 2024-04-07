@@ -1,36 +1,73 @@
 import org.example.Conreollers.TaskController;
+import org.example.HibernateUtil;
 import org.example.RequestHandlers;
 import org.example.Tables.Grader;
 import org.example.Tables.Submission;
+import org.example.Tables.User;
+import org.hibernate.Session;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.sql.Time;
+import java.security.NoSuchAlgorithmException;
 import java.util.*;
 import java.util.concurrent.*;
 
 public class LoadTesting {
-    public static void main(String[] args) throws ExecutionException, InterruptedException, IOException {
+    public static String GRADER_URL = "http://localhost:51000";
+    public static String SERVER_URL = "http://localhost:52000";
+    public static void main(String[] args) throws ExecutionException, InterruptedException, IOException, NoSuchAlgorithmException {
         Grader.retrieveGradersToMap();
 
-//        test1();
+        new LoadTesting().testServer("correct_queries.json", 100, 100);
 
-//        new LoadTesting().test("/home/milica/Desktop/master_rad/server/src/test/correct_queries.json", 5, 5);
-//        new LoadTesting().test("correct_queries.json", 100, 100);
-//        new LoadTesting().test("correct_queries.json", 120, 120);
-//        new LoadTesting().test("correct_queries.json", 140, 140);
-//        new LoadTesting().test("correct_queries.json", 50, 50);
-        new LoadTesting().testGrader("correct_queries.json", 50, 15);
+//            new LoadTesting().testGrader("correct_queries.json", 10, 10, 0);
 
+//        List<User> testUsers = new LoadTesting().createTestUsers(10, 100);
+//        for (User user: testUsers)
+//            System.out.println(user);
+
+
+//        Thread.sleep(500);
+
+        Session session = null;
+        try {
+            session = HibernateUtil.getSessionFactory().openSession();
+            session.beginTransaction();
+
+            session.createQuery("delete from User where Username LIKE 'test%'").executeUpdate();
+
+            session.getTransaction().commit();
+            session.close();
+        } catch (Error err){
+            if (session.getTransaction().isActive())
+                session.getTransaction().rollback();
+            if (session.isOpen())
+                session.close();
+            System.err.println(err.getMessage());
+        }
+
+        System.out.println(Runtime.getRuntime().availableProcessors());
+        System.out.println("OK");
+        System.exit(0);
     }
 
-    public void test(String path, Integer noThreads, Integer noRequests) throws ExecutionException, InterruptedException, IOException {
+
+    /**
+     * Sending request to server
+     * Saving to database
+     */
+    public void testServer(String path, Integer noThreads, Integer noRequests) throws ExecutionException, InterruptedException, IOException, NoSuchAlgorithmException {
         String payloads = String.join("", Files.readAllLines(Path.of(path)));
         JSONArray arr = new JSONArray(payloads);
-        List<Integer> userIds = Arrays.asList(22,23,24,25,26,41,42,43,44,45, 61,62,63,64,65,66,67,68,69,70);
+
+        Integer noTasksToUse = arr.length();
+        Integer noUsers = (int) Math.ceil(noRequests * 1.0 / noTasksToUse);
+        new LoadTesting();
+        List<User> testUsers = createTestUsers(noUsers, 100);
+
 
         ExecutorService executor = Executors.newFixedThreadPool(noThreads);
 
@@ -39,8 +76,8 @@ public class LoadTesting {
         Date start = new Date();
         int noSentRequests = 0;
         for (int i = 0; i < arr.length(); i++) {
-            for (int j = 0; j < userIds.size(); j++) {
-                Integer userId = userIds.get(j);
+            for (int j = 0; j < testUsers.size(); j++) {
+                Integer userId = testUsers.get(j).Id;
                 JSONObject req = arr.getJSONObject(i);
                 req.put("userId", userId);
 
@@ -64,10 +101,13 @@ public class LoadTesting {
 
         executor.shutdown();
 
-//        // Wait for all tasks to complete and collect their results
+//         Wait for all tasks to complete and collect their results
+        Integer correct = 0;
         for (Future<String> future : futures) {
             String result = future.get();
             System.out.println("Result: " + result);
+            if (new JSONObject(result).getBoolean("ok"))
+                correct++;
         }
         Date end = new Date();
 
@@ -75,9 +115,15 @@ public class LoadTesting {
 
         executor.awaitTermination(10, TimeUnit.MILLISECONDS);
         System.out.println("Time difference " + (end.getTime() - start.getTime()));
+        System.out.println("Result " + correct + "/" + noRequests);
     }
 
-    public static void testGrader(String path, Integer noThreads, Integer noRequests) throws IOException, ExecutionException, InterruptedException {
+/**
+ * Sending request directly to grader
+ * Not contacting server
+ * Not saving anything in database
+ */
+    public static void testGrader(String path, Integer noThreads, Integer noRequests, Integer sleepTime) throws IOException, ExecutionException, InterruptedException {
         String payloads = String.join("", Files.readAllLines(Path.of(path)));
         JSONArray arr = new JSONArray(payloads);
 
@@ -98,11 +144,12 @@ public class LoadTesting {
                 String ordering = req.getString("ordering");
 
                 final JSONObject request = Submission.prepareGraderRequest(userId, taskid, query, ordering);
-                Thread.sleep(500);
-                Future<String> future = executor.submit(() -> {
-                    return RequestHandlers.sendRequest("http://localhost:51000", RequestHandlers.GraderAction.CHECK, request.toString());
-                });
-                futures.add(future);
+
+                if(sleepTime > 0)
+                    Thread.sleep(sleepTime);
+
+                Future<String> future1 = executor.submit(() -> {return RequestHandlers.sendRequest("http://localhost:51000", RequestHandlers.GraderAction.CHECK, request.toString());});
+                futures.add(future1);
 
                 noSentRequests++;
                 if (noRequests==noSentRequests)
@@ -115,8 +162,11 @@ public class LoadTesting {
 
         executor.shutdown();
 
+        Integer correct = 0;
         for (Future<String> future : futures) {
             String result = future.get();
+            if (new JSONObject(result).getBoolean("ok"))
+                correct++;
             System.out.println("Result: " + result);
         }
         Date end = new Date();
@@ -124,6 +174,42 @@ public class LoadTesting {
         executor.close();
 
         System.out.println("Time difference " + (end.getTime() - start.getTime()));
+        System.out.println("Response " + correct + "/" + noRequests);
+        executor.shutdown();
+    }
 
+    /**
+     * Send requests to create noUsers
+     * returns list of created users
+     * requests are sent in parallel using noThreads threads
+     */
+    public static List<User> createTestUsers(Integer noUsers, Integer noThreads) throws ExecutionException, InterruptedException, NoSuchAlgorithmException {
+        List<User> users = new ArrayList<>();
+
+        ExecutorService executor = Executors.newFixedThreadPool(noThreads);
+        List<Future<String>> futures = new ArrayList<>();
+
+        for (int i = 0; i < noUsers; i++) {
+            User user = new User();
+            user.Email = "test" + i + "@gmail.com";
+            user.Username = "test" + i;
+            user.Password = "12345";
+
+            JSONObject request = user.toJSON(user.Password);
+
+            Future<String> future = executor.submit(() -> {return RequestHandlers.sendRequest(SERVER_URL, "/user/create", request.toString());});
+            futures.add(future);
+        }
+
+
+        Integer noCreatedUsers = 0;
+        for (Future<String> future : futures) {
+            String result = future.get();
+            User user = new User(new JSONObject(result));
+            users.add(user);
+            System.out.println("Result: " + result);
+        }
+
+        return users;
     }
 }

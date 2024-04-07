@@ -9,13 +9,13 @@ import java.nio.charset.StandardCharsets;
 
 public class RequestHandlers {
     public static class GraderAction  {
-        public static String GENERATE = "/generate";
-        public static String CHECK = "/checkSolution";
-        public static String CHECKBULK = "/checkSolutionBulk";
+        public static final String GENERATE = "/grader/generate";
+        public static final String CHECK = "/grader/checkSolution";
+        public static final String CHECKBULK = "/grader/checkSolutionBulk";
     }
 
     public static String sendRequest(String endpoint, String action, String body) throws IOException {
-        HttpURLConnection connection = (HttpURLConnection) new URL(endpoint+ "/grader" +action).openConnection();
+        HttpURLConnection connection = (HttpURLConnection) new URL(endpoint +action).openConnection();
         connection.setRequestMethod(POST);
         connection.setDoOutput(true);
         connection.setRequestProperty("Content-Type", "application/json");
@@ -37,5 +37,5 @@ public class RequestHandlers {
         return responseMessage;
     }
 
-    public static String POST = "POST";
+    public static final String POST = "POST";
 }
