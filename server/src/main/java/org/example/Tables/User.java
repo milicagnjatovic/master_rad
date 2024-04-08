@@ -12,6 +12,7 @@ import javax.persistence.*;
 import javax.xml.bind.DatatypeConverter;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
@@ -88,7 +89,7 @@ public class User {
             query.setParameter("email", user.Email);
             query.setParameter("username", user.Username);
             List<Object[]> users = query.list();
-            if (users.isEmpty()){
+            if (!users.isEmpty()){
                 return "Username or email are taken";
             }
 
@@ -125,7 +126,7 @@ public class User {
             query.setParameter("username", user.Username);
             query.setParameter("id", user.Id);
             List<Object[]> users = query.list();
-            if (users.isEmpty()){
+            if (!users.isEmpty()){
                 return "Username or email are taken";
             }
 
@@ -208,6 +209,27 @@ public class User {
         System.out.println(hashedPassword);
 
         return hashedPassword;
+    }
+
+    public static List<Integer> getAllUserIds(){
+        Session session = null;
+        List<Integer> ids = new ArrayList<>();
+        try {
+            session = HibernateUtil.getSessionFactory().openSession();
+
+            Query query = session.createQuery("FROM User", User.class);
+            List<User> users = query.list();
+
+            for(User user : users)
+                ids.add(user.Id);
+
+            session.close();
+        } catch (Error err){
+            if (session!=null && session.isOpen())
+                session.close();
+            System.err.println("Error " + err.getMessage());
+        }
+        return ids;
     }
 
     @Override

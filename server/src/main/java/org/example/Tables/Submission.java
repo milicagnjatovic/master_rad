@@ -209,4 +209,38 @@ public class Submission {
             this.CorrectSubmissions = this.CorrectSubmissions+1;
         this.WaitingForResponse = false;
     }
+
+    public static List<Submission> getSubmissionsForUser(Integer userId){
+        Session session = null;
+        try {
+            session = HibernateUtil.getSessionFactory().openSession();
+
+            List<Submission> ret = new ArrayList<>();
+
+            Query query = session.createQuery("SELECT s.Task.Id, s.WaitingForResponse, s.CorrectSubmissions, s.TotalSubmissions FROM Submission s WHERE SubmissionId.UserId = :userId");
+            query.setParameter("userId", userId);
+            List<Object[]> submissions = query.list();
+
+            for (Object[] obj : submissions) {
+                Submission submission = new Submission();
+                Integer taskId = (Integer) obj[0];
+                submission.Task = new Task(taskId);
+                submission.User = new User(userId);
+                submission.WaitingForResponse = Boolean.valueOf((Boolean) obj[1]);
+                submission.CorrectSubmissions = (Integer) obj[2];
+                submission.TotalSubmissions = (Integer) obj[3];
+
+                ret.add(submission);
+            }
+
+            session.close();
+
+            return ret;
+        } catch (Error err){
+            System.err.println("Error | " + err);
+            if (session != null && session.isOpen())
+                session.close();
+            return new ArrayList<>();
+        }
+    }
 }

@@ -1,10 +1,13 @@
 package org.example.Conreollers;
 
 import jakarta.ws.rs.GET;
+import jakarta.ws.rs.POST;
 import jakarta.ws.rs.Path;
 import jakarta.ws.rs.Produces;
+import org.example.Tables.Submission;
 import org.example.Tables.Task;
 import org.json.JSONArray;
+import org.json.JSONObject;
 
 import javax.ws.rs.core.MediaType;
 import java.io.File;
@@ -60,4 +63,30 @@ public class PageController {
 
         return tasksJSON.toString();
     }
+
+
+    @POST
+    @Path("/getTasksForUser")
+    public String getTasksForUser(String body){
+        System.out.println("[getTasksForUser]");
+
+        JSONObject request = new JSONObject(body);
+        Integer userId = request.optInt("userId", -1);
+
+        List<Submission> submissions = Submission.getSubmissionsForUser(userId);
+
+        JSONArray ret = new JSONArray();
+
+        for (Submission submission: submissions) {
+            JSONObject obj = new JSONObject();
+            obj.put("taskId", submission.Task.Id);
+            obj.put("noCorrect", submission.CorrectSubmissions);
+            obj.put("noTotalSubmissions", submission.TotalSubmissions);
+            obj.put("isWaitingForResponse", submission.WaitingForResponse);
+            ret.put(obj);
+        }
+
+        return ret.toString();
+    }
+
 }
