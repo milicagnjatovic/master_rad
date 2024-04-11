@@ -1,6 +1,8 @@
 package org.example;
 
 import org.example.Tables.*;
+import org.example.Views.TaskStatistic;
+import org.example.Views.UserStatistic;
 import org.hibernate.SessionFactory;
 import org.hibernate.boot.MetadataSources;
 import org.hibernate.boot.registry.StandardServiceRegistry;
@@ -21,6 +23,8 @@ public class HibernateUtil {
                     .addAnnotatedClass(Submission.class)
                     .addAnnotatedClass(Task.class)
                     .addAnnotatedClass(User.class)
+                    .addAnnotatedClass(TaskStatistic.class)
+                    .addAnnotatedClass(UserStatistic.class)
                     .buildMetadata()
                     .buildSessionFactory();
 

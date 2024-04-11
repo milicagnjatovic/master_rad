@@ -4,34 +4,26 @@ import jakarta.ws.rs.GET;
 import jakarta.ws.rs.POST;
 import jakarta.ws.rs.Path;
 import jakarta.ws.rs.Produces;
+import org.example.FileUtil;
 import org.example.Tables.Submission;
 import org.example.Tables.Task;
+import org.example.Views.TaskStatistic;
+import org.example.Views.UserStatistic;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
 import javax.ws.rs.core.MediaType;
-import java.io.File;
-import java.io.FileWriter;
-import java.io.IOException;
-import java.nio.file.Files;
 import java.util.List;
 
 @Path("/page")
 public class PageController {
-    private static final String FILE_WITH_TASKS = "file_with_tasks.json";
 
     @GET
     @Path("/getAllTasks")
     @Produces(MediaType.APPLICATION_JSON)
     public String getAllTasks(){
         System.out.println("[getAllTasks]");
-        try {
-            List<String> tasksFromFile = Files.readAllLines(java.nio.file.Path.of(PageController.FILE_WITH_TASKS));
-            return String.join("", tasksFromFile);
-        } catch (IOException e) {
-            System.err.println("Error | " + e.getMessage());
-            return "Error retrieving tasks";
-        }
+        return FileUtil.readFromFile(FileUtil.FILE_WITH_TASKS);
     }
 
     @GET
@@ -45,21 +37,7 @@ public class PageController {
 
         JSONArray tasksJSON = Task.tasksToJSONArray(tasks);
 
-        File fileWithTasks = new File(PageController.FILE_WITH_TASKS);
-        try {
-            if (fileWithTasks.createNewFile()){
-                System.out.println("File created");
-            } else {
-                System.out.println("File already exists");
-            }
-
-            FileWriter writer = new FileWriter(fileWithTasks.getName());
-            writer.write(tasksJSON.toString());
-            writer.close();
-
-        } catch (IOException e) {
-            System.err.println("Error | " + e.getMessage());
-        }
+        FileUtil.writeToFile(FileUtil.FILE_WITH_TASKS, tasksJSON.toString());
 
         return tasksJSON.toString();
     }
@@ -89,4 +67,28 @@ public class PageController {
         return ret.toString();
     }
 
+    @GET
+    @Path("/getStats")
+    public String getTaskStatistics(){
+        System.out.println("[getStats]");
+        return FileUtil.readFromFile(FileUtil.FILE_WITH_STATS);
+    }
+
+    @GET
+    @Path("/refreshStats")
+    public String refreshStats(){
+        System.out.println("[refreshStats]");
+        List<TaskStatistic> taskStats = TaskStatistic.getAllStats();
+        List<UserStatistic> userStats = UserStatistic.getAllStats();
+        JSONArray taskJSON = TaskStatistic.getJSONfromList(taskStats);
+        JSONArray userJSON = UserStatistic.getJSONfromList(userStats);
+
+        JSONObject obj = new JSONObject();
+        obj.put("taskStats", taskJSON);
+        obj.put("userStats", userJSON);
+
+        FileUtil.writeToFile(FileUtil.FILE_WITH_STATS, obj.toString());
+
+        return obj.toString();
+    }
 }
