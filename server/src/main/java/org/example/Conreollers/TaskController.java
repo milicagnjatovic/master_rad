@@ -15,7 +15,6 @@ import org.json.JSONObject;
 import javax.ws.rs.core.MediaType;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
@@ -56,7 +55,7 @@ public class TaskController {
         graderRequest.put("tasks", tasks);
         String graderResponse;
         try {
-            graderResponse = RequestHandlers.sendRequest(grader.Endpoint, RequestHandlers.GraderAction.GENERATE, graderRequest.toString());
+            graderResponse = RequestHandlers.sendPostRequest(grader.Endpoint, RequestHandlers.GraderAction.GENERATE, graderRequest.toString());
         } catch (IOException e) {
             graderResponse = "Error | " + e.getMessage();
         }
@@ -108,7 +107,7 @@ public class TaskController {
             Grader grader = Grader.activeGraders.get(submission.Task.Grader.Id);
             String requestEndpoint = grader.Endpoint;
 
-            String response = RequestHandlers.sendRequest(requestEndpoint, RequestHandlers.GraderAction.CHECK, graderRequest.toString());
+            String response = RequestHandlers.sendPostRequest(requestEndpoint, RequestHandlers.GraderAction.CHECK, graderRequest.toString());
 
             submission.graderResponsePayloadToSubmission(response);
             Submission.updateOrInsert(submission);
@@ -139,7 +138,7 @@ public class TaskController {
                  try {
                      System.out.println("Grader request " + graderId + " " + graderRequestPayload);
 //                     sending bulk request for grader wirh graderId
-                     String graderResponse = RequestHandlers.sendRequest(grader.Endpoint, RequestHandlers.GraderAction.CHECKBULK, graderRequestPayload.toString());
+                     String graderResponse = RequestHandlers.sendPostRequest(grader.Endpoint, RequestHandlers.GraderAction.CHECKBULK, graderRequestPayload.toString());
                      responses.put(graderResponse);
 
                      JSONArray responsesForBulk = new JSONObject(graderResponse).getJSONArray("results");
@@ -206,7 +205,7 @@ public class TaskController {
         graderRequest.put("tasks", tasks);
         String graderResponse;
         try {
-            graderResponse = RequestHandlers.sendRequest(grader.Endpoint, RequestHandlers.GraderAction.GENERATE, graderRequest.toString());
+            graderResponse = RequestHandlers.sendPostRequest(grader.Endpoint, RequestHandlers.GraderAction.GENERATE, graderRequest.toString());
         } catch (IOException e) {
             graderResponse = "Error | " + e.getMessage();
         }
