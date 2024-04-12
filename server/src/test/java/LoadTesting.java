@@ -21,16 +21,29 @@ public class LoadTesting {
     public static void main(String[] args) throws ExecutionException, InterruptedException, IOException, NoSuchAlgorithmException {
         Grader.retrieveGradersToMap();
 
+        new Thread(()->{
+            for (Integer i=0; i<100; i++) {
+                try { Thread.sleep(10);
+                } catch (InterruptedException e) { throw new RuntimeException(e); }
+                getPageServer("getAllTasks");
+            }
+        }).start();
+
+        new Thread(()->{
+            for (Integer i=0; i<100; i++) {
+                try { Thread.sleep(10);
+                } catch (InterruptedException e) { throw new RuntimeException(e); }
+                getPageServer("getStats");
+            }
+        }).start();
+
+
         new LoadTesting().testServer("correct_queries.json", 100, 100);
 
 //            new LoadTesting().testGrader("correct_queries.json", 10, 10, 0);
 
-//        List<User> testUsers = new LoadTesting().createTestUsers(10, 100);
-//        for (User user: testUsers)
-//            System.out.println(user);
 
-
-//        Thread.sleep(500);
+        Thread.sleep(500);
 
         Session session = null;
         try {
@@ -148,7 +161,7 @@ public class LoadTesting {
                 if(sleepTime > 0)
                     Thread.sleep(sleepTime);
 
-                Future<String> future1 = executor.submit(() -> {return RequestHandlers.sendRequest("http://localhost:51000", RequestHandlers.GraderAction.CHECK, request.toString());});
+                Future<String> future1 = executor.submit(() -> {return RequestHandlers.sendPostRequest("http://localhost:51000", RequestHandlers.GraderAction.CHECK, request.toString());});
                 futures.add(future1);
 
                 noSentRequests++;
@@ -197,7 +210,7 @@ public class LoadTesting {
 
             JSONObject request = user.toJSON(user.Password);
 
-            Future<String> future = executor.submit(() -> {return RequestHandlers.sendRequest(SERVER_URL, "/user/create", request.toString());});
+            Future<String> future = executor.submit(() -> {return RequestHandlers.sendPostRequest(SERVER_URL, "/user/create", request.toString());});
             futures.add(future);
         }
 
@@ -205,11 +218,26 @@ public class LoadTesting {
         Integer noCreatedUsers = 0;
         for (Future<String> future : futures) {
             String result = future.get();
+            if (new JSONObject(result).has("Error"))
+                continue;
             User user = new User(new JSONObject(result));
             users.add(user);
             System.out.println("Result: " + result);
         }
 
+        System.out.println("No created users: " + users.size());
+
         return users;
     }
+
+
+    public static void getPageServer(String action){
+        try {
+            String response = RequestHandlers.sendGetRequest(SERVER_URL, "/page/" + action);
+            System.out.println("[" +  action+ "]" + response);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
 }
