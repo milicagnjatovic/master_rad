@@ -124,7 +124,7 @@ public class LoadTesting {
         }
         Date end = new Date();
 
-        executor.close();
+        executor.shutdown();
 
         executor.awaitTermination(10, TimeUnit.MILLISECONDS);
         System.out.println("Time difference " + (end.getTime() - start.getTime()));
@@ -184,7 +184,7 @@ public class LoadTesting {
         }
         Date end = new Date();
 
-        executor.close();
+        executor.shutdown();
 
         System.out.println("Time difference " + (end.getTime() - start.getTime()));
         System.out.println("Response " + correct + "/" + noRequests);
