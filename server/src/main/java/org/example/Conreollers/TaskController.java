@@ -21,8 +21,29 @@ import java.util.Map;
 
 @Path("/server")
 public class TaskController {
-
-
+    /**
+     * Zahtev za dodavanje zadataka u bazu,
+     * @param body telo zahteva treba da bude u narednom formatu:
+    <pre>
+    {
+        "graderId": 1, // id pregledača zaduženog za nove zadatke
+        "tasks": [
+            {
+            "task": "tekst zadatka",
+            "solution": "upit koji predstavlja tačno rešenje",
+            "ordering": "1" // sortiranje potrebno pregleaču
+            }
+        ]
+    }
+    </pre>
+     * @return Povratna vrednost funkcije je JSON objekat u narednom formatu:
+    <pre>
+        {
+        "graderResponse": "odgovor pregledača",
+        "errors": [] // niz grešaka koje su se desile usput
+        }
+    </pre>
+     */
     @POST
     @Path("/addTasks")
     @Consumes(MediaType.APPLICATION_JSON)
@@ -34,15 +55,13 @@ public class TaskController {
         JSONObject request = new JSONObject(body);
 
         if(!request.has("graderId") || !request.has("tasks")){
-            JSONObject ret = new JSONObject();
-            ret.put("message", "Error | Request must have following format: {graderId: number, tasks: [...]}");
-            return ret.toString();
+            return new JSONObject().put("error", "Error | Request must have following format: {graderId: number, tasks: [...]}").toString();
         }
 
         Integer graderId = request.getInt("graderId");
         Grader grader = Grader.getById(graderId);
         if (grader == null){
-            return "Error | Grader does not exists";
+            return new JSONObject().put("error", "Grader does not exist.").toString();
         }
 
         JSONArray taskArray = request.getJSONArray("tasks");
@@ -67,13 +86,35 @@ public class TaskController {
         return returnObject.toString();
     }
 
+    /**
+     *
+     * @param body zahtev treba da bude u narednom formatu:
+    <pre>
+        {
+            "userId": "22",
+            "taskId": "80",
+            "solution": "select case when pol ='m' then 'student ' || prezime || ' '||ime else 'studentkinja ' || prezime||' ' ||ime end , d.indeks, datupisa, sp.naziv, case when p.naziv is null then 'Nema polozenih predmeta' else p.naziv end, ocena  from da.dosije  d left join da.ispit i on d.indeks=i.indeks and ocena>5 and status='o'  left join da.studijskiprogram sp on d.idprograma =sp.id left join da.predmet p on p.id=i.idpredmeta where datupisa= (select min(datupisa)     from da.dosije d2     where d2.idprograma=sp.id and mestorodjenja like 'Beograd%') and mestorodjenja like 'Beograd%'; "
+        }
+    </pre>
+     * @return funckija vraća JSON pbjekat u narednom formatu:
+     <pre>
+    {
+        "requestId": "id poslatog zahteva",
+        "ok": false, // da li je rešenje tačno
+        "message": "" // poruka pregledača
+    }
+    Ako dođe do greške odgovor će izgledati ovako:
+    {
+        "error": "poruka o grešci",
+    }
+    </pre>
+     */
     @POST
     @Path("/checkTask")
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
     public String checkTask(String body){
         System.out.println("[check task]");
-//        System.out.println(body);
 
         try {
             JSONObject request = new JSONObject(body);
@@ -81,19 +122,25 @@ public class TaskController {
             Integer taskId = request.getInt("taskId");
             String solution = request.getString("solution");
             SubmissionID submissionID = new SubmissionID(userId, taskId);
+            Integer graderId = request.optInt("graderId", 0);
 
             Submission submission = Submission.getById(submissionID);
             if (submission != null && submission.WaitingForResponse){
-                return "Already waiting for response " + userId + " " + taskId;
+                return new JSONObject().put("error", "Already waiting for response " + userId + " " + taskId).toString();
             }
 
             if (submission == null) {
                 submission = new Submission();
                 submission.SubmissionId = submissionID;
-                Task task = Task.getById(submissionID.TaskId);
-                if (task==null)
-                    return "Error | Task does not exist " + submissionID.TaskId;
-                submission.Task = task;
+                if (graderId == 0) {
+                    Task task = Task.getById(submissionID.TaskId);
+                    if (task == null)
+                        return new JSONObject().put("error", "Error | Task does not exist " + submissionID.TaskId).toString();
+                    submission.Task = task;
+                } else {
+                    submission.Task = new Task(submissionID.TaskId);
+                    submission.Task.Grader = new Grader(graderId);
+                }
             }
 
             submission.WaitingForResponse = true;
@@ -104,7 +151,12 @@ public class TaskController {
 
             JSONObject graderRequest = Submission.prepareGraderRequest(userId, taskId, submission.Query, submission.Task.Ordering);
 
+            if(!Grader.activeGraders.containsKey(submission.Task.Grader.Id)) {
+                return new JSONObject().put("error", "Grader is not active").toString();
+            }
+
             Grader grader = Grader.activeGraders.get(submission.Task.Grader.Id);
+
             String requestEndpoint = grader.Endpoint;
 
             String response = RequestHandlers.sendPostRequest(requestEndpoint, RequestHandlers.GraderAction.CHECK, graderRequest.toString());
@@ -114,21 +166,22 @@ public class TaskController {
 
             return response;
         } catch (Exception  e) {
-            return "ERROR | " + e.getMessage();
+            return new JSONObject("error", e.getMessage()).toString();
         }
     }
 
+    /**
+     * Zahtev koji dohvata radove koji čekaju pregledanje i ponovo ih prosleđuje pregledaču.
+     * @param body ne koristi se TODO dodati parametar da se bira kom pregledaču se šalje
+     * @return Funkcija vraća odgovor pregledača
+     */
     @POST
     @Path("/checkTaskBulk")
     @Consumes(MediaType.APPLICATION_JSON)
     public String checkTaskBulk(String body){
         System.out.println("[check task bulk]");
-        System.out.println(body);
         List<Submission> submissions = Submission.getSubmissionsWaiting();
-        System.out.println("[Submissions for checking]" + submissions);
-//        GraderID : BulkRequestPayload
         Map<Integer, JSONArray> graderRequests = Submission.prepareGraderBulkRequest(submissions);
-        System.out.println(graderRequests);
 
         JSONArray responses = new JSONArray();
         try {
@@ -136,8 +189,6 @@ public class TaskController {
                  Grader grader = Grader.activeGraders.get(graderId);
                  JSONArray graderRequestPayload = graderRequests.get(graderId);
                  try {
-                     System.out.println("Grader request " + graderId + " " + graderRequestPayload);
-//                     sending bulk request for grader wirh graderId
                      String graderResponse = RequestHandlers.sendPostRequest(grader.Endpoint, RequestHandlers.GraderAction.CHECKBULK, graderRequestPayload.toString());
                      responses.put(graderResponse);
 
@@ -165,19 +216,38 @@ public class TaskController {
                      responses.put(e.getMessage());
                  }
             }
-//            JSONArray taskResponses = responses.getJSONArray("results");
             return responses.toString();
         } catch (Exception e) {
-            return "ERROR | " + e.getMessage();
+            return new JSONObject().put("error", e.getMessage()).toString();
         }
     }
 
+    /**
+     * Zahtev kojim se menja zadatak, na primer tekst zadatka, rešenje ili sortiranje.
+     * @param body  Telo zahteva treba da bude u narednom formatu:
+     <pre>
+    {
+        "graderId": 1, // id pregledača
+        "tasks": [
+            {
+            "taskId": 4, // id zadtaka
+            "task": "Tekst zadatka",
+            "solution": "select * from da.dosije",
+            "ordering": "2"
+            }
+        ]
+    }
+    U objektima niza tasks je jedini obavezan element taskId, ostali elementi su opcioni i treba ih navesti ukoliko se vrednost menja.
+    Nakon unosa vrednosti se šalje zahtev pregledaču da generiše fajl sa rešenjem koji će kasnije biti potreban za pregledanje radova.
+    Ukoliko je potrebno samo regenerisati rešenje na pregledaču objketi niza tasks treba da sadrže samo taskId.
+    </pre>
+     * @return
+     */
     @POST
     @Path("/updateTasks")
     @Consumes(MediaType.APPLICATION_JSON)
     public String updateTask(String body){
         System.out.println("[updateTask]");
-        System.out.println(body);
 
         JSONObject request = new JSONObject(body);
 
@@ -190,7 +260,7 @@ public class TaskController {
         Integer graderId = request.getInt("graderId");
         Grader grader = Grader.getById(graderId);
         if (grader == null){
-            return "Error | Grader does not exists";
+            return new JSONObject().put("error", "Error | Grader does not exists").toString();
         }
 
         JSONArray taskArray = request.getJSONArray("tasks");

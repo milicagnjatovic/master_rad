@@ -17,24 +17,50 @@ public class Task {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     public Integer Id;
 
+    /**
+     * Pregledač zadužen za pregledanje datog zadatka
+     */
     @ManyToOne
     @JoinColumn(name = "GRADER_ID", referencedColumnName = "ID", nullable = false)
     public Grader Grader;
 
+    /**
+     * Tekst zadatka
+     */
     @Column(name = "TEXT", nullable = false)
     public String Text;
 
+    /**
+     * Upit koji predstavlja tačno rešenje zadatka
+     */
     @Column(name = "SOLUTION", nullable = false)
     public String Solution;
 
     @Column(name = "LAST_GENERATED_DATE")
     public Date LastGeneratedDate = new Date();
 
+    /**
+     * Sortiranje potrebno pregledaču za pregledanje
+     */
     @Column(name = "ORDERING")
     public String Ordering;
 
     public Task(){}
-    public Task(JSONObject obj, Grader g){
+
+    /**
+     * Konstruktor koji kreira task na osnovu JSON objekta koji se dobija u zahtevu
+     * @param obj JSON objekat koji treba da bude narednog formata:
+    <pre>
+    {
+        "taskId": 123, // potrebno ukoliko se zadatak menja
+        "task": "tekst zadatka",
+        "solution": "upit koji predstavlja tačno rešenje",
+        "ordering": "1"
+    }
+    </pre>
+     * @param grader - pregledač zadužen za prosleđeni zadatak
+     */
+    public Task(JSONObject obj, Grader grader){
         if (obj.has("task"))
             this.Text = obj.getString("task");
 
@@ -42,7 +68,7 @@ public class Task {
             this.Id = obj.getInt("taskId");
 
         this.Solution = obj.optString("solution", null);
-        this.Grader = g;
+        this.Grader = grader;
         this.Ordering = obj.optString("ordering", null);
     }
 
@@ -58,11 +84,30 @@ public class Task {
 
     @Override
     public String toString() {
-
         return this.Grader.Id + " " + this.Id + "\n" +
                 this.Text + "\n" + this.Ordering + "\n" + this.Solution;
     }
 
+    /**
+     * Funkcija koja unosi nove zadatke u tabelu zadataka (Taks)
+     * @param tasks niz zaataka koji se unose u bazu
+     * @param grader grader za koji su namenjeni zadaci
+     * @return vraća JSON objekat u narednom formatu
+     <pre>
+    {
+        "errors":  [
+            { "message", "Error | Missing task or solution for task no. " + redniBrojZadatka }
+        ]
+        "tasks": [
+            {
+            "taskId": 2, // id unetog zadatka
+            "solution", "...", // upit koji je tačno rešenje zadatka
+            "ordering", "1,2" // sortiranje potrebno pregledaču za pregleanju
+            }
+        ]
+    }
+    </pre>
+     */
     public static JSONObject insertTasks(JSONArray tasks, Grader grader){
         JSONArray responseArray = new JSONArray();
         JSONArray errorArray = new JSONArray();
@@ -107,6 +152,26 @@ public class Task {
         return retObj;
     }
 
+    /**
+     * Funkcija za izmenu zadataka u tabeli, na primer teksta zadatka ili rešenja,
+     * @param tasks niz zadataka koje treba izmeniti
+     * @param grader pregledač zadužen za pregledanja
+     * @return vraća JSON objekat u narednom formatu
+ *      <pre>
+ *     {
+ *         "errors":  [
+ *             { "message", "Error | Missing task or solution for task no. " + redniBrojZadatka }
+ *         ]
+ *         "tasks": [
+ *             {
+ *             "taskId": 2, // id unetog zadatka
+ *             "solution", "...", // upit koji je tačno rešenje zadatka
+ *             "ordering", "1,2" // sortiranje potrebno pregledaču za pregleanju
+ *             }
+ *         ]
+ *     }
+ *     </pre>
+     */
     public static JSONObject updateTasks(JSONArray tasks, Grader grader){
         JSONArray responseArray = new JSONArray();
         JSONArray errorArray = new JSONArray();
@@ -132,8 +197,6 @@ public class Task {
             Query<Task> query = session.createQuery("from Task where Id in :ids");
             query.setParameter("ids", taskIdToTask.keySet());
             List<Task> tasksForUpdate = query.list();
-
-            System.out.println("Tasks for update " + tasksForUpdate);
 
             session.beginTransaction();
 
@@ -165,7 +228,7 @@ public class Task {
         } catch (Exception err){
             System.err.println("Error " + err.getMessage() + err.getCause() + err.getLocalizedMessage());
             JSONObject ret = new JSONObject();
-            ret.put("message", "Error | " + err.getMessage());
+            ret.put("error", "Error | " + err.getMessage());
             errorArray.put(ret);
         } finally {
             if (session!=null && session.isOpen())
@@ -192,6 +255,10 @@ public class Task {
         }
     }
 
+    /**
+     * Funkcija koja dohvata zadatke za aktivne pregledače
+     * @return Funkcija vraća niz zadataka
+     */
     public static List<Task> getAllTasks(){
         Session session = null;
         try {
