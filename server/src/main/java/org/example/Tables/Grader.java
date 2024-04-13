@@ -22,16 +22,26 @@ import java.util.TreeMap;
 @Entity
 @Table(name = "GRADERS")
 public class Grader {
+    /**
+     * Mapa aktivnih pregledača. Mapira id pregledača i pregledač. Koristi se za dohvtaanje adrese pregledača preko identifikatora.
+     */
     public static Map<Integer, Grader> activeGraders = new TreeMap<>();
+
+    /**
+     * String koji sadrži JSONArray pregledača koji se šalju korisniku.
+     */
     public static String gradersString="";
 
+    /**
+     * Funkcija koja popunjavam activeGraders mapu podacima iz baze.
+     */
     public static void retrieveGradersToMap (){
         Session session=null;
         activeGraders.clear();
         JSONArray graderJsonArray = new JSONArray();
 
         session = HibernateUtil.getSessionFactory().openSession();
-        Query query = session.createQuery("SELECT Id, Name, Endpoint FROM Grader WHERE Active=TRUE "); //.setMaxResults(5);
+        Query query = session.createQuery("SELECT Id, Name, Endpoint FROM Grader WHERE Active=TRUE ");
         List<Object[]> graders = query.list();
         for (Object[] obj : graders) {
             Grader grader = new Grader();
@@ -58,9 +68,15 @@ public class Grader {
     @Column(name = "NAME", unique = true)
     public String Name;
 
+    /**
+     * Adresa na kojoj se nalazi pregledač.
+     */
     @Column(name = "ENDPOINT", unique = true)
     public String Endpoint;
 
+    /**
+     * Indikator da li je pregledač aktivan. Zadaci neaktivnog pregledača ne treba da se prikazuju studetima.
+     */
     @Column(name = "ACTIVE")
     public boolean Active;
 
@@ -72,27 +88,38 @@ public class Grader {
         return this.Name + " (" + this.Id + ") " + this.Active;
     }
 
+    /**
+     * Unosi pregledač ili ga menja u tabeli pregledača (Graders). Nakon unosa osvežava mapu pregledača.
+     * @param grader
+     * @return Vraća JSON unetog pregledača.
+     */
     public static String insertOrUpdateGrader(Grader grader){
         Session session = null;
         try {
             session = HibernateUtil.getSessionFactory().openSession();
             session.beginTransaction();
+            grader.CreatedDate = new Date();
             session.saveOrUpdate(grader);
             session.getTransaction().commit();
             session.close();
             Grader.retrieveGradersToMap();
-            return "ok";
+            return grader.toJSON().toString();
         } catch (ConstraintViolationException err) {
             System.err.println("Error | " + err.getMessage());
-            return "Error | Unique constraint error.";
+            return new JSONObject().put("error", "Name is already taken").toString();
         } catch (Exception err) {
-            return "Error | " + err.getMessage();
+            return new JSONObject().put("error", err.getMessage()).toString();
         } finally {
             if (session!=null && session.isOpen())
                 session.close();
         }
     }
 
+    /**
+     * Dohvata pregledač iz tabele po id-u
+     * @param id pregledača
+     * @return Vraća dohvaćeni pregledač ili null ukoliko ne postoji.
+     */
     public static Grader getById(Integer id){
         Session session = null;
         try {
@@ -128,20 +155,25 @@ public class Grader {
                 grader.Endpoint = obj[2].toString();
                 grader.Active = (boolean) obj[3];
 
-                JSONObject graderObj = new JSONObject();
-                graderObj.put("id", grader.Id);
-                graderObj.put("name", grader.Name);
-                graderObj.put("endpoint", grader.Endpoint);
-                graderObj.put("active", grader.Active);
+                JSONObject graderObj = grader.toJSON();
 
                 retJsonArray.put(graderObj);
             }
             return retJsonArray.toString();
         } catch (Exception err) {
-            return "ERROR | " + err.getMessage();
+            return new JSONObject().put("error", err.getMessage()).toString();
         } finally {
             if (session!=null && session.isOpen())
                 session.close();
         }
+    }
+
+    public JSONObject toJSON(){
+        JSONObject graderObj = new JSONObject();
+        graderObj.put("id", this.Id);
+        graderObj.put("name", this.Name);
+        graderObj.put("endpoint", this.Endpoint);
+        graderObj.put("active", this.Active);
+        return graderObj;
     }
 }
