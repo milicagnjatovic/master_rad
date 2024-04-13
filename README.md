@@ -32,7 +32,10 @@ docker run -itd --name server -p 52000:52000 --privileged=true --volume ./server
 * Setup u kontejneru:
 ```
 docker exec -u db2inst1 -it -w /home  server /bin/bash
-sh setup.sh 
+sh setup.sh
+exit
+docker exec -it  server /bin/bash
+chown db2inst1 home
 ```
 * Pokretanje servera u kontjneru:
 ```
