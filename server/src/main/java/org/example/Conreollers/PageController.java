@@ -15,9 +15,16 @@ import org.json.JSONObject;
 import javax.ws.rs.core.MediaType;
 import java.util.List;
 
+/**
+ * Klasa za kontrolere neophodne za početnu stranicu, poput dohvatanja zadataka i rang listi.
+ */
 @Path("/page")
 public class PageController {
 
+    /**
+     * Dohvata zadatke iz fajla sa zadacim.
+     * @return Vraća JSONArray string sa zadacima.
+     */
     @GET
     @Path("/getAllTasks")
     @Produces(MediaType.APPLICATION_JSON)
@@ -26,6 +33,10 @@ public class PageController {
         return FileUtil.readFromFile(FileUtil.FILE_WITH_TASKS);
     }
 
+    /**
+     * Identično /getAllTaska, razlika je što ova funkcija ponovo dohvata zadatke iz baze i unosi ih u fajl.
+     * @return Vraća JSONArray string sa zadacima.
+     */
     @GET
     @Path("/refreshTasks")
     public String refreshTasks(){
@@ -42,7 +53,26 @@ public class PageController {
         return tasksJSON.toString();
     }
 
-
+    /**
+     * Zahtev za prethodno rešene zadatke korisnika.
+     * @param body Telo zahteva treba da bude u narednom formatu:
+    <pre>
+    {
+    "userId": 1 // id korisnika
+    }
+    </pre>
+     * @return Funkcija vraća JSONArray zadataka koje je korisnik prethodno rešavao, rezultat je u narednom formatu:
+     <pre>
+    [
+        {
+            "isWaitingForResponse": false, // da li se čeka odgovor pregledača za ovaj zadatak
+            "noTotalSubmissions": 1, // broj ukupno rešenja koje je student poslao
+            "noCorrect": 1, // broj tačnih rešenja koje je student poslao
+            "taskId": 74 // id zadatka koji je rešavan
+        }
+    ]
+    </pre>
+     */
     @POST
     @Path("/getTasksForUser")
     public String getTasksForUser(String body){
@@ -56,17 +86,16 @@ public class PageController {
         JSONArray ret = new JSONArray();
 
         for (Submission submission: submissions) {
-            JSONObject obj = new JSONObject();
-            obj.put("taskId", submission.Task.Id);
-            obj.put("noCorrect", submission.CorrectSubmissions);
-            obj.put("noTotalSubmissions", submission.TotalSubmissions);
-            obj.put("isWaitingForResponse", submission.WaitingForResponse);
-            ret.put(obj);
+            ret.put(submission.toJSON());
         }
 
         return ret.toString();
     }
 
+    /**
+     *
+     * @return Funkcija vraća rang listu korisnika i rang listu najuspešnije rešenih zadataka koji se nelaze u fajlu.
+     */
     @GET
     @Path("/getStats")
     public String getTaskStatistics(){
@@ -74,6 +103,10 @@ public class PageController {
         return FileUtil.readFromFile(FileUtil.FILE_WITH_STATS);
     }
 
+    /**
+     *
+     * @return Funkcija vraća rang listu korisnika i rang listu najuspešnije rešenih zadataka koji se nelaze u fajlu, nakon što osvežava fajl podacima iz baze.
+     */
     @GET
     @Path("/refreshStats")
     public String refreshStats(){
