@@ -19,10 +19,10 @@ public class LoadTesting {
     public static String GRADER_URL = "http://localhost:51000";
     public static String SERVER_URL = "http://localhost:52000";
     public static void main(String[] args) throws ExecutionException, InterruptedException, IOException, NoSuchAlgorithmException {
-        Grader.retrieveGradersToMap();
+//        Grader.retrieveGradersToMap();
 
         new Thread(()->{
-            for (Integer i=0; i<100; i++) {
+            for (Integer i=0; i<10; i++) {
                 try { Thread.sleep(10);
                 } catch (InterruptedException e) { throw new RuntimeException(e); }
                 getPageServer("getAllTasks");
@@ -30,7 +30,7 @@ public class LoadTesting {
         }).start();
 
         new Thread(()->{
-            for (Integer i=0; i<100; i++) {
+            for (Integer i=0; i<10; i++) {
                 try { Thread.sleep(10);
                 } catch (InterruptedException e) { throw new RuntimeException(e); }
                 getPageServer("getStats");
@@ -45,22 +45,22 @@ public class LoadTesting {
 
         Thread.sleep(500);
 
-        Session session = null;
-        try {
-            session = HibernateUtil.getSessionFactory().openSession();
-            session.beginTransaction();
-
-            session.createQuery("delete from User where Username LIKE 'test%'").executeUpdate();
-
-            session.getTransaction().commit();
-            session.close();
-        } catch (Error err){
-            if (session.getTransaction().isActive())
-                session.getTransaction().rollback();
-            if (session.isOpen())
-                session.close();
-            System.err.println(err.getMessage());
-        }
+//        Session session = null;
+//        try {
+//            session = HibernateUtil.getSessionFactory().openSession();
+//            session.beginTransaction();
+//
+//            session.createQuery("delete from User where Username LIKE 'test%'").executeUpdate();
+//
+//            session.getTransaction().commit();
+//            session.close();
+//        } catch (Error err){
+//            if (session.getTransaction().isActive())
+//                session.getTransaction().rollback();
+//            if (session.isOpen())
+//                session.close();
+//            System.err.println(err.getMessage());
+//        }
 
         System.out.println(Runtime.getRuntime().availableProcessors());
         System.out.println("OK");
@@ -96,11 +96,8 @@ public class LoadTesting {
 
                 final JSONObject request = new JSONObject(req, JSONObject.getNames(req));
 
-                Future<String> future = executor.submit(() -> {
-                    TaskController controller = new TaskController();
-                    String ret = controller.checkTask(String.valueOf(request));
-                    return ret;
-                });
+                Future<String> future = executor.submit(() -> { return RequestHandlers.sendPostRequest("http://localhost:52000", "/server/checkTask", request.toString());});
+
                 futures.add(future);
 
                 noSentRequests++;
