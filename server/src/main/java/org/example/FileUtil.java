@@ -11,9 +11,21 @@ import java.nio.file.Files;
 import java.util.List;
 
 public class FileUtil {
+    /**
+     * Naziv fajla u kom se čuvaju zadaci koji se šalju korisnicima.
+     */
     public static final String FILE_WITH_TASKS = "file_with_tasks.json";
+
+    /**
+     * Naziv fajla u kom se čuvaju rang liste sa uspesima studentata i uspehu po zadacima.
+     */
     public static final String FILE_WITH_STATS = "file_with_stats.json";
 
+    /**
+     *
+     * @param fileName - naziv fajla u koji treba unesti podatke.
+     * @param data - tekst koji treba uneti u fajl.
+     */
     public static void writeToFile(String fileName, String data) {
         File fileWithTasks = new File(fileName);
         try {
@@ -31,6 +43,11 @@ public class FileUtil {
         }
     }
 
+    /**
+     *
+     * @param fileName - naziv fajla iz koga treba pročitati tekst.
+     * @return Funkcija vraća tekst iz fajla.
+     */
     public static String readFromFile(String fileName){
         try {
             List<String> tasksFromFile = Files.readAllLines(java.nio.file.Path.of(fileName));
