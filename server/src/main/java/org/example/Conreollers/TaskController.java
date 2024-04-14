@@ -91,9 +91,9 @@ public class TaskController {
      * @param body zahtev treba da bude u narednom formatu:
     <pre>
         {
-            "userId": "22",
-            "taskId": "80",
-            "solution": "select case when pol ='m' then 'student ' || prezime || ' '||ime else 'studentkinja ' || prezime||' ' ||ime end , d.indeks, datupisa, sp.naziv, case when p.naziv is null then 'Nema polozenih predmeta' else p.naziv end, ocena  from da.dosije  d left join da.ispit i on d.indeks=i.indeks and ocena>5 and status='o'  left join da.studijskiprogram sp on d.idprograma =sp.id left join da.predmet p on p.id=i.idpredmeta where datupisa= (select min(datupisa)     from da.dosije d2     where d2.idprograma=sp.id and mestorodjenja like 'Beograd%') and mestorodjenja like 'Beograd%'; "
+            "userId": "22", // id korisnika
+            "taskId": "80", // id zadatka
+            "solution": "upit sa rešenjem"
         }
     </pre>
      * @return funckija vraća JSON pbjekat u narednom formatu:

@@ -43,12 +43,6 @@ public class User {
     @Column(name = "CREATED_DATE")
     public Date CreatedDate;
 
-    @Column(name = "CORRECT_SUBMISSIONS")
-    public Integer CorrectSubmissions;
-
-    @Column(name = "INCORRECT_SUBMISSIONS")
-    public Integer IncorrectSubmissions;
-
     @ManyToOne()
     @JoinColumn(name = "ROLE_ID", referencedColumnName = "ID")
     public Roles Role;
@@ -59,6 +53,23 @@ public class User {
 
     public User(){}
 
+    /**
+     * Kontruktor koji pravi korisnika na osnovu JSON objekta dobijenog od zahteva.
+     * @param obj objekat iz zahteva treba da bude u narednom formatu:
+    <pre>
+    {
+        "username": "korisnicko ime",
+        "email": "mejl adresa",
+        "firstname": "ime",
+        "lastname": "prezime",
+        "password": "sifra",
+        "role": 2
+    }
+    U ovoj funkcji ni jedno polje nije obavezno, van nje se vrši obrada grešaka.
+    Ukoliko role nije dostupan podrazumevano će biti postavljen.
+    </pre>
+     * @throws NoSuchAlgorithmException
+     */
     public User(JSONObject obj) throws NoSuchAlgorithmException {
         if (obj.has("id")){
             this.Id = obj.getInt("id");
@@ -79,6 +90,11 @@ public class User {
         this.CreatedDate = new Date();
     }
 
+    /**
+     * Funkcija koje čuva korisnika u tabeli. Ukoliko su korisničko ime ili mejl zauzeti korisnik neće biti sačuvan.
+     * @param user - korisnik koji će biti sačuvan u tabelu
+     * @return - Funkcija vraća praznu nisku ukoliko nije došlo do greške, inače poruku za grešku
+     */
     public static String saveUser(User user){
         Session session = null;
         try {
@@ -115,6 +131,11 @@ public class User {
         }
     }
 
+    /**
+     * Funkcija koja menja korisnika u tabeli. Ukoliko su korisničko ime ili mejl zauzeti korisnik neće biti sačuvan.
+     * @param user - Korisnik koji će biti izmenjen u tabeli
+     * @return - Funkcija vraća praznu nisku ukoliko nije došlo do greške, inače poruku za grešku
+     */
     public static String updateUser(User user){
         Session session = null;
         try {
@@ -162,7 +183,18 @@ public class User {
         }
     }
 
-
+    /**
+     *
+     * @param body Telo zahteva za logovanje, očekivani format je:
+    <pre>
+    {
+        "username": "korisničko ime",
+        "password": "šifra"
+    }
+    </pre>
+     * @return Funckija vraća JSON objekat koji sadži informacije o studentu ukoliko nije došlo do greške, ili poruku o grešci.
+     * @throws NoSuchAlgorithmException
+     */
     public static JSONObject login(JSONObject body) throws NoSuchAlgorithmException {
         if(!body.has("username") || !body.has("password"))
             return new JSONObject().put("error", "Username or password missing.");
@@ -199,6 +231,12 @@ public class User {
         }
     }
 
+    /**
+     * Funkcija za md5 enkodiranje šifre.
+     * @param password šifra koju treba enkodirati
+     * @return funckija vraća enkodiranu šifru
+     * @throws NoSuchAlgorithmException
+     */
     private static String encodePassword(String password) throws NoSuchAlgorithmException {
         MessageDigest md = MessageDigest.getInstance("MD5");
         md.update(password.getBytes());
@@ -211,6 +249,10 @@ public class User {
         return hashedPassword;
     }
 
+    /**
+     * Funkcija koja vraća id-eve svih korisnika u tabeli.
+     * @return
+     */
     public static List<Integer> getAllUserIds(){
         Session session = null;
         List<Integer> ids = new ArrayList<>();
