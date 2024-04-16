@@ -39,9 +39,21 @@ public class Main {
 
         TCPNIOTransport transport = listener.getTransport();
 
+        Integer threadNo = 10;
+        if (args.length >= 1) {
+            String threadNoString = args[0];
+            try {
+                threadNo = Integer.valueOf(threadNoString);
+            } catch (NumberFormatException e){
+                System.err.println("Argument should be number of threads to run in parallel");
+                threadNo = 10;
+            }
+        }
+        System.out.println("Thread no " + threadNo);
+
         Main.threadPoolConfig = transport.getWorkerThreadPoolConfig();
-        threadPoolConfig.setCorePoolSize(10);
-        threadPoolConfig.setMaxPoolSize(10);
+        threadPoolConfig.setCorePoolSize(threadNo);
+        threadPoolConfig.setMaxPoolSize(threadNo);
         threadPoolConfig.setQueueLimit(-1); // use maximal queue limit
 
 
