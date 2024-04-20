@@ -259,14 +259,45 @@ public class Task {
      * Funkcija koja dohvata zadatke za aktivne pregledače
      * @return Funkcija vraća niz zadataka
      */
-    public static List<Task> getAllTasks(){
+    public static Map<Integer, List<Task>> getAllTasksPerRole(){
         Session session = null;
         try {
             session = HibernateUtil.getSessionFactory().openSession();
-            Query query = session.createQuery("FROM Task WHERE Grader.Active = true", Task.class);
-            List<Task> tasks = query.list();
+            Query queryTasks = session.createQuery("FROM Task WHERE Grader.Active = true", Task.class);
+            List<Task> tasks = queryTasks.list();
+
+            Map<Integer, List<Task>> tasksPerGrader = new HashMap<>();
+            for (Task task: tasks){
+                if (tasksPerGrader.containsKey(task.Grader.Id)){
+                    tasksPerGrader.get(task.Grader.Id).add(task);
+                } else {
+                    List tmpTask = new ArrayList();
+                    tmpTask.add(task);
+                    tasksPerGrader.put(task.Grader.Id, tmpTask);
+                }
+            }
+
+            Query queryPermissions = session.createQuery("FROM RoleGraderPermission ", RoleGraderPermission.class);
+            List<RoleGraderPermission> permissions = queryPermissions.list();
+
+            Map<Integer, List<Task>> tasksPerRole = new HashMap<>();
+            for (RoleGraderPermission permission : permissions){
+                if(!tasksPerGrader.containsKey(permission.PermissionId.GraderId)){
+                    System.out.println("Grader does not have tasks");
+                    continue;
+                }
+
+                if (tasksPerRole.containsKey(permission.PermissionId.RoleId)){
+                    tasksPerRole.get(permission.PermissionId.RoleId).addAll(tasksPerGrader.get(permission.PermissionId.GraderId));
+                } else {
+                    List<Task> tasksForRole = new ArrayList<>();
+                    tasksForRole.addAll(tasksPerGrader.get(permission.PermissionId.GraderId));
+                    tasksPerRole.put(permission.PermissionId.RoleId, tasksForRole);
+                }
+            }
+
             session.close();
-            return tasks;
+            return tasksPerRole;
         } catch (Exception err) {
             return null;
         } finally {

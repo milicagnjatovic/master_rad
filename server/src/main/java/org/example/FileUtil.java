@@ -50,6 +50,11 @@ public class FileUtil {
      */
     public static String readFromFile(String fileName){
         try {
+            File f = new File(fileName);
+            if (!f.exists()){
+                return "404";
+            }
+
             List<String> tasksFromFile = Files.readAllLines(java.nio.file.Path.of(fileName));
             return String.join("", tasksFromFile);
         } catch (IOException e) {

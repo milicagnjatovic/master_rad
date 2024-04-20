@@ -14,6 +14,7 @@ import org.json.JSONObject;
 
 import javax.ws.rs.core.MediaType;
 import java.util.List;
+import java.util.Map;
 
 /**
  * Klasa za kontrolere neophodne za početnu stranicu, poput dohvatanja zadataka i rang listi.
@@ -25,12 +26,22 @@ public class PageController {
      * Dohvata zadatke iz fajla sa zadacim.
      * @return Vraća JSONArray string sa zadacima.
      */
-    @GET
+    @POST
     @Path("/getAllTasks")
     @Produces(MediaType.APPLICATION_JSON)
-    public String getAllTasks(){
+    public String getAllTasks(String body){
         System.out.println("[getAllTasks]");
-        return FileUtil.readFromFile(FileUtil.FILE_WITH_TASKS);
+        Integer roleID = new JSONObject(body).optInt("roleId", -1);
+        if (roleID == -1){
+            return new JSONObject().put("error", "Missing roleId").toString();
+        }
+        String fileContent = FileUtil.readFromFile(roleID + FileUtil.FILE_WITH_TASKS);
+
+        if (fileContent.equals("404")){
+            return new JSONObject().put("error", "There are no tasks for given role.").toString();
+        }
+
+        return fileContent;
     }
 
     /**
@@ -42,15 +53,18 @@ public class PageController {
     public String refreshTasks(){
         System.out.println("[refreshAllTasks]");
 
-        List<Task> tasks = Task.getAllTasks();
-        for (Task task: tasks)
-            System.out.println(task);
+        Map<Integer, List<Task>> tasksPerRole = Task.getAllTasksPerRole();
+        for(Integer roleId : tasksPerRole.keySet()) {
+            System.out.println("Role " + roleId);
+            for (Task task : tasksPerRole.get(roleId))
+                System.out.println(task);
 
-        JSONArray tasksJSON = Task.tasksToJSONArray(tasks);
+            JSONArray tasksJSON = Task.tasksToJSONArray(tasksPerRole.get(roleId));
+            FileUtil.writeToFile(roleId + FileUtil.FILE_WITH_TASKS, tasksJSON.toString());
+            System.out.println("---------------------");
+        }
 
-        FileUtil.writeToFile(FileUtil.FILE_WITH_TASKS, tasksJSON.toString());
-
-        return tasksJSON.toString();
+        return new JSONObject().put("message", "generated ").toString();
     }
 
     /**
