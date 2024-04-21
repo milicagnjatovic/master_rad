@@ -2,10 +2,7 @@ package org.example;
 
 import java.net.URI;
 import jakarta.ws.rs.core.UriBuilder;
-import org.example.Conreollers.GradersController;
-import org.example.Conreollers.PageController;
-import org.example.Conreollers.TaskController;
-import org.example.Conreollers.UserController;
+import org.example.Conreollers.*;
 import org.example.Tables.Grader;
 import org.glassfish.grizzly.http.server.HttpServer;
 import org.glassfish.jersey.grizzly2.httpserver.GrizzlyHttpServerFactory;
@@ -22,6 +19,7 @@ public class Main {
         config.register(UserController.class);
         config.register(GradersController.class);
         config.register(PageController.class);
+        config.register(RoleGraderPermissionController.class);
         HttpServer server = GrizzlyHttpServerFactory.createHttpServer(base, config);
 
         try {

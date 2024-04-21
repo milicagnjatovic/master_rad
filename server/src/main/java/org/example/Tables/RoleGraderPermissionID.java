@@ -12,5 +12,12 @@ public class RoleGraderPermissionID implements Serializable {
     @Column(name = "Grader_ID", nullable = false)
     public Integer GraderId;
 
+    public RoleGraderPermissionID(Integer roleId, Integer graderId) {
+        this.GraderId = graderId;
+        this.RoleId = roleId;
+    }
 
+    public RoleGraderPermissionID() {
+
+    }
 }
