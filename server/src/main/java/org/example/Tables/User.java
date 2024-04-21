@@ -43,7 +43,7 @@ public class User {
     @Column(name = "CREATED_DATE")
     public Date CreatedDate;
 
-    @ManyToOne()
+    @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "ROLE_ID", referencedColumnName = "ID")
     public Roles Role;
 
@@ -109,12 +109,16 @@ public class User {
                 return "Username or email are taken";
             }
 
-            Roles role = session.load(Roles.class, user.Role.Id);
-            System.out.println(role);
+            Roles role = session.get(Roles.class, user.Role.Id);
             user.Role = role;
 
             session.save(user);
             session.getTransaction().commit();
+
+//            clear session cache
+            session.evict(user);
+            session.refresh(user);
+
             session.close();
             return "";
         } catch (ConstraintViolationException e){
@@ -152,21 +156,33 @@ public class User {
             }
 
             User existingUser = session.get(User.class, user.Id);
+
+            if (existingUser == null) {
+                return "User does not exists";
+            }
+
             if (user.FirstName!=null) existingUser.FirstName = user.FirstName;
             if (user.LastName!=null) existingUser.LastName = user.LastName;
             if (user.Username!=null) existingUser.Username = user.Username;
             if (user.Email!=null) existingUser.Email = user.Email;
             if (user.Password!=null) existingUser.Password = user.Password;
-            if (user.Role!=null) existingUser.Role = session.load(Roles.class, user.Role.Id);
+            if (user.Role!=null) existingUser.Role = session.get(Roles.class, user.Role.Id);
 
             session.update(existingUser);
 
+            session.getTransaction().commit();
+
+            session.evict(existingUser);
+            session.refresh(existingUser);
+
+            System.out.println(existingUser.toJSON("123"));
+
             user.FirstName = existingUser.FirstName;
             user.LastName = existingUser.LastName;
-            user.Username = existingUser.Username;
             user.Email = existingUser.Email;
+            user.Role = existingUser.Role;
 
-            session.getTransaction().commit();
+
             session.close();
             return "";
         } catch (ConstraintViolationException e){
@@ -286,6 +302,7 @@ public class User {
         ret.put("password", password);
         ret.put("firstname", this.FirstName);
         ret.put("lastname", this.LastName);
+        ret.put("roleId", this.Role.Id);
         ret.put("id", this.Id);
 
         return ret;
