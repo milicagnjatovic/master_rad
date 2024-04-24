@@ -43,6 +43,9 @@ public class User {
     @Column(name = "CREATED_DATE")
     public Date CreatedDate;
 
+    @Column(name = "ACTIVE")
+    public boolean Active = true;
+
     @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "ROLE_ID", referencedColumnName = "ID")
     public Roles Role;
