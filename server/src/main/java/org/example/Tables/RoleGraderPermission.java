@@ -3,6 +3,7 @@ package org.example.Tables;
 import org.example.HibernateUtil;
 import org.hibernate.Session;
 import org.hibernate.query.Query;
+import org.json.JSONArray;
 import org.json.JSONObject;
 
 import javax.persistence.*;
@@ -68,25 +69,26 @@ public class RoleGraderPermission {
         return new ArrayList<>();
     }
 
-    public static RoleGraderPermission insertPermission(Integer roleId, Integer graderId){
+    public static JSONArray insertPermissions(List<RoleGraderPermission> permissions){
+        System.out.println("inser " + permissions);
         Session session = null;
+        JSONArray errors = new JSONArray();
         try {
             session = HibernateUtil.getSessionFactory().openSession();
             session.beginTransaction();
 
-            RoleGraderPermissionID permissionID = new RoleGraderPermissionID(roleId, graderId);
-            RoleGraderPermission existingPermission = session.get(RoleGraderPermission.class, permissionID);
-            if (existingPermission != null){
-                return null;
+            for (RoleGraderPermission permission : permissions){
+                session.saveOrUpdate(permission);
             }
 
-            RoleGraderPermission permission = new RoleGraderPermission(permissionID);
-            session.save(permission);
-
-            session.getTransaction().commit();
+            try {
+                session.getTransaction().commit();
+            } catch (PersistenceException exception) {
+                errors.put(exception.getMessage());
+            }
 
             session.close();
-            return permission;
+            return errors;
         } catch (Error err) {
             System.out.println("Error | " + err.getMessage());
             if (session != null && session.isOpen()) {
@@ -94,7 +96,8 @@ public class RoleGraderPermission {
                     session.getTransaction().rollback();
                 session.close();
             }
-            return null;
+            errors.put(err.getMessage());
+            return errors;
         }
     }
 

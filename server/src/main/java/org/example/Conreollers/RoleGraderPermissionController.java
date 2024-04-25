@@ -9,6 +9,7 @@ import org.json.JSONArray;
 import org.json.JSONObject;
 
 import javax.ws.rs.core.MediaType;
+import java.util.ArrayList;
 import java.util.List;
 
 @Path("/roleGraderPermission")
@@ -18,25 +19,36 @@ public class RoleGraderPermissionController {
     @Produces(MediaType.APPLICATION_JSON)
     public String addPermission(String body){
         System.out.println("[addPermission]");
-        JSONObject request = new JSONObject(body);
+        JSONArray permissionsFromRequest = new JSONArray(body);
 
-        Integer roleID = new JSONObject(body).optInt("roleId", -1);
-        Integer graderID = new JSONObject(body).optInt("graderId", -1);
+        List<RoleGraderPermission> permissions = new ArrayList<>();
+        JSONArray errors = new JSONArray();
+        for (Integer i=0; i<permissionsFromRequest.length(); i++) {
+            JSONObject reqPermission = permissionsFromRequest.getJSONObject(i);
 
-        if(roleID == -1 || graderID == -1){
-            return new JSONObject("error", "Missing roleId or graderId").toString();
+            Integer roleID = reqPermission.optInt("roleId", -1);
+            Integer graderID = reqPermission.optInt("graderId", -1);
+
+            if (roleID == -1 || graderID == -1) {
+                errors.put("Missing roleId or graderId, req no. " + i);
+                continue;
+            }
+
+            permissions.add(new RoleGraderPermission(roleID, graderID));
         }
 
-        RoleGraderPermission permission = RoleGraderPermission.insertPermission(roleID, graderID);
-        System.out.println(permission);
+        JSONArray insertErrors = RoleGraderPermission.insertPermissions(permissions);
+        errors.put(insertErrors);
 
-        return "ok";
+        PageController.refreshTasks();
+
+        return new JSONObject().put("message", "ok").put("error", errors).toString();
     }
     @POST
     @Path("/removePermission")
     @Produces(MediaType.APPLICATION_JSON)
     public String removePermission(String body){
-        System.out.println("[addPermission]");
+        System.out.println("[removePermission]");
         JSONObject request = new JSONObject(body);
 
         Integer roleID = new JSONObject(body).optInt("roleId", -1);
@@ -48,7 +60,9 @@ public class RoleGraderPermissionController {
 
         RoleGraderPermission.deletePermission(roleID, graderID);
 
-        return "ok";
+        PageController.refreshTasks();
+
+        return new JSONObject().put("message", "ok").toString();
     }
 
     @GET
