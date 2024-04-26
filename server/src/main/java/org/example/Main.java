@@ -20,6 +20,7 @@ public class Main {
         config.register(GradersController.class);
         config.register(PageController.class);
         config.register(RoleGraderPermissionController.class);
+        config.register(MessageController.class);
         HttpServer server = GrizzlyHttpServerFactory.createHttpServer(base, config);
 
         try {
