@@ -4,6 +4,7 @@ import org.example.HibernateUtil;
 import org.hibernate.Session;
 import org.hibernate.query.Query;
 import org.json.JSONArray;
+import org.json.JSONMLParserConfiguration;
 import org.json.JSONObject;
 
 import javax.persistence.*;
@@ -69,10 +70,10 @@ public class RoleGraderPermission {
         return new ArrayList<>();
     }
 
-    public static JSONArray insertPermissions(List<RoleGraderPermission> permissions){
+    public static String insertPermissions(List<RoleGraderPermission> permissions){
         System.out.println("inser " + permissions);
         Session session = null;
-        JSONArray errors = new JSONArray();
+        String error = "";
         try {
             session = HibernateUtil.getSessionFactory().openSession();
             session.beginTransaction();
@@ -84,11 +85,11 @@ public class RoleGraderPermission {
             try {
                 session.getTransaction().commit();
             } catch (PersistenceException exception) {
-                errors.put(exception.getMessage());
+                error = exception.getMessage();
             }
 
             session.close();
-            return errors;
+            return error;
         } catch (Error err) {
             System.out.println("Error | " + err.getMessage());
             if (session != null && session.isOpen()) {
@@ -96,23 +97,27 @@ public class RoleGraderPermission {
                     session.getTransaction().rollback();
                 session.close();
             }
-            errors.put(err.getMessage());
-            return errors;
+            return err.getMessage();
         }
     }
 
-    public static void deletePermission(Integer roleId, Integer graderId){
+    public static String deletePermissions(List<RoleGraderPermission> permissions){
         Session session = null;
+        String error = "";
         try {
             session = HibernateUtil.getSessionFactory().openSession();
 
             session.beginTransaction();
 
-            RoleGraderPermission permission = new RoleGraderPermission(roleId, graderId);
-            session.delete(permission);
+            for(RoleGraderPermission permission : permissions) {
+                session.delete(permission);
+            }
 
-            session.getTransaction().commit();
-
+            try {
+                session.getTransaction().commit();
+            } catch (PersistenceException exception) {
+                error = exception.getMessage();
+            }
             session.close();
         } catch (Error err) {
             System.out.println("Error | " + err.getMessage());
@@ -122,5 +127,6 @@ public class RoleGraderPermission {
                 session.close();
             }
         }
+        return error;
     }
 }

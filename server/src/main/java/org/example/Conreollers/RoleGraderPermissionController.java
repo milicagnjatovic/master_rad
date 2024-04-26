@@ -37,7 +37,7 @@ public class RoleGraderPermissionController {
             permissions.add(new RoleGraderPermission(roleID, graderID));
         }
 
-        JSONArray insertErrors = RoleGraderPermission.insertPermissions(permissions);
+        String insertErrors = RoleGraderPermission.insertPermissions(permissions);
         errors.put(insertErrors);
 
         PageController.refreshTasks();
@@ -49,20 +49,30 @@ public class RoleGraderPermissionController {
     @Produces(MediaType.APPLICATION_JSON)
     public String removePermission(String body){
         System.out.println("[removePermission]");
-        JSONObject request = new JSONObject(body);
+        JSONArray permissionsFromRequest = new JSONArray(body);
 
-        Integer roleID = new JSONObject(body).optInt("roleId", -1);
-        Integer graderID = new JSONObject(body).optInt("graderId", -1);
+        List<RoleGraderPermission> permissions = new ArrayList<>();
+        JSONArray errors = new JSONArray();
+        for (Integer i=0; i<permissionsFromRequest.length(); i++) {
+            JSONObject reqPermission = permissionsFromRequest.getJSONObject(i);
 
-        if(roleID == -1 || graderID == -1){
-            return new JSONObject("error", "Missing roleId or graderId").toString();
+            Integer roleID = reqPermission.optInt("roleId", -1);
+            Integer graderID = reqPermission.optInt("graderId", -1);
+
+            if (roleID == -1 || graderID == -1) {
+                errors.put("Missing roleId or graderId, req no. " + i);
+                continue;
+            }
+
+            permissions.add(new RoleGraderPermission(roleID, graderID));
         }
 
-        RoleGraderPermission.deletePermission(roleID, graderID);
+        String deleteErrors = RoleGraderPermission.deletePermissions(permissions);
+        errors.put(deleteErrors);
 
         PageController.refreshTasks();
 
-        return new JSONObject().put("message", "ok").toString();
+        return new JSONObject().put("message", "ok").put("error", errors).toString();
     }
 
     @GET
