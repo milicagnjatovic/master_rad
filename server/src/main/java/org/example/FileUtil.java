@@ -63,4 +63,12 @@ public class FileUtil {
         }
 
     }
+
+    public static void removeFile(String fileName){
+        File file = new File(fileName);
+        if (file.exists()) {
+            file.delete();
+            System.out.println("Removed file " + fileName);
+        }
+    }
 }

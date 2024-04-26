@@ -5,6 +5,7 @@ import jakarta.ws.rs.POST;
 import jakarta.ws.rs.Path;
 import jakarta.ws.rs.Produces;
 import org.example.FileUtil;
+import org.example.Tables.Roles;
 import org.example.Tables.Submission;
 import org.example.Tables.Task;
 import org.example.Views.TaskStatistic;
@@ -50,18 +51,19 @@ public class PageController {
      */
     @GET
     @Path("/refreshTasks")
-    public String refreshTasks(){
+    public static String refreshTasks(){
         System.out.println("[refreshAllTasks]");
+
+        List<Roles> roles = Roles.getAllRoles();
+        for (Roles role : roles){
+            FileUtil.removeFile(role.Id + FileUtil.FILE_WITH_TASKS);
+        }
 
         Map<Integer, List<Task>> tasksPerRole = Task.getAllTasksPerRole();
         for(Integer roleId : tasksPerRole.keySet()) {
-            System.out.println("Role " + roleId);
-            for (Task task : tasksPerRole.get(roleId))
-                System.out.println(task);
 
             JSONArray tasksJSON = Task.tasksToJSONArray(tasksPerRole.get(roleId));
             FileUtil.writeToFile(roleId + FileUtil.FILE_WITH_TASKS, tasksJSON.toString());
-            System.out.println("---------------------");
         }
 
         return new JSONObject().put("message", "generated ").toString();
