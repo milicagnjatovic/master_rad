@@ -6,7 +6,9 @@ import org.hibernate.Session;
 import org.json.JSONObject;
 
 import javax.persistence.*;
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 
 @Entity
 @Table(name = "MESSAGES")
@@ -148,10 +150,44 @@ public class Messages {
         this.SubmissionInQuestion = new Submission(submissionID);
     }
 
+    public static List<Messages> getAllMessages(Integer userId){
+        Session session = null;
+        try {
+            session = HibernateUtil.getSessionFactory().openSession();
+
+            Query query = session.createQuery("FROM Messages WHERE ProfessorId = :userId OR Id.StudentId = :userId ORDER BY CreatedDate ASC", Messages.class);
+            query.setParameter("userId", userId);
+            List<Messages> messages = query.getResultList();
+
+            session.close();
+            return messages;
+        }
+        catch (Exception e){
+            System.err.println("Error | " + e.getMessage());
+            if (session!=null && session.isOpen()){
+                if (session.getTransaction().isActive())
+                    session.getTransaction().rollback();
+                session.close();
+            }
+            return new ArrayList<>();
+        }
+    }
+
     public Messages(){}
 
     @Override
     public String toString() {
         return this.Id.TaskId + " " + this.Id.StudentId + " " + this.Professor.Id + " " + this.Question;
+    }
+
+    public JSONObject toJSON(){
+        JSONObject obj = new JSONObject();
+        obj.put("userId", this.Id.StudentId);
+        obj.put("professor", this.ProfessorId);
+        obj.put("question", this.Question);
+        obj.put("response", this.Response);
+        obj.put("createdDate", this.CreatedDate);
+        obj.put("taskId", this.SubmissionInQuestion.Task.Id);
+        return obj;
     }
 }
