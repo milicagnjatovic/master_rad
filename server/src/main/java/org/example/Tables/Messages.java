@@ -30,6 +30,9 @@ public class Messages {
     @Column(name = "CREATED_DATE")
     public Date CreatedDate = new Date();
 
+    @Column(name = "RESPONSE_TIME")
+    public Date ResponseTime = null;
+
 //    OneToOne u odredjenim slucajevima daje gresku da je prosledjen SubmissionId umesto MessageId
     @ManyToOne
     @JoinColumns({
@@ -101,6 +104,8 @@ public class Messages {
             session.beginTransaction();
 
             existingMessage.Response = message.Response;
+            existingMessage.ResponseTime = new Date();
+
             session.saveOrUpdate(existingMessage);
             session.getTransaction().commit();
             session.close();
