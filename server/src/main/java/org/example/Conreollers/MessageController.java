@@ -1,8 +1,10 @@
 package org.example.Conreollers;
 
+import jakarta.ws.rs.GET;
 import jakarta.ws.rs.POST;
 import jakarta.ws.rs.Path;
 import org.example.Tables.Messages;
+import org.example.Tables.User;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
@@ -58,5 +60,20 @@ public class MessageController {
             ret.put(message.toJSON());
         }
         return ret.toString();
+    }
+
+    @GET
+    @Path("/availableProfessors")
+    public static String getAvailableProfessors(){
+        System.out.println("[availableProfessors]");
+        List<User> users = User.usersAvailableToAnswerQuestions();
+        JSONArray arr = new JSONArray();
+        for (User user : users){
+            JSONObject obj = new JSONObject();
+            obj.put("username", user.Username);
+            obj.put("id", user.Id);
+            arr.put(obj);
+        }
+        return arr.toString();
     }
 }

@@ -293,6 +293,24 @@ public class User {
         return ids;
     }
 
+    public static List<User> usersAvailableToAnswerQuestions (){
+        Session session = null;
+        try {
+            session = HibernateUtil.getSessionFactory().openSession();
+
+            Query query = session.createQuery("FROM User WHERE Role.AbleToAnswerQuestions = TRUE AND Active = TRUE", User.class);
+            List<User> users = query.list();
+
+            session.close();
+            return users;
+        } catch (Error err){
+            if (session!=null && session.isOpen())
+                session.close();
+            System.err.println("Error " + err.getMessage());
+            return new ArrayList<>();
+        }
+    }
+
     @Override
     public String toString() {
         return this.Username + " " + this.Id + " " + this.FirstName + " " + this.LastName + " " + this.Role.Id;

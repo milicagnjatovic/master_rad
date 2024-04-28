@@ -23,6 +23,8 @@ public class Roles {
     @Column(name = "DESCRIPTION")
     public String Description;
 
+    @Column(name = "ABLE_TO_ANSWER_QUESTIONS")
+    public Boolean AbleToAnswerQuestions = false;
 
     @Column(name = "CREATED_DATE")
     public Date CreatedDate;
