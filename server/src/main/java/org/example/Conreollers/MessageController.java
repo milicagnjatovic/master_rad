@@ -26,7 +26,14 @@ public class MessageController {
     @POST
     @Path("/respondToQuestion")
     public static String respondToQuestion(String body){
-        return "ok";
+        JSONObject req = new JSONObject(body);
+        if (!req.has("userId") || !req.has("taskId") || !req.has("response") || !req.has("professorId")){
+            return new JSONObject().put("error", "Missing userId, taskId, professorId or response").toString();
+        }
+
+        Messages messages = new Messages(req);
+        String updateMessage = Messages.responseToMessage(messages);
+        return new JSONObject().put("error", updateMessage).toString();
     }
 
     @POST()

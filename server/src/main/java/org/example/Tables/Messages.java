@@ -17,16 +17,10 @@ public class Messages {
     @Column(name = "QUESTION")
     public String Question;
 
-
-//    @MapsId("StudentId")
-//    @ManyToOne
-//    @JoinColumn(name = "STUDENT_ID", referencedColumnName = "ID", insertable = false, updatable = false)
-//    public User UserAsking;
-
     @Column(name="PROFESSOR_ID", nullable = false)
     public Integer ProfessorId;
 
-    @ManyToOne(fetch = FetchType.EAGER)
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "PROFESSOR_ID", referencedColumnName = "ID", insertable = false, updatable = false)
     public User Professor;
 
@@ -36,7 +30,8 @@ public class Messages {
     @Column(name = "CREATED_DATE")
     public Date CreatedDate = new Date();
 
-    @OneToOne
+//    OneToOne u odredjenim slucajevima daje gresku da je prosledjen SubmissionId umesto MessageId
+    @ManyToOne
     @JoinColumns({
             @JoinColumn(name = "TASK_ID", referencedColumnName = "TASK_ID", insertable = false, updatable = false),
             @JoinColumn(name = "STUDENT_ID", referencedColumnName = "USER_ID", insertable = false, updatable = false)
@@ -53,6 +48,7 @@ public class Messages {
                 session.close();
                 return "Question is already asked";
             }
+            System.out.println(existingMessage);
 
             Submission existingSubmissions = session.get(Submission.class, message.SubmissionInQuestion.SubmissionId);
             if (existingSubmissions == null){
@@ -61,15 +57,52 @@ public class Messages {
             System.out.println(existingSubmissions);
 
             session.beginTransaction();
-            message.SubmissionInQuestion = existingSubmissions;
+            message.SubmissionInQuestion = session.get(Submission.class, message.SubmissionInQuestion.SubmissionId);
             message.Professor = session.get(User.class, message.Professor.Id);
-//            message.UserAsking = session.get(User.class, message.Id.StudentId);
 
             System.out.println(message);
 
             session.save(message);
             session.getTransaction().commit();
 
+            session.close();
+            return "";
+        } catch (ConstraintViolationException e){
+            System.err.println("Error | " + e.getMessage());
+            if (session!=null && session.isOpen()){
+                if (session.getTransaction().isActive())
+                    session.getTransaction().rollback();
+                session.close();
+            }
+            return "Constraint violation";
+        }
+        catch (Exception e){
+            System.err.println("Error | " + e.getMessage());
+            if (session!=null && session.isOpen()){
+                if (session.getTransaction().isActive())
+                    session.getTransaction().rollback();
+                session.close();
+            }
+            return e.getMessage();
+        }
+    }
+
+    public static String responseToMessage(Messages message){
+        Session session = null;
+        try {
+            session = HibernateUtil.getSessionFactory().openSession();
+
+            Messages existingMessage = session.get(Messages.class, message.Id);
+            if (existingMessage == null){
+                session.close();
+                return "Question does not exist";
+            }
+
+            session.beginTransaction();
+
+            existingMessage.Response = message.Response;
+            session.saveOrUpdate(existingMessage);
+            session.getTransaction().commit();
             session.close();
             return "";
         } catch (ConstraintViolationException e){
@@ -104,7 +137,10 @@ public class Messages {
         this.Response = obj.optString("response", null);
         this.ProfessorId = professorId;
         this.Professor = new User(professorId);
-        this.SubmissionInQuestion = new Submission(new SubmissionID(userId, taskId));
+        SubmissionID submissionID = new SubmissionID(userId, taskId);
+        System.out.println("is mesasage " + (submissionID instanceof SubmissionID));
+        System.out.println("is messafe " + (this.Id instanceof MessageID));
+        this.SubmissionInQuestion = new Submission(submissionID);
     }
 
     public Messages(){}

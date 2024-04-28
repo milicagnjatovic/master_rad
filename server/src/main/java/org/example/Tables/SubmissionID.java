@@ -29,7 +29,8 @@ public class SubmissionID implements Serializable {
     @Override
     public boolean equals(Object obj) {
         return this.TaskId==((SubmissionID)obj).TaskId &&
-                this.UserId == ((SubmissionID) obj).UserId;
+                this.UserId == ((SubmissionID) obj).UserId &&
+                obj instanceof SubmissionID;
     }
 
     @Override
