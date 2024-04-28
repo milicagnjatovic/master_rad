@@ -10,4 +10,11 @@ public class MessageID implements Serializable {
 
     @Column(name = "TASK_ID", nullable = false)
     public Integer TaskId;
+
+    public MessageID(Integer studentId, Integer taskId){
+        this.StudentId = studentId;
+        this.TaskId = taskId;
+    }
+
+    public MessageID(){}
 }

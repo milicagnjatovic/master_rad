@@ -147,6 +147,10 @@ public class Submission {
         this.IsCorrect = isCorrect;
     }
 
+    public Submission(SubmissionID id){
+        this.SubmissionId = id;
+    }
+
     /**
      * Funkcija koja dohvata iz baze zadatke koji čekaju na pregledanje.
      * @return Funkcija vraća niz submission-a koji čekaju na pregledanje
