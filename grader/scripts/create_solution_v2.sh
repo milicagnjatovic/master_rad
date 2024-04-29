@@ -31,32 +31,32 @@ while read -r task_id; do
 
   if $skip; then
     kill $pid
-    echo "$task_id | Time limit exceeded"
+    echo "$task_id#Time limit exceeded"
     continue
   fi
 
   if [ ! -e "results/$task_id"  ];
   then
-      echo "$task_id | File is not created "
+      echo "$task_id#File is not created "
       continue
   fi
 
   lastline=$(tail -1 "results/$task_id")
 #  echo $(head -1 "results/$task_id")
   if [[ ! $lastline == *record* ]] ; then
-    echo "$task_id | Number of rows missing"
+    echo "$task_id#Number of rows missing"
     continue
   fi
 
   end=$(date +%s.%N)
   duration=$(echo "$end - $start" | bc)
   numberOfRows=$(echo "$lastline" | sed 's/[^0-9]*\([0-9]\+\).*/\1/')
-  echo "ID: $task_id | Time: $duration | No. rows: $numberOfRows"
+  echo "$task_id#$duration#$numberOfRows"
 done < $1
 
 endX=$(date +%s.%N)
 duration=$(echo "$endX - $startX" | bc)
-echo "Total time: $duration"
+echo "$duration"
 
 db2 connect reset > /dev/null
 

@@ -30,8 +30,37 @@ public class SolutionController {
     public String generateSolution(String body){
         System.out.println("[generateSolution]");
         try {
-            JSONArray arr = new JSONObject(body).getJSONArray("tasks");
-            return TaskHandler.generateSolutions(arr);
+//            JSONArray tasks = new JSONObject(body).getJSONArray("tasks");
+            JSONArray tasks = new JSONArray(body);
+            String scriptResponse = TaskHandler.generateSolutions(tasks);
+            List<String> lines = List.of(scriptResponse.split("\n"));
+            Integer n = lines.size();
+            JSONObject resp = new JSONObject();
+            JSONArray arr = new JSONArray();
+            for (int i = 0; i < n; i++) {
+                if (i == n-1){
+                    resp.put("totalTime", lines.get(i));
+                    break;
+                }
+
+                String[] elements = lines.get(i).split("#");
+
+                JSONObject obj = new JSONObject();
+                try {
+                    obj.put("taskId", elements[0]);
+                    if (elements.length == 2){
+                        obj.put("error", elements[1]);
+                    } else {
+                        obj.put("time", elements[1]);
+                        obj.put("noRows", elements[2]);
+                    }
+                } catch (Exception e){
+                    obj.put("error", e.getMessage());
+                }
+                arr.put(obj);
+            }
+            resp.put("tasks", arr);
+            return resp.toString();
         } catch (InterruptedException | IOException e) {
             return "Error occurred: " + e.getMessage();
         }
