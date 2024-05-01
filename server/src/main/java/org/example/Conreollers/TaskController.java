@@ -278,7 +278,7 @@ public class TaskController {
 
         JSONObject returnObject = new JSONObject();
         returnObject.put("errors", errors);
-        returnObject.put("graderResponse", graderResponse);
+        returnObject.put("graderResponse", new JSONObject(graderResponse));
 
         return returnObject.toString();
     }
