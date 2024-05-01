@@ -70,18 +70,16 @@ public class TaskController {
         JSONArray errors = insertionResponse.getJSONArray("errors");
         JSONArray tasks = insertionResponse.getJSONArray("tasks");
 
-        JSONObject graderRequest = new JSONObject();
-        graderRequest.put("tasks", tasks);
         String graderResponse;
         try {
-            graderResponse = RequestHandlers.sendPostRequest(grader.Endpoint, RequestHandlers.GraderAction.GENERATE, graderRequest.toString());
+            graderResponse = RequestHandlers.sendPostRequest(grader.Endpoint, RequestHandlers.GraderAction.GENERATE, tasks.toString());
         } catch (IOException e) {
             graderResponse = "Error | " + e.getMessage();
         }
 
         JSONObject returnObject = new JSONObject();
         returnObject.put("errors", errors);
-        returnObject.put("graderResponse", graderResponse);
+        returnObject.put("graderResponse", new JSONObject(graderResponse));
 
         return returnObject.toString();
     }
@@ -271,11 +269,9 @@ public class TaskController {
 
         System.out.println("[Tasks] " + tasks);
 
-        JSONObject graderRequest = new JSONObject();
-        graderRequest.put("tasks", tasks);
         String graderResponse;
         try {
-            graderResponse = RequestHandlers.sendPostRequest(grader.Endpoint, RequestHandlers.GraderAction.GENERATE, graderRequest.toString());
+            graderResponse = RequestHandlers.sendPostRequest(grader.Endpoint, RequestHandlers.GraderAction.GENERATE, tasks.toString());
         } catch (IOException e) {
             graderResponse = "Error | " + e.getMessage();
         }

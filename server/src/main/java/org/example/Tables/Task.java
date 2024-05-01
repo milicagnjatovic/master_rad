@@ -17,6 +17,9 @@ public class Task {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     public Integer Id;
 
+    @Column(name = "NAME")
+    public String Name;
+
     /**
      * Pregledač zadužen za pregledanje datog zadatka
      */
@@ -35,6 +38,9 @@ public class Task {
      */
     @Column(name = "SOLUTION", nullable = false)
     public String Solution;
+
+    @Column(name = "CREATED_DATE")
+    public Date CreatedDate = new Date();
 
     @Column(name = "LAST_GENERATED_DATE")
     public Date LastGeneratedDate = new Date();
@@ -70,6 +76,7 @@ public class Task {
         this.Solution = obj.optString("solution", null);
         this.Grader = grader;
         this.Ordering = obj.optString("ordering", null);
+        this.Name = obj.optString("name", null);
     }
 
     public Task(Integer id){
@@ -84,7 +91,7 @@ public class Task {
 
     @Override
     public String toString() {
-        return this.Grader.Id + " " + this.Id + "\n" +
+        return this.Grader.Id + " " + this.Id +  " " + this.Name + "\n" +
                 this.Text + "\n" + this.Ordering + "\n" + this.Solution;
     }
 
@@ -210,6 +217,9 @@ public class Task {
 
                 if (newTask.Ordering != null && !newTask.Ordering.isBlank())
                     task.Ordering = newTask.Ordering;
+
+                if (newTask.Name != null && !newTask.Name.isBlank())
+                    task.Name = newTask.Name;
 
                 task.LastGeneratedDate = new Date();
 
