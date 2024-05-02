@@ -1,0 +1,20 @@
+<h1>DBGrade</h1>
+<form class="ui form" [formGroup]="loginForm" (ngSubmit)="signIn();">
+    <input type="text" formControlName="username">
+    <input type="password" formControlName="password">
+    <button type="submit">
+        uloguje se
+    </button>
+</form>
+
+<hr>
+<form class="ui form" [formGroup]="signUpForm" (ngSubmit)="signUp();">
+    <input type="text" formControlName="username">
+    <input type="password" formControlName="password">
+    <input type="email" formControlName="email">
+    <input type="text" formControlName="firstName">
+    <input type="text" formControlName="lastName">
+    <button type="submit">
+        napravi nalog
+    </button>
+</form>
