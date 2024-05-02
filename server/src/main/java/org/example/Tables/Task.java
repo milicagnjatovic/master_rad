@@ -1,5 +1,6 @@
 package org.example.Tables;
 
+import org.example.FileUtil;
 import org.example.HibernateUtil;
 import org.hibernate.Session;
 import org.hibernate.query.Query;
@@ -314,6 +315,14 @@ public class Task {
             if (session!=null && session.isOpen())
                 session.close();
         }
+    }
+
+    public static JSONArray getTasksForRole(Integer roleID) {
+        String fileContent = FileUtil.readFromFile(roleID + FileUtil.FILE_WITH_TASKS);
+        if (fileContent == "404"){
+            return new JSONArray();
+        }
+        return new JSONArray(fileContent);
     }
 
     public static JSONArray tasksToJSONArray(List<Task> tasks){

@@ -36,9 +36,9 @@ public class PageController {
         if (roleID == -1){
             return new JSONObject().put("error", "Missing roleId").toString();
         }
-        String fileContent = FileUtil.readFromFile(roleID + FileUtil.FILE_WITH_TASKS);
 
-        if (fileContent.equals("404")){
+        String fileContent = Task.getTasksForRole(roleID).toString();
+        if (new JSONArray(fileContent).length() == 0){
             return new JSONObject().put("error", "There are no tasks for given role.").toString();
         }
 

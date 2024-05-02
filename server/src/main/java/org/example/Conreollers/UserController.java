@@ -3,7 +3,9 @@ package org.example.Conreollers;
 import jakarta.ws.rs.Consumes;
 import jakarta.ws.rs.POST;
 import jakarta.ws.rs.Path;
+import org.example.Tables.Task;
 import org.example.Tables.User;
+import org.json.JSONArray;
 import org.json.JSONObject;
 
 import javax.ws.rs.GET;
@@ -75,7 +77,10 @@ public class UserController {
     @Consumes(MediaType.APPLICATION_JSON)
     public String login(String body){
         try {
-            return User.login(new JSONObject(body)).toString();
+            JSONObject user = User.login(new JSONObject(body));
+            JSONArray tasks = Task.getTasksForRole(user.optInt("roleId", -1));
+            user.put("tasks", tasks);
+            return user.toString();
         } catch (NoSuchAlgorithmException e) {
             return new JSONObject().put("error", e.getMessage()).toString();
         }

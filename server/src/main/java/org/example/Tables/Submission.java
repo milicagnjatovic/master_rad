@@ -72,6 +72,7 @@ public class Submission {
         obj.put("taskId", this.Task.Id);
         obj.put("noCorrect", this.CorrectSubmissions);
         obj.put("noTotalSubmissions", this.TotalSubmissions);
+        obj.put("isCorrect", this.IsCorrect);
         obj.put("isWaitingForResponse", this.WaitingForResponse);
         return obj;
     }

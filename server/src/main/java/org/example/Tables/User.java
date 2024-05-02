@@ -6,6 +6,7 @@ import org.hibernate.Session;
 import org.hibernate.annotations.DynamicUpdate;
 import org.hibernate.exception.ConstraintViolationException;
 import org.hibernate.query.Query;
+import org.json.JSONArray;
 import org.json.JSONObject;
 
 import javax.persistence.*;
@@ -49,6 +50,9 @@ public class User {
     @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "ROLE_ID", referencedColumnName = "ID")
     public Roles Role;
+
+    @OneToMany(mappedBy = "User")
+    public List<Submission> Submissions;
 
     public User(Integer id){
         this.Id = id;
@@ -325,6 +329,12 @@ public class User {
         ret.put("lastname", this.LastName);
         ret.put("roleId", this.Role.Id);
         ret.put("id", this.Id);
+
+        JSONArray submissions = new JSONArray();
+        for(Submission submission : this.Submissions){
+            submissions.put(submission.toJSON());
+        }
+        ret.put("submissions", submissions);
 
         return ret;
     }
