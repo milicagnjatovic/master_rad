@@ -330,6 +330,7 @@ public class Task {
 
         for (Task task : tasks){
             JSONObject obj = new JSONObject();
+            obj.put("name", task.Name);
             obj.put("taskId", task.Id);
             obj.put("text", task.Text);
             obj.put("graderId", task.Grader.Id);
