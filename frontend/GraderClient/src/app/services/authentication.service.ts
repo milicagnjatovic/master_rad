@@ -1,7 +1,9 @@
 import { Injectable } from '@angular/core';
-import {HttpClient, HttpHeaders} from '@angular/common/http'
+import {HttpClient} from '@angular/common/http'
 import { Observable, tap, map, Subject } from 'rxjs';
 import { User } from '../model/user.model';
+import { Task } from '../model/task.model';
+import { Submisson } from '../model/submission.model';
 
 @Injectable({
   providedIn: 'root'
@@ -16,7 +18,6 @@ export class AuthenticationService {
   private readonly userSubject: Subject<User | null> = new Subject<User | null>();
   public readonly user: Observable<User|null> = this.userSubject.asObservable(); 
 
-
   constructor(private http: HttpClient) { }
 
   public login(username: string, password: string): Observable<User | null>{
@@ -25,7 +26,10 @@ export class AuthenticationService {
     const obs: Observable<string> = this.http.post<string>(this.urls.login, body);
 
     return obs.pipe(
-      tap( (response: string) => console.log(response)),
+      tap( (response: string) => {
+        this.userSubject.next(this.parseUser(response))
+        console.log(response)
+  }),
       map((response: string) => this.parseUser(response))
     )
   }
@@ -36,8 +40,11 @@ export class AuthenticationService {
     const obs: Observable<string> = this.http.post<string>(this.urls.signUp, body);
 
     return obs.pipe(
-      tap( (response: string) => console.log(response)),
-      map((response: string) => this.parseUser(response))
+      tap( (response: string) => {
+        this.userSubject.next(this.parseUser(response))
+        // console.log(response)
+  }),
+      map((response: string) =>  this.parseUser(response) )
     )
   }
 
@@ -57,7 +64,18 @@ export class AuthenticationService {
       return null;
     }
 
-    return new User(obj.id, obj.username, obj.password, obj.email, obj.firstname, obj.lastname, obj.roleId)
+    let tasksList: Task[] = [];
+    for(let t of obj.tasks){
+      tasksList.push(new Task(t.taskId, t.graderId, t.text, t.name))
+    }
+
+    let submissionsList: Submisson[] = []
+    for(let s of obj.submissions){
+      submissionsList.push(new Submisson(s.isWaitingForResponse, s.noTotalSubmissions, s.noCorrect, s.taskId, s.isCorrect))
+    }
+
+    return new User(obj.id, obj.username, obj.password, obj.email, obj.firstname, obj.lastname, obj.roleId, tasksList, submissionsList)
 
   }
+
 }

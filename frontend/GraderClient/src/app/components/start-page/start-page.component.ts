@@ -1,5 +1,6 @@
 import { Component } from '@angular/core';
 import { FormControl, FormGroup, Validators } from '@angular/forms';
+import { Router } from '@angular/router';
 import { Observable, Subscription } from 'rxjs';
 import { User } from 'src/app/model/user.model';
 import { AuthenticationService } from 'src/app/services/authentication.service';
@@ -15,7 +16,9 @@ export class StartPageComponent {
 
   subscription: Subscription = new Subscription();
 
-  constructor(private auth : AuthenticationService){
+  constructor(private auth : AuthenticationService,
+    private router: Router
+  ){
     this.loginForm = new FormGroup({
       username: new FormControl("mi18009", [Validators.required]),
       password: new FormControl("12345", [Validators.required])
@@ -32,7 +35,6 @@ export class StartPageComponent {
 
   signIn(){
     const data = this.loginForm.value;
-    console.log(data)
 
     if(this.loginForm.invalid) {
       window.alert("Oba polja su obavezna");
@@ -42,7 +44,9 @@ export class StartPageComponent {
     const observer: Observable<User | null> = this.auth.login(data.username, data.password);
 
     this.subscription = observer.subscribe((user: User | null) => {
-      console.log(user)
+      console.log("logged in")
+      this.router.navigate(['task-page'])
+
     }, 
   error => {
     console.log(error)
@@ -52,7 +56,7 @@ export class StartPageComponent {
 
   signUp(){
     const data = this.signUpForm.value;
-    console.log(data)
+    // console.log(data)
 
     if(this.loginForm.invalid) {
       window.alert("Oba polja su obavezna");
@@ -62,7 +66,8 @@ export class StartPageComponent {
     const observer: Observable<User | null> = this.auth.signUp(data.username, data.password, data.firstName, data.lastName, data.email);
 
     this.subscription = observer.subscribe((user: User | null) => {
-      console.log(user)
+      console.log("retreived")
+      this.router.navigate(['task-page'])
     }, 
   error => {
     console.log(error)
