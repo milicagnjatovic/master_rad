@@ -334,6 +334,7 @@ public class Task {
             obj.put("taskId", task.Id);
             obj.put("text", task.Text);
             obj.put("graderId", task.Grader.Id);
+            obj.put("ordering", task.Ordering);
             ret.put(obj);
         }
 

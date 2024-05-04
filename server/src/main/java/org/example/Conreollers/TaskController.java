@@ -10,6 +10,7 @@ import org.example.Tables.Submission;
 import org.example.Tables.SubmissionID;
 import org.example.Tables.Task;
 import org.json.JSONArray;
+import org.json.JSONException;
 import org.json.JSONObject;
 
 import javax.ws.rs.core.MediaType;
@@ -79,7 +80,13 @@ public class TaskController {
 
         JSONObject returnObject = new JSONObject();
         returnObject.put("errors", errors);
-        returnObject.put("graderResponse", new JSONObject(graderResponse));
+        System.out.println(graderResponse);
+        try {
+            JSONObject objGraderResponse = new JSONObject(graderResponse);
+            returnObject.put("graderResponse", objGraderResponse);
+        } catch (JSONException err) {
+            returnObject.put("graderResponse", new JSONObject().put("graderResponse", graderResponse));
+        }
 
         return returnObject.toString();
     }
