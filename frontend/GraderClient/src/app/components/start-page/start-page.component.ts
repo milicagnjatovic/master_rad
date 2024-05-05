@@ -45,6 +45,7 @@ export class StartPageComponent {
 
     this.subscription = observer.subscribe((user: User | null) => {
       console.log("logged in")
+      User.storeUser(user)
       this.router.navigate(['task-page'])
 
     }, 
@@ -67,6 +68,7 @@ export class StartPageComponent {
 
     this.subscription = observer.subscribe((user: User | null) => {
       console.log("retreived")
+      User.storeUser(user)
       this.router.navigate(['task-page'])
     }, 
   error => {

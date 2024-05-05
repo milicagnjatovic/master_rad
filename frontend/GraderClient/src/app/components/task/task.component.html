@@ -1,0 +1,26 @@
+<main>
+    <h2> Zadatak </h2>
+    <h3> {{ task?.name }}</h3>
+    <p> {{ task?.text }}</p>
+
+    <table *ngIf="task != null && task.submission != null">
+        <tr>
+        <td *ngIf="task.submission.correctSubmissions==0">
+            {{ task.submission.correctSubmissions }} / {{ task.submission.totalSubmissions }}
+        </td>
+        <td *ngIf="task.submission.correctSubmissions>0">
+            <div  class="success-rate"  [ngStyle]="{'width.px': task.submission.correctSubmissions *100.0  / task.submission.totalSubmissions}">
+                {{ task.submission.correctSubmissions }} / {{ task.submission.totalSubmissions }}
+            </div>
+        </td>
+        <td [ngClass]="task.submission.isCorrect ? 'green' : 'red'">{{ task.submission.isCorrect ? "tačno" : "netačno"}} </td>
+        <td>{{ task.submission.message }} </td>
+        </tr>
+    </table>
+    <form [formGroup]="checkTaskForm" (ngSubmit)="checkTask()" >
+        <input type="file" accept=".sql" formControlName="file" (change)="onFilePicked($event)" required>
+        <button type="submit">
+            pregledaj
+        </button>
+    </form>
+</main>

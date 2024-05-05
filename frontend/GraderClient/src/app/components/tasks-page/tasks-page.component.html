@@ -1,0 +1,15 @@
+
+<h2>Zadaci</h2>
+
+<main>
+<div class="tasks-column">
+    <button *ngFor="let task of user?.tasks" (click)="setCurrentTask(task)">
+        {{task.id }}. {{task.name}} <br>
+    </button>
+</div>
+
+<div *ngIf="currentTask !==null">
+    <app-task [task]="currentTask"></app-task>
+</div>
+
+</main>

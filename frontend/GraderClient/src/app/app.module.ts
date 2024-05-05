@@ -8,12 +8,16 @@ import { UserPageComponent } from './components/user-page/user-page.component';
 import { ReactiveFormsModule } from '@angular/forms';
 import { HttpClientModule } from '@angular/common/http';
 import { provideRouter } from '@angular/router';
+import { TasksPageComponent } from './components/tasks-page/tasks-page.component';
+import { TaskComponent } from './components/task/task.component';
 
 @NgModule({
   declarations: [
     AppComponent,
     StartPageComponent,
-    UserPageComponent
+    UserPageComponent,
+    TasksPageComponent,
+    TaskComponent
   ],
   imports: [
     BrowserModule,

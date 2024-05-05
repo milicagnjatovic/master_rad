@@ -8,7 +8,7 @@
 </form>
 
 <hr>
-<form class="ui form" [formGroup]="signUpForm" (ngSubmit)="signUp();">
+<form [formGroup]="signUpForm" (ngSubmit)="signUp();">
     <input type="text" formControlName="username">
     <input type="password" formControlName="password">
     <input type="email" formControlName="email">
