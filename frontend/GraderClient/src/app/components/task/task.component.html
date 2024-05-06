@@ -3,24 +3,37 @@
     <h3> {{ task?.name }}</h3>
     <p> {{ task?.text }}</p>
 
-    <table *ngIf="task != null && task.submission != null">
+    <table *ngIf="task != null && task.submission != null && task.submission.totalSubmissions>0">
         <tr>
         <td *ngIf="task.submission.correctSubmissions==0">
             {{ task.submission.correctSubmissions }} / {{ task.submission.totalSubmissions }}
         </td>
         <td *ngIf="task.submission.correctSubmissions>0">
-            <div  class="success-rate"  [ngStyle]="{'width.px': task.submission.correctSubmissions *100.0  / task.submission.totalSubmissions}">
+            <div  class="success-rate"  [ngStyle]="{'width.%': task.submission.correctSubmissions *100.0  / task.submission.totalSubmissions}">
                 {{ task.submission.correctSubmissions }} / {{ task.submission.totalSubmissions }}
             </div>
         </td>
-        <td [ngClass]="task.submission.isCorrect ? 'green' : 'red'">{{ task.submission.isCorrect ? "tačno" : "netačno"}} </td>
+        
+        <td *ngIf="!task.submission.isWaiting" [ngClass]="task.submission.isCorrect ? 'green' : 'red'">{{ task.submission.isCorrect ? "tačno" : "netačno"}} </td>
+        <td *ngIf="task.submission.isWaiting">
+            <mat-progress-bar mode="buffer"></mat-progress-bar></td>
         <td>{{ task.submission.message }} </td>
-        </tr>
+        
+    </tr>
     </table>
-    <form [formGroup]="checkTaskForm" (ngSubmit)="checkTask()" >
-        <input type="file" accept=".sql" formControlName="file" (change)="onFilePicked($event)" required>
+
+    <div *ngIf="task != null && task.submission != null && task.submission.totalSubmissions==0">
+        <mat-progress-bar mode="buffer"></mat-progress-bar>
+    </div>
+
+
+    <div *ngIf="task!=null && (task.submission==null || (task.submission!= null && !task.submission.isWaiting))">
+
+    <form [formGroup]="checkTaskForm" (ngSubmit)="checkTask()">
+        <input type="file" accept=".sql" formControlName="file" (change)="onFilePicked($event)" required value="izaberi fajl">
         <button type="submit">
             pregledaj
         </button>
-    </form>
+    </form> 
+    </div>
 </main>

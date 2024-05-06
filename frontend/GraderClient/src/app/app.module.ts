@@ -7,23 +7,26 @@ import { StartPageComponent } from './components/start-page/start-page.component
 import { UserPageComponent } from './components/user-page/user-page.component';
 import { ReactiveFormsModule } from '@angular/forms';
 import { HttpClientModule } from '@angular/common/http';
-import { provideRouter } from '@angular/router';
 import { TasksPageComponent } from './components/tasks-page/tasks-page.component';
 import { TaskComponent } from './components/task/task.component';
-
+import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
+import {MatProgressBarModule} from '@angular/material/progress-bar';
+import { HeaderComponent } from './components/header/header.component';
 @NgModule({
   declarations: [
     AppComponent,
     StartPageComponent,
     UserPageComponent,
     TasksPageComponent,
-    TaskComponent
+    TaskComponent,
+    HeaderComponent
   ],
   imports: [
     BrowserModule,
     AppRoutingModule,
     ReactiveFormsModule, 
-    HttpClientModule
+    HttpClientModule, BrowserAnimationsModule,
+    MatProgressBarModule
   ],
   providers: [
   ],

@@ -1,39 +1,56 @@
+@import '../../..//variables'
+
 main
-    background-color: pink
+    background-color: $light
+    color: $dark
     width: 80%
     position: absolute
     top: 0
     right: 0
     padding: 1%
     margin-right: 1%
+    border-radius: 5px
+
 
 table
     width: 100%
 
 td
-    border: solid black 2px
+    border: solid $dark 2px
     border-radius: 5px
     width: 30%
-    height: 2em
 
 .green
     background-color: green
 
 
 .red 
-    background-color: red
+    background-color: $red
 
 .yellow
     background-color: yellow
 
 .success-rate
-    background-color: green
+    background-color: $green
     border-radius: 5px
-    height: 2em
 
 button, input::file-selector-button
     margin: 2px 
+    padding: 5px
+    border-radius: 5px
     background-color: transparent
+    border: inset $dark 3px
+    color: $dark
+
+button:hover, input::file-selector-button:hover
+    background-color: $dark
+    border: inset $dark 3px
+    color: $light
+    font-weight: bold
 
 button, input
     display: block
+
+form 
+    margin-top: 10px
+

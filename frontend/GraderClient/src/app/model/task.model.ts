@@ -14,7 +14,7 @@ export class Task {
 
     setSubmissionSolution(solution : string){
         if (this.submission == null)
-            this.submission = new Submisson(false, 0, 1, this.id, false, "");
+            this.submission = new Submisson(false, 0, 0, this.id, false, "");
         this.submission.solution = solution;
     }
 

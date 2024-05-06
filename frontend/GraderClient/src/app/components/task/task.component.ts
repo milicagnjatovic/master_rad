@@ -7,7 +7,7 @@ import { TaskSubmissionsService } from 'src/app/services/task-submissions.servic
 @Component({
   selector: 'app-task',
   templateUrl: './task.component.html',
-  styleUrls: ['./task.component.sass']
+  styleUrls: ['./task.component.sass'],
 })
 export class TaskComponent {
   @Input() task : Task | null = null
