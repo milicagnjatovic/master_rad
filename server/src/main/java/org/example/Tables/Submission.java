@@ -62,6 +62,12 @@ public class Submission {
     @Column(name = "NO_SUBMISSIONS")
     public Integer TotalSubmissions = 0;
 
+    @OneToMany(fetch = FetchType.EAGER)
+    @JoinColumns({
+            @JoinColumn(name = "TASK_ID", referencedColumnName = "TASK_ID", insertable = false, updatable = false),
+            @JoinColumn(name = "STUDENT_ID", referencedColumnName = "USER_ID", insertable = false, updatable = false)
+    })
+    public List<Messages> QuestionForProfessor;
     @Override
     public String toString() {
         return Task.Id + " " + User.Id + " " + this.Query;
@@ -74,6 +80,12 @@ public class Submission {
         obj.put("noTotalSubmissions", this.TotalSubmissions);
         obj.put("isCorrect", this.IsCorrect);
         obj.put("isWaitingForResponse", this.WaitingForResponse);
+        obj.put("message", this.Message);
+
+        if (this.QuestionForProfessor.size() > 0) {
+            obj.put("question", this.QuestionForProfessor.get(0).toJSON());
+        }
+
         return obj;
     }
 
@@ -286,27 +298,13 @@ public class Submission {
         try {
             session = HibernateUtil.getSessionFactory().openSession();
 
-            List<Submission> ret = new ArrayList<>();
-
-            Query query = session.createQuery("SELECT s.Task.Id, s.WaitingForResponse, s.CorrectSubmissions, s.TotalSubmissions FROM Submission s WHERE SubmissionId.UserId = :userId");
+            Query query = session.createQuery("FROM Submission s WHERE s.SubmissionId.UserId = :userId", Submission.class);
             query.setParameter("userId", userId);
-            List<Object[]> submissions = query.list();
-
-            for (Object[] obj : submissions) {
-                Submission submission = new Submission();
-                Integer taskId = (Integer) obj[0];
-                submission.Task = new Task(taskId);
-                submission.User = new User(userId);
-                submission.WaitingForResponse = Boolean.valueOf((Boolean) obj[1]);
-                submission.CorrectSubmissions = (Integer) obj[2];
-                submission.TotalSubmissions = (Integer) obj[3];
-
-                ret.add(submission);
-            }
+            List<Submission> submissions = query.list();
 
             session.close();
 
-            return ret;
+            return submissions;
         } catch (Error err){
             System.err.println("Error | " + err);
             if (session != null && session.isOpen())
