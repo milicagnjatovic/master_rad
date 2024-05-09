@@ -8,15 +8,17 @@ import { AuthenticationService } from './authentication.service';
   providedIn: 'root'
 })
 export class TaskSubmissionsService {
-  private readonly url = "http://localhost:53000/server/checkTask"
-
+  private readonly urls = {
+    checkTask: "http://localhost:53000/server/checkTask",
+    askQuestion: "http://localhost:53000/message/askQuestion"
+  }
 
   constructor(private http : HttpClient, private auth: AuthenticationService) { }
 
   public checkTask(request: string, submissoin: Submisson){
     const body = JSON.parse(request);
-    console.log(body)
-    const obs: Observable<string> = this.http.post<string>(this.url, body);
+    // console.log(body)
+    const obs: Observable<string> = this.http.post<string>(this.urls.checkTask, body);
     
     this.auth.setSubmissionWaiting(submissoin);
 
@@ -28,6 +30,19 @@ export class TaskSubmissionsService {
     })
     )
 
+  }
+
+  public askQuestion(request: string){
+    const body = JSON.parse(request)
+
+    const obs: Observable<string> = this.http.post<string>(this.urls.askQuestion, body);
+
+    return obs.pipe(
+      tap((response:string) => {
+        console.log("ask question response")
+        console.log(response)
+      })
+    )
   }
   
   private parseResponse(response: string, submission: Submisson): Submisson | null{

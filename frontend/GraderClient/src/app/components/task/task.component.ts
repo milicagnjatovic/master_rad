@@ -1,5 +1,7 @@
 import { Component, Input } from '@angular/core';
 import { FormControl, FormGroup } from '@angular/forms';
+import { Message } from 'src/app/model/message.model';
+import { Professor } from 'src/app/model/professor.model';
 import { Task } from 'src/app/model/task.model';
 import { AuthenticationService } from 'src/app/services/authentication.service';
 import { TaskSubmissionsService } from 'src/app/services/task-submissions.service';
@@ -12,12 +14,22 @@ import { TaskSubmissionsService } from 'src/app/services/task-submissions.servic
 export class TaskComponent {
   @Input() task : Task | null = null
 
+  public professors : Professor[] = []
+
   checkTaskForm: FormGroup
+  askQuestionForm: FormGroup
 
   constructor(private submissionService: TaskSubmissionsService, private authService: AuthenticationService){
     this.checkTaskForm = new FormGroup({
       file: new FormControl("", [])
     })
+    this.askQuestionForm = new FormGroup({
+      question: new FormControl("", []),
+      professorId: new FormControl("", [])
+    })
+    let user = authService.getCurrentUser()
+    if(user != null)
+      this.professors = user.professors
   }
 
   checkTask(){
@@ -38,6 +50,43 @@ export class TaskComponent {
     this.submissionService.checkTask(request, this.task.submission).subscribe(
       ret => {
         console.log('vracen odgovor')
+        console.log(ret)
+      }
+    )
+  }
+
+  public showAskQuestion = false;
+  showAskQuestionForm(){
+    this.showAskQuestion = !this.showAskQuestion && this.task?.submission?.question==null
+  }
+
+  askQuestion(){
+    if(this.task?.submission == null){
+      alert("Fali submission")
+      return
+    }
+    let user = this.authService.getCurrentUser()
+    if(user==null){
+      alert("Korisnik nije pronadjen")
+      return
+    }
+
+    const data = this.askQuestionForm.value;
+
+    let question = data.question;
+    let professorId = data.professorId;
+    let request = this.task.submission.prepareJsonRequestForAskingQuestion(this.task.id, professorId, user.id, question);
+    let message = new Message(data)
+    this.task.submission.question = message
+    this.authService.askQuestion(this.task.submission)
+    this.submissionService.askQuestion(request).subscribe(
+      ret => {
+        console.log('vracen odgovor')
+        let response = JSON.parse(JSON.stringify(ret))
+        if('error' in response && response.error != null && response.error != ""){
+          alert(response.error)
+        }
+        this.showAskQuestion = false
         console.log(ret)
       }
     )

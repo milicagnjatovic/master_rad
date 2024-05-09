@@ -1,6 +1,6 @@
 <main>
     <h2> Zadatak </h2>
-    <h3> {{ task?.name }}</h3>
+    <h3> {{ task?.id }} {{ task?.name }}</h3>
     <p> {{ task?.text }}</p>
 
     <table *ngIf="task != null && task.submission != null && task.submission.totalSubmissions>0">
@@ -28,12 +28,32 @@
 
 
     <div *ngIf="task!=null && (task.submission==null || (task.submission!= null && !task.submission.isWaiting))">
+        <form [formGroup]="checkTaskForm" (ngSubmit)="checkTask()">
+            <input type="file" accept=".sql" formControlName="file" (change)="onFilePicked($event)" required value="izaberi fajl">
+            <button type="submit">
+                pregledaj
+            </button>
+        </form> 
 
-    <form [formGroup]="checkTaskForm" (ngSubmit)="checkTask()">
-        <input type="file" accept=".sql" formControlName="file" (change)="onFilePicked($event)" required value="izaberi fajl">
-        <button type="submit">
-            pregledaj
-        </button>
-    </form> 
+        <button *ngIf="!showAskQuestion && task!=null && task.submission!=null && task.submission.question==null && task.submission.totalSubmissions>0" (click)="showAskQuestionForm()">Postavi pitanje</button>
+
+        <form *ngIf="showAskQuestion" [formGroup]="askQuestionForm" (ngSubmit)="askQuestion()">
+            <textarea formControlName="question">xx</textarea>
+
+            <select formControlName="professorId" [ngModel]="0">
+                <option value="0" disabled>Izaberi profesora</option>
+                <option *ngFor="let professor of professors"  [ngValue]="professor.id">{{professor.username}}</option>
+            </select>
+            <button type="submit">
+                Pošalji pitanje
+            </button>
+        </form>
+    </div>
+
+
+    <div *ngIf="task!=null && task.submission!=null && task.submission.question!=null">
+        <h2>Pitanje</h2>
+        <p>{{ task.submission.question.question}}</p>
+        <p>{{ task.submission.question.response}}</p>
     </div>
 </main>

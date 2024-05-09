@@ -1,5 +1,9 @@
+import { Message } from "./message.model"
+import { Task } from "./task.model"
+
 export class Submisson {
     public solution : string = ""
+    public question: Message | null = null
     
     constructor(
         public isWaiting: boolean,
@@ -18,9 +22,16 @@ export class Submisson {
             solution: this.solution,
             ordering
         }
-        console.log("prepared json")
-        console.log(this)
-        console.log(JSON.stringify(obj))
+        return JSON.stringify(obj)
+    }
+
+    prepareJsonRequestForAskingQuestion(taskId: number, professorId: number, userId: number, question: string){
+        let obj = {
+            userId,
+            professorId,
+            taskId,
+            question
+        }
         return JSON.stringify(obj)
     }
 }

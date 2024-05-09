@@ -1,7 +1,10 @@
+import { Message } from "./message.model";
+import { Professor } from "./professor.model";
 import { Submisson } from "./submission.model";
 import { Task } from "./task.model";
 
 export class User {
+    public professors: Professor[]
     constructor(
         public id: number,
         public username: string,
@@ -13,16 +16,19 @@ export class User {
         public tasks: Task[],
         submissions: Submisson[]
     ) {
+      this.professors =[]
       let taskIdToSubmission : Map<number, Submisson> = new Map<number, Submisson>(); 
       
-      for(let submission of submissions){
-        taskIdToSubmission.set(submission.taskId, submission);
-      }
-      
-      for(let task of tasks){
-        let submission : Submisson | undefined = taskIdToSubmission.get(task.id)
-        if(submission != undefined) {
-          task.setSubmission(submission);
+      if(submissions.length>0){
+        for(let submission of submissions){
+          taskIdToSubmission.set(submission.taskId, submission);
+        }
+        
+        for(let task of tasks){
+          let submission : Submisson | undefined = taskIdToSubmission.get(task.id)
+          if(submission != undefined) {
+            task.setSubmission(submission);
+          }
         }
       }
     }
@@ -44,16 +50,27 @@ export class User {
           if(t.submission != null){
             let s = t.submission
             let submission = new Submisson(s.isWaiting, s.totalSubmissions, s.correctSubmissions, s.id, s.isCorrect, s.message)
+            if ('question' in s && s.question != null) {
+              submission.question = new Message(s.question)
+            }
             task.setSubmission(submission)
           }
         } 
 
-        return new User(data.id, data.username, data.password,  data.email, data.name, data.lastName, data.roleId, tasksList, []);
+        let user = new User(data.id, data.username, data.password,  data.email, data.name, data.lastName, data.roleId, tasksList, []);
+
+        let professors = []
+        for(let p of data.professors){
+          professors.push(new Professor(p.username, p.id))
+        }
+        user.professors = professors
+        return user
     }
 
-    logoutUser(): void {
-        localStorage.removeItem(User.STORE_USER_KEY);
-      }
+    static logout(): void {
+      localStorage.removeItem(User.STORE_USER_KEY);
+    }
+
     private static STORE_USER_KEY : string = "dbGradeUser"
 }
 

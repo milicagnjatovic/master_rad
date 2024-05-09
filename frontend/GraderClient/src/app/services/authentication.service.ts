@@ -4,6 +4,8 @@ import { Observable, tap, map, Subject, BehaviorSubject } from 'rxjs';
 import { User } from '../model/user.model';
 import { Task } from '../model/task.model';
 import { Submisson } from '../model/submission.model';
+import { Message } from '../model/message.model';
+import { Professor } from '../model/professor.model';
 
 @Injectable({
   providedIn: 'root'
@@ -48,6 +50,11 @@ export class AuthenticationService {
     )
   }
 
+  public logout(){
+    this.userSubject.next(null)
+    User.logout()
+  }
+
   public parseUser(payload : string) : User | null {
     console.log("payload")
     console.log(payload)
@@ -65,16 +72,27 @@ export class AuthenticationService {
     }
 
     let tasksList: Task[] = [];
-    for(let t of obj.tasks){
+    for(let t of obj.tasks.tasks){
       tasksList.push(new Task(t.taskId, t.graderId, t.text, t.name, t.ordering))
     }
 
     let submissionsList: Submisson[] = []
     for(let s of obj.submissions){
-      submissionsList.push(new Submisson(s.isWaitingForResponse, s.noTotalSubmissions, s.noCorrect, s.taskId, s.isCorrect, s.message))
+      let submission = new Submisson(s.isWaitingForResponse, s.noTotalSubmissions, s.noCorrect, s.taskId, s.isCorrect, s.message)
+      if ('question' in s && s.question != null) {
+        submission.question = new Message(s.question)
+      }
+      submissionsList.push(submission)
     }
 
     let storedUser = new User(obj.id, obj.username, obj.password, obj.email, obj.firstname, obj.lastname, obj.roleId, tasksList, submissionsList)
+
+    let professors: Professor[] = []
+    for(let p of obj.tasks.professors){
+      professors.push(new Professor(p.username, p.id))
+    }
+    storedUser.professors = professors;
+
     console.log('retreived')
     console.log(storedUser)
     this.userSubject.next(storedUser);
@@ -110,6 +128,19 @@ export class AuthenticationService {
           t.submission.isWaiting = true;
           break;
         }
+    }}
+    this.userSubject.next(user)
+  }
+
+  public askQuestion(submission: Submisson){
+    let user = this.getCurrentUser();
+
+    if(user?.tasks == null)
+      return
+
+    for(let t of user.tasks){
+      if(t.id == submission.taskId && t.submission) {
+        t.submission.question = submission.question
     }}
     this.userSubject.next(user)
   }
