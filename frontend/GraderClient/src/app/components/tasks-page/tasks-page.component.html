@@ -1,6 +1,6 @@
 <main>
 <div class="tasks-column">
-    <button *ngFor="let task of user?.tasks" (click)="setCurrentTask(task)">
+    <button  [ngClass]="{'correct': task.submission!=null && task.submission.correctSubmissions > 0}"  *ngFor="let task of user?.tasks" (click)="setCurrentTask(task)">
         {{task.id }}. {{task.name}} <br>
     </button>
 </div>

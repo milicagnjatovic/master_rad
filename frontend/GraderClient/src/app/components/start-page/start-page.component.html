@@ -1,20 +1,33 @@
-<h1>DBGrade</h1>
-<form class="ui form" [formGroup]="loginForm" (ngSubmit)="signIn();">
-    <input type="text" formControlName="username">
-    <input type="password" formControlName="password">
+<form *ngIf="showLoginForm" class="ui form" [formGroup]="loginForm" (ngSubmit)="signIn();">
+    <label for="usernameLogin">Korisničko ime:</label>
+    <input  id="usernameLogin" type="text" formControlName="username">
+    <label for="passwordLogin">Šifra:</label>
+    <input id="passwordLogin" type="password" formControlName="password">
     <button type="submit">
         uloguje se
     </button>
+    <button type="button" (click)="setShowLoginForm(false)">napravi nalog</button>
 </form>
 
-<hr>
-<form [formGroup]="signUpForm" (ngSubmit)="signUp();">
-    <input type="text" formControlName="username">
-    <input type="password" formControlName="password">
-    <input type="email" formControlName="email">
-    <input type="text" formControlName="firstName">
-    <input type="text" formControlName="lastName">
+<form *ngIf="!showLoginForm" [formGroup]="signUpForm" (ngSubmit)="signUp();">
+    <label for="username">Korisničko ime:</label>
+    <input id="username" type="text" formControlName="username">
+
+    <label for="password">Šifra:</label>
+    <input for="password" id="password" type="password" formControlName="password">
+
+    <label for="email">Mejl:
+        <p class="note">* Za studente matemataičkog fakulteta mora biti fakultetska mejl adresa</p>
+    </label>
+    <input id="email" type="email" formControlName="email">
+
+    <label for="firstName">Ime:</label>
+    <input id="firstName" type="text" formControlName="firstName">
+    
+    <label for="lastName">Prezime:</label>
+    <input id="lastName" type="text" formControlName="lastName">
     <button type="submit">
         napravi nalog
     </button>
+    <button type="button" (click)="setShowLoginForm(true)">uloguje se</button>
 </form>

@@ -1,2 +1,12 @@
 <h2>DBGrader</h2>
-<button *ngIf="isLoggedIn()" (click)="logout()">Izloguje se</button>
+<div *ngIf="isLoggedIn()">
+    <button (click)="logout()">Izloguje se</button>
+    <button>Nalog</button>
+</div>
+<table *ngIf="isLoggedIn()">
+    <tr>
+    <td (click) = "navigate('')">Obaveštenja</td>
+    <td (click) = "navigate('tasks')">Zadaci</td>
+    <td (click) = "navigate('rank')">Rang lista</td>
+    </tr>
+</table>

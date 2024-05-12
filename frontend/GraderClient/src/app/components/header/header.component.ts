@@ -11,18 +11,22 @@ import { AuthenticationService } from 'src/app/services/authentication.service';
 export class HeaderComponent {
   
   constructor(private router: Router, private authService: AuthenticationService){
-    // const user = 
   }
 
   isLoggedIn(): boolean {
     let user = this.authService.getCurrentUser()
-    console.log('user')
-    console.log(user)
     return user != null
   }
 
   logout(){
     this.authService.logout()
     this.router.navigate([''])
+  }
+
+  navigate(route: string) {
+    let routeList = ['home']
+    if(route != '')
+      routeList.push(route)
+    this.router.navigate(routeList)
   }
 }

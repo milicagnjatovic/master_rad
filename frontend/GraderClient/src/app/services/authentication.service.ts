@@ -6,6 +6,7 @@ import { Task } from '../model/task.model';
 import { Submisson } from '../model/submission.model';
 import { Message } from '../model/message.model';
 import { Professor } from '../model/professor.model';
+import { Notification } from '../model/notification.model';
 
 @Injectable({
   providedIn: 'root'
@@ -28,11 +29,11 @@ export class AuthenticationService {
     const obs: Observable<string> = this.http.post<string>(this.urls.login, body);
 
     return obs.pipe(
-      tap( (response: string) => {
-        this.userSubject.next(this.parseUser(response))
-        console.log(response)
-  }),
-      map((response: string) => this.parseUser(response))
+      map((response: string) => { 
+        let user = this.parseUser(response)
+        this.userSubject.next(user)
+        return user
+      })
     )
   }
 
@@ -42,11 +43,11 @@ export class AuthenticationService {
     const obs: Observable<string> = this.http.post<string>(this.urls.signUp, body);
 
     return obs.pipe(
-      tap( (response: string) => {
-        this.userSubject.next(this.parseUser(response))
-        // console.log(response)
-  }),
-      map((response: string) =>  this.parseUser(response) )
+      map((response: string) =>  {
+        let user = this.parseUser(response) 
+        this.userSubject.next(user)
+        return user
+      })
     )
   }
 
@@ -72,8 +73,10 @@ export class AuthenticationService {
     }
 
     let tasksList: Task[] = [];
-    for(let t of obj.tasks.tasks){
-      tasksList.push(new Task(t.taskId, t.graderId, t.text, t.name, t.ordering))
+    if ('tasks' in obj.tasks) {
+      for(let t of obj.tasks.tasks){
+        tasksList.push(new Task(t.taskId, t.graderId, t.text, t.name, t.ordering))
+      }
     }
 
     let submissionsList: Submisson[] = []
@@ -88,10 +91,20 @@ export class AuthenticationService {
     let storedUser = new User(obj.id, obj.username, obj.password, obj.email, obj.firstname, obj.lastname, obj.roleId, tasksList, submissionsList)
 
     let professors: Professor[] = []
-    for(let p of obj.tasks.professors){
-      professors.push(new Professor(p.username, p.id))
+    if('professors' in obj.tasks){
+      for(let p of obj.tasks.professors){
+        professors.push(new Professor(p.username, p.id))
+      }
     }
+
     storedUser.professors = professors;
+
+    let notificationList: Notification[] = []
+    for(let n of obj.tasks.notifications){
+      let notification = new Notification(n)
+      notificationList.push(notification)
+    }
+    storedUser.notifications = notificationList
 
     console.log('retreived')
     console.log(storedUser)

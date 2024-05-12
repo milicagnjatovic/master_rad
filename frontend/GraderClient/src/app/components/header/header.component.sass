@@ -2,15 +2,41 @@
 @import '../../app.component.sass'
 
 h2
-    background-color: $light
+    background-color: $dark
     margin: 0
     padding: 15px
     color: $accent
     font-size: 2em
-    margin-bottom: 10px
     position: static
 
-button
+div
     position: absolute
     right: 10px
     top: 10px
+
+    button
+        margin: 2px
+        color: $light
+        padding: 5px
+
+    button:hover 
+        color: $dark
+        background-color: $light
+        font-weight: bold
+
+table
+    background-color: $dark
+    width: 100%
+    margin-bottom: 10px
+    text-align: center 
+    td
+        border: solid $light 2px
+        border-radius: 5px
+        -webkit-user-select: none /* Safari */
+        -ms-user-select: none /* IE 10 and IE 11 */
+        user-select: none /* Standard syntax */
+
+    td:hover 
+        color: $dark
+        background-color: $light
+        font-weight: bold

@@ -1,8 +1,8 @@
-@import '../../..//variables'
+@import '../../../variables'
 
 main
-    background-color: $light
-    color: $dark
+    background-color: $dark
+    color: $light
     width: 80%
     position: absolute
     top: 0
@@ -16,19 +16,9 @@ table
     width: 100%
 
 td
-    border: solid $dark 2px
+    border: solid $light 2px
     border-radius: 5px
     width: 30%
-
-.green
-    background-color: green
-
-
-.red 
-    background-color: $red
-
-.yellow
-    background-color: yellow
 
 .success-rate
     background-color: $green
@@ -39,13 +29,13 @@ button, input::file-selector-button
     padding: 5px
     border-radius: 5px
     background-color: transparent
-    border: inset $dark 3px
-    color: $dark
+    border: inset $light 3px
+    color: $light
 
 button:hover, input::file-selector-button:hover
-    background-color: $dark
-    border: inset $dark 3px
-    color: $light
+    background-color: $light
+    border: inset $light 3px
+    color: $dark
     font-weight: bold
 
 button, input
@@ -53,6 +43,32 @@ button, input
 
 form 
     margin-top: 10px
-    border: solid gray 2px
     padding: 5px
+    display: relative 
+    
+.green 
+    background-color: $green 
+
+.red
+    background-color: $red
+
+textarea
+    width: 100%
+    margin: auto
+    display: block 
+    background-color: rgba(255,255,255, 0.25)
+
+.showQuestionButton
+    width: 100%
+    display: block 
+
+.askQuestionForm
+    width: 75%
+    margin: auto
+
+select, option
+    background-color: #654d60
+    width: 100%
+    margin-top: 10px
+    margin-bottom: 10px
 

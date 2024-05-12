@@ -1,10 +1,12 @@
 import { Message } from "./message.model";
+import { Notification } from "./notification.model";
 import { Professor } from "./professor.model";
 import { Submisson } from "./submission.model";
 import { Task } from "./task.model";
 
 export class User {
     public professors: Professor[]
+    public notifications: Notification[]
     constructor(
         public id: number,
         public username: string,
@@ -17,6 +19,7 @@ export class User {
         submissions: Submisson[]
     ) {
       this.professors =[]
+      this.notifications = []
       let taskIdToSubmission : Map<number, Submisson> = new Map<number, Submisson>(); 
       
       if(submissions.length>0){
@@ -39,23 +42,26 @@ export class User {
 
     static retreiveUser(): User | null {
         const storedUser = localStorage.getItem(this.STORE_USER_KEY);
-        if (storedUser == null)
+        if (storedUser == null || storedUser == 'null')
             return null
         let data = JSON.parse(storedUser);
 
+
         let tasksList: Task[] = [];
-        for(let t of data.tasks){
-          let task = new Task(t.id, t.graderId, t.text, t.name, t.ordering)
-          tasksList.push(task)
-          if(t.submission != null){
-            let s = t.submission
-            let submission = new Submisson(s.isWaiting, s.totalSubmissions, s.correctSubmissions, s.id, s.isCorrect, s.message)
-            if ('question' in s && s.question != null) {
-              submission.question = new Message(s.question)
+        if(data.tasks != null) {
+          for(let t of data.tasks){
+            let task = new Task(t.id, t.graderId, t.text, t.name, t.ordering)
+            tasksList.push(task)
+            if(t.submission != null){
+              let s = t.submission
+              let submission = new Submisson(s.isWaiting, s.totalSubmissions, s.correctSubmissions, s.id, s.isCorrect, s.message)
+              if ('question' in s && s.question != null) {
+                submission.question = new Message(s.question)
+              }
+              task.setSubmission(submission)
             }
-            task.setSubmission(submission)
-          }
-        } 
+          } 
+        }
 
         let user = new User(data.id, data.username, data.password,  data.email, data.name, data.lastName, data.roleId, tasksList, []);
 
@@ -64,6 +70,14 @@ export class User {
           professors.push(new Professor(p.username, p.id))
         }
         user.professors = professors
+
+        let notificationList: Notification[] = []
+        for(let n of data.tasks.notifications){
+          let notification = new Notification(n)
+          notificationList.push(notification)
+        }
+        user.notifications = notificationList
+
         return user
     }
 

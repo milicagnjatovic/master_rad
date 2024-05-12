@@ -12,6 +12,9 @@ import { TaskComponent } from './components/task/task.component';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import {MatProgressBarModule} from '@angular/material/progress-bar';
 import { HeaderComponent } from './components/header/header.component';
+import { InfoPageComponent } from './components/info-page/info-page.component';
+import { RankPageComponent } from './components/rank-page/rank-page.component';
+import { DatePipe } from '@angular/common';
 @NgModule({
   declarations: [
     AppComponent,
@@ -19,7 +22,9 @@ import { HeaderComponent } from './components/header/header.component';
     UserPageComponent,
     TasksPageComponent,
     TaskComponent,
-    HeaderComponent
+    HeaderComponent,
+    InfoPageComponent,
+    RankPageComponent
   ],
   imports: [
     BrowserModule,
@@ -29,6 +34,7 @@ import { HeaderComponent } from './components/header/header.component';
     MatProgressBarModule
   ],
   providers: [
+    DatePipe
   ],
   bootstrap: [AppComponent]
 })

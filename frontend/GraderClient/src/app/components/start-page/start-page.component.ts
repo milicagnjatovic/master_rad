@@ -45,14 +45,21 @@ export class StartPageComponent {
 
     this.subscription = observer.subscribe((user: User | null) => {
       console.log("logged in")
+      if(user==null)
+        return
       User.storeUser(user)
-      this.router.navigate(['task-page'])
+      this.router.navigate(['home'])
 
     }, 
   error => {
     console.log(error)
     alert(error)
   })
+  }
+
+  public showLoginForm: boolean = true 
+  setShowLoginForm(b: boolean){
+    this.showLoginForm = b
   }
 
   signUp(){
@@ -68,8 +75,10 @@ export class StartPageComponent {
 
     this.subscription = observer.subscribe((user: User | null) => {
       console.log("retreived")
+      if(user==null)
+        return
       User.storeUser(user)
-      this.router.navigate(['task-page'])
+      this.router.navigate(['home'])
     }, 
   error => {
     console.log(error)

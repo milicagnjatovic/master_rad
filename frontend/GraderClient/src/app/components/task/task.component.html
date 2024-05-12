@@ -35,16 +35,16 @@
             </button>
         </form> 
 
-        <button *ngIf="!showAskQuestion && task!=null && task.submission!=null && task.submission.question==null && task.submission.totalSubmissions>0" (click)="showAskQuestionForm()">Postavi pitanje</button>
+        <button *ngIf="!showAskQuestion && task!=null && task.submission!=null && task.submission.question==null && task.submission.totalSubmissions>0" (click)="showAskQuestionForm()" class="showQuestionButton">Postavi pitanje</button>
 
-        <form *ngIf="showAskQuestion" [formGroup]="askQuestionForm" (ngSubmit)="askQuestion()">
-            <textarea formControlName="question">xx</textarea>
+        <form *ngIf="showAskQuestion && task!=null && task.submission!=null && task.submission.question==null && task.submission.totalSubmissions>0" [formGroup]="askQuestionForm" (ngSubmit)="askQuestion()" class="askQuestionForm">
+            <textarea formControlName="question" placeholder="Pitanje..."></textarea>
 
             <select formControlName="professorId" [ngModel]="0">
                 <option value="0" disabled>Izaberi profesora</option>
                 <option *ngFor="let professor of professors"  [ngValue]="professor.id">{{professor.username}}</option>
             </select>
-            <button type="submit">
+            <button type="submit" class="showQuestionButton">
                 Pošalji pitanje
             </button>
         </form>
