@@ -29,6 +29,7 @@ public class HibernateUtil {
                     .addAnnotatedClass(RoleGraderPermission.class)
                     .addAnnotatedClass(MessageID.class)
                     .addAnnotatedClass(Message.class)
+                    .addAnnotatedClass(Notification.class)
                     .buildMetadata()
                     .buildSessionFactory();
 

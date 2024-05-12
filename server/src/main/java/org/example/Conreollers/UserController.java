@@ -3,6 +3,7 @@ package org.example.Conreollers;
 import jakarta.ws.rs.Consumes;
 import jakarta.ws.rs.POST;
 import jakarta.ws.rs.Path;
+import org.example.Tables.Notification;
 import org.example.Tables.Task;
 import org.example.Tables.User;
 import org.json.JSONArray;
@@ -116,6 +117,7 @@ public class UserController {
             JSONObject ret = user.toJSON(request.getString("password"));
             JSONObject tasks = Task.getTasksForRole(user.Role.Id);
             ret.put("tasks", tasks);
+            ret.put("notifications", Notification.getNotificationsJSONArray(5));
             return ret;
         }
         return new JSONObject().put("Error", response);

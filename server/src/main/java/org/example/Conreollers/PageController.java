@@ -5,10 +5,7 @@ import jakarta.ws.rs.POST;
 import jakarta.ws.rs.Path;
 import jakarta.ws.rs.Produces;
 import org.example.FileUtil;
-import org.example.Tables.Role;
-import org.example.Tables.Submission;
-import org.example.Tables.Task;
-import org.example.Tables.User;
+import org.example.Tables.*;
 import org.example.Views.TaskStatistic;
 import org.example.Views.UserStatistic;
 import org.json.JSONArray;
@@ -75,6 +72,7 @@ public class PageController {
             JSONArray tasksJSON = Task.tasksToJSONArray(tasksPerRole.get(roleId));
             data.put("tasks", tasksJSON);
             data.put("professors", availableProfessors);
+            data.put("notifications", Notification.getNotificationsJSONArray(5));
 
             FileUtil.writeToFile(roleId + FileUtil.FILE_WITH_TASKS, data.toString());
         }
