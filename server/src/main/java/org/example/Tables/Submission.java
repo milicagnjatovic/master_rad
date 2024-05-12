@@ -10,7 +10,7 @@ import javax.persistence.*;
 import java.util.*;
 
 @Entity
-@Table(name = "SUBMISSIONS")
+@Table(name = "SUBMISSION")
 public class Submission {
     @EmbeddedId
     public SubmissionID SubmissionId;
@@ -67,7 +67,7 @@ public class Submission {
             @JoinColumn(name = "TASK_ID", referencedColumnName = "TASK_ID", insertable = false, updatable = false),
             @JoinColumn(name = "STUDENT_ID", referencedColumnName = "USER_ID", insertable = false, updatable = false)
     })
-    public List<Messages> QuestionForProfessor;
+    public List<org.example.Tables.Message> QuestionForProfessor;
     @Override
     public String toString() {
         return Task.Id + " " + User.Id + " " + this.Query;

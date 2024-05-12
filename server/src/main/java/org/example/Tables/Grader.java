@@ -20,7 +20,7 @@ import java.util.Map;
 import java.util.TreeMap;
 
 @Entity
-@Table(name = "GRADERS")
+@Table(name = "GRADER")
 public class Grader {
     /**
      * Mapa aktivnih pregledača. Mapira id pregledača i pregledač. Koristi se za dohvtaanje adrese pregledača preko identifikatora.

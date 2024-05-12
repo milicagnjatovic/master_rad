@@ -3,8 +3,6 @@ package org.example.Tables;
 import org.example.HibernateUtil;
 import org.hibernate.Session;
 import org.hibernate.query.Query;
-import org.json.JSONArray;
-import org.json.JSONMLParserConfiguration;
 import org.json.JSONObject;
 
 import javax.persistence.*;
@@ -17,14 +15,14 @@ import java.util.List;
  * If user has access to grader he has access to all the tasks for that grader.
  */
 @Entity
-@Table(name = "ROLE_GRADER_PERMISSION")
+@Table(name = "PERMISSION")
 public class RoleGraderPermission {
     @EmbeddedId
     public RoleGraderPermissionID PermissionId;
 
     @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "ROLE_ID", referencedColumnName = "ID", insertable = false, updatable = false)
-    public Roles PermissionRole;
+    public Role PermissionRole;
 
     @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "GRADER_ID", referencedColumnName = "ID", insertable = false, updatable = false)

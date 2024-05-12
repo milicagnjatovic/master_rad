@@ -11,8 +11,8 @@ import java.util.Date;
 import java.util.List;
 
 @Entity
-@Table(name = "MESSAGES")
-public class Messages {
+@Table(name = "MESSAGE")
+public class Message {
     @EmbeddedId
     public MessageID Id;
 
@@ -22,7 +22,7 @@ public class Messages {
     @Column(name="PROFESSOR_ID", nullable = false)
     public Integer ProfessorId;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "PROFESSOR_ID", referencedColumnName = "ID", insertable = false, updatable = false)
     public User Professor;
 
@@ -43,12 +43,12 @@ public class Messages {
     })
     public Submission SubmissionInQuestion;
 
-    public static String insertMessage(Messages message){
+    public static String insertMessage(Message message){
         Session session = null;
         try {
             session = HibernateUtil.getSessionFactory().openSession();
 
-            Messages existingMessage = session.get(Messages.class, message.Id);
+            Message existingMessage = session.get(Message.class, message.Id);
             if (existingMessage != null){
                 session.close();
                 return "Question is already asked";
@@ -92,12 +92,12 @@ public class Messages {
         }
     }
 
-    public static String responseToMessage(Messages message){
+    public static String responseToMessage(Message message){
         Session session = null;
         try {
             session = HibernateUtil.getSessionFactory().openSession();
 
-            Messages existingMessage = session.get(Messages.class, message.Id);
+            Message existingMessage = session.get(Message.class, message.Id);
             if (existingMessage == null){
                 session.close();
                 return "Question does not exist";
@@ -132,7 +132,7 @@ public class Messages {
         }
     }
 
-    public Messages(JSONObject obj){
+    public Message(JSONObject obj){
         System.out.println(obj);
         Integer userId = obj.optInt("userId", -1);
         Integer taskId = obj.optInt("taskId", -1);
@@ -150,14 +150,14 @@ public class Messages {
         this.SubmissionInQuestion = new Submission(submissionID);
     }
 
-    public static List<Messages> getAllMessages(Integer userId){
+    public static List<Message> getAllMessages(Integer userId){
         Session session = null;
         try {
             session = HibernateUtil.getSessionFactory().openSession();
 
-            Query query = session.createQuery("FROM Messages WHERE ProfessorId = :userId OR Id.StudentId = :userId ORDER BY CreatedDate ASC", Messages.class);
+            Query query = session.createQuery("FROM Message WHERE ProfessorId = :userId OR Id.StudentId = :userId ORDER BY CreatedDate ASC", Message.class);
             query.setParameter("userId", userId);
-            List<Messages> messages = query.getResultList();
+            List<Message> messages = query.getResultList();
 
             session.close();
             return messages;
@@ -173,7 +173,7 @@ public class Messages {
         }
     }
 
-    public Messages(){}
+    public Message(){}
 
     @Override
     public String toString() {
@@ -183,7 +183,8 @@ public class Messages {
     public JSONObject toJSON(){
         JSONObject obj = new JSONObject();
         obj.put("userId", this.Id.StudentId);
-        obj.put("professor", this.ProfessorId);
+        obj.put("professorId", this.ProfessorId);
+        obj.put("professor", this.Professor.Username);
         obj.put("question", this.Question);
         obj.put("response", this.Response);
         obj.put("createdDate", this.CreatedDate);

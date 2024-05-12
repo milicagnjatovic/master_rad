@@ -11,7 +11,7 @@ import javax.persistence.*;
 import java.util.*;
 
 @Entity
-@Table(name = "TASKS")
+@Table(name = "TASK")
 public class Task {
     @Id
     @Column(name = "ID")
@@ -317,12 +317,12 @@ public class Task {
         }
     }
 
-    public static JSONArray getTasksForRole(Integer roleID) {
+    public static JSONObject getTasksForRole(Integer roleID) {
         String fileContent = FileUtil.readFromFile(roleID + FileUtil.FILE_WITH_TASKS);
         if (fileContent == "404"){
-            return new JSONArray();
+            return new JSONObject();
         }
-        return new JSONArray(fileContent);
+        return new JSONObject(fileContent);
     }
 
     public static JSONArray tasksToJSONArray(List<Task> tasks){

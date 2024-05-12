@@ -78,7 +78,7 @@ public class UserController {
     public String login(String body){
         try {
             JSONObject user = User.login(new JSONObject(body));
-            JSONArray tasks = Task.getTasksForRole(user.optInt("roleId", -1));
+            JSONObject tasks = Task.getTasksForRole(user.optInt("roleId", -1));
             user.put("tasks", tasks);
             return user.toString();
         } catch (NoSuchAlgorithmException e) {
@@ -113,7 +113,10 @@ public class UserController {
             response = User.updateUser(user);
 
         if (response.isEmpty()){
-            return user.toJSON(request.getString("password"));
+            JSONObject ret = user.toJSON(request.getString("password"));
+            JSONObject tasks = Task.getTasksForRole(user.Role.Id);
+            ret.put("tasks", tasks);
+            return ret;
         }
         return new JSONObject().put("Error", response);
     }

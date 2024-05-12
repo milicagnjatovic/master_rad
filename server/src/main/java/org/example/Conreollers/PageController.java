@@ -5,9 +5,10 @@ import jakarta.ws.rs.POST;
 import jakarta.ws.rs.Path;
 import jakarta.ws.rs.Produces;
 import org.example.FileUtil;
-import org.example.Tables.Roles;
+import org.example.Tables.Role;
 import org.example.Tables.Submission;
 import org.example.Tables.Task;
+import org.example.Tables.User;
 import org.example.Views.TaskStatistic;
 import org.example.Views.UserStatistic;
 import org.json.JSONArray;
@@ -38,9 +39,9 @@ public class PageController {
         }
 
         String fileContent = Task.getTasksForRole(roleID).toString();
-        if (new JSONArray(fileContent).length() == 0){
-            return new JSONObject().put("error", "There are no tasks for given role.").toString();
-        }
+//        if (new JSONArray(fileContent).length() == 0){
+//            return new JSONObject().put("error", "There are no tasks for given role.").toString();
+//        }
 
         return fileContent;
     }
@@ -54,16 +55,28 @@ public class PageController {
     public static String refreshTasks(){
         System.out.println("[refreshAllTasks]");
 
-        List<Roles> roles = Roles.getAllRoles();
-        for (Roles role : roles){
+        List<Role> roles = Role.getAllRoles();
+        for (Role role : roles){
             FileUtil.removeFile(role.Id + FileUtil.FILE_WITH_TASKS);
+        }
+
+        List<User> users = User.usersAvailableToAnswerQuestions();
+        JSONArray availableProfessors = new JSONArray();
+        for (User user : users){
+            JSONObject obj = new JSONObject();
+            obj.put("username", user.Username);
+            obj.put("id", user.Id);
+            availableProfessors.put(obj);
         }
 
         Map<Integer, List<Task>> tasksPerRole = Task.getAllTasksPerRole();
         for(Integer roleId : tasksPerRole.keySet()) {
-
+            JSONObject data = new JSONObject();
             JSONArray tasksJSON = Task.tasksToJSONArray(tasksPerRole.get(roleId));
-            FileUtil.writeToFile(roleId + FileUtil.FILE_WITH_TASKS, tasksJSON.toString());
+            data.put("tasks", tasksJSON);
+            data.put("professors", availableProfessors);
+
+            FileUtil.writeToFile(roleId + FileUtil.FILE_WITH_TASKS, data.toString());
         }
 
         return new JSONObject().put("message", "generated ").toString();

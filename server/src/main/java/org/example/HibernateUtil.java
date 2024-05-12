@@ -18,7 +18,7 @@ public class HibernateUtil {
                     .build();
             sessionFactory = new MetadataSources(registry)
                     .addAnnotatedClass(Grader.class)
-                    .addAnnotatedClass(Roles.class)
+                    .addAnnotatedClass(Role.class)
                     .addAnnotatedClass(SubmissionID.class)
                     .addAnnotatedClass(Submission.class)
                     .addAnnotatedClass(Task.class)
@@ -28,7 +28,7 @@ public class HibernateUtil {
                     .addAnnotatedClass(RoleGraderPermissionID.class)
                     .addAnnotatedClass(RoleGraderPermission.class)
                     .addAnnotatedClass(MessageID.class)
-                    .addAnnotatedClass(Messages.class)
+                    .addAnnotatedClass(Message.class)
                     .buildMetadata()
                     .buildSessionFactory();
 

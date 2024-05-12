@@ -3,7 +3,7 @@ package org.example.Conreollers;
 import jakarta.ws.rs.GET;
 import jakarta.ws.rs.POST;
 import jakarta.ws.rs.Path;
-import org.example.Tables.Messages;
+import org.example.Tables.Message;
 import org.example.Tables.User;
 import org.json.JSONArray;
 import org.json.JSONObject;
@@ -20,10 +20,10 @@ public class MessageController {
         if (!req.has("userId") || !req.has("professorId") || !req.has("question") || !req.has("taskId"))
             return new JSONObject().put("error", "Missing userId, professorsId, taskId or question").toString();
 
-        Messages message = new Messages(req);
+        Message message = new Message(req);
         if (message == null)
             return new JSONObject().put("error", "Cannot create object.").toString();
-        String error = Messages.insertMessage(message);
+        String error = Message.insertMessage(message);
 
         return new JSONObject().put("error", error).toString();
     }
@@ -37,8 +37,8 @@ public class MessageController {
             return new JSONObject().put("error", "Missing userId, taskId, professorId or response").toString();
         }
 
-        Messages messages = new Messages(req);
-        String updateMessage = Messages.responseToMessage(messages);
+        Message messages = new Message(req);
+        String updateMessage = Message.responseToMessage(messages);
         return new JSONObject().put("error", updateMessage).toString();
     }
 
@@ -53,10 +53,10 @@ public class MessageController {
             return new JSONObject().put("error", "Missing userId").toString();
         }
 
-        List<Messages> messages = Messages.getAllMessages(userId);
+        List<Message> messages = Message.getAllMessages(userId);
 
         JSONArray ret = new JSONArray();
-        for(Messages message : messages){
+        for(Message message : messages){
             ret.put(message.toJSON());
         }
         return ret.toString();

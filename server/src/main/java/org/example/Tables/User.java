@@ -18,7 +18,7 @@ import java.util.Date;
 import java.util.List;
 
 @Entity
-@Table(name = "USERS")
+@Table(name = "USER")
 @DynamicUpdate
 public class User {
     @Id
@@ -49,9 +49,9 @@ public class User {
 
     @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "ROLE_ID", referencedColumnName = "ID")
-    public Roles Role;
+    public org.example.Tables.Role Role;
 
-    @OneToMany(mappedBy = "User")
+    @OneToMany(mappedBy = "User", fetch = FetchType.EAGER)
     public List<Submission> Submissions;
 
     public User(Integer id){
@@ -86,7 +86,7 @@ public class User {
         this.Email = obj.optString("email", null);
         this.FirstName = obj.optString("firstname", null);
         this.LastName = obj.optString("lastname", null);
-        this.Role = new Roles();
+        this.Role = new Role();
 
         if(obj.has("role"))
             this.Role.Id = obj.getInt("role");
@@ -116,7 +116,7 @@ public class User {
                 return "Username or email are taken";
             }
 
-            Roles role = session.get(Roles.class, user.Role.Id);
+            org.example.Tables.Role role = session.get(org.example.Tables.Role.class, user.Role.Id);
             user.Role = role;
 
             session.save(user);
@@ -173,7 +173,7 @@ public class User {
             if (user.Username!=null) existingUser.Username = user.Username;
             if (user.Email!=null) existingUser.Email = user.Email;
             if (user.Password!=null) existingUser.Password = user.Password;
-            if (user.Role!=null) existingUser.Role = session.get(Roles.class, user.Role.Id);
+            if (user.Role!=null) existingUser.Role = session.get(org.example.Tables.Role.class, user.Role.Id);
 
             session.update(existingUser);
 

@@ -10,8 +10,8 @@ import java.util.Date;
 import java.util.List;
 
 @Entity
-@Table(name = "ROLES")
-public class Roles {
+@Table(name = "ROLE")
+public class Role {
     @Id
     @Column(name = "ID")
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -29,7 +29,7 @@ public class Roles {
     @Column(name = "CREATED_DATE")
     public Date CreatedDate;
 
-    public Roles() {
+    public Role() {
         this.Id = 4;
     }
 
@@ -38,13 +38,13 @@ public class Roles {
         return this.Name + " " + this.Id;
     }
 
-    public static List<Roles> getAllRoles(){
+    public static List<Role> getAllRoles(){
         Session session = null;
-        List<Roles> ret = new ArrayList<>();
+        List<Role> ret = new ArrayList<>();
         try {
             session = HibernateUtil.getSessionFactory().openSession();
 
-            Query query = session.createQuery("FROM Roles", Roles.class);
+            Query query = session.createQuery("FROM Role", Role.class);
             ret.addAll(query.list());
             session.close();
             return ret;
