@@ -66,17 +66,21 @@ export class User {
         let user = new User(data.id, data.username, data.password,  data.email, data.name, data.lastName, data.roleId, tasksList, []);
 
         let professors = []
-        for(let p of data.professors){
-          professors.push(new Professor(p.username, p.id))
+        if(data.professors != null) {
+          for(let p of data.professors){
+            professors.push(new Professor(p.username, p.id))
+          }
+          user.professors = professors
         }
-        user.professors = professors
 
         let notificationList: Notification[] = []
-        for(let n of data.tasks.notifications){
-          let notification = new Notification(n)
-          notificationList.push(notification)
+        if(data.notification != null) {
+          for(let n of data.notifications){
+            let notification = new Notification(n)
+            notificationList.push(notification)
+          }
+          user.notifications = notificationList
         }
-        user.notifications = notificationList
 
         return user
     }

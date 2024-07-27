@@ -13,9 +13,12 @@ import { Notification } from '../model/notification.model';
 })
 export class AuthenticationService {
 
+  public static SERVER_ADDRESS = "http://grader.matf.bg.ac.rs:5200"
+
   private readonly urls = {
-    login: "http://0.0.0.0:53000/user/login",
-    signUp: "http://localhost:53000/user/create"
+    login: `${AuthenticationService.SERVER_ADDRESS}/user/login`,
+    signUp: `${AuthenticationService.SERVER_ADDRESS}/user/create`,
+    updateUser: `${AuthenticationService.SERVER_ADDRESS}/user/update`
   }
 
   private readonly userSubject: BehaviorSubject<User | null> = new BehaviorSubject<User | null>(null);
@@ -44,6 +47,26 @@ export class AuthenticationService {
 
     return obs.pipe(
       map((response: string) =>  {
+        let user = this.parseUser(response) 
+        this.userSubject.next(user)
+        return user
+      })
+    )
+  }
+
+  public updateUser(id: Number, username: string, password: string, firstName: string, lastName:string, email: string): Observable<User | null>{
+    const body = {username, password, "firstname": firstName, "lastname": lastName, email, id}
+
+    const obs: Observable<string> = this.http.post<string>(this.urls.updateUser, body);
+
+    return obs.pipe(
+      map((response: string) =>  {
+        let resp = JSON.parse(JSON.stringify(response))
+        if('error' in resp){
+          alert(resp.error)
+          return null;
+        }
+
         let user = this.parseUser(response) 
         this.userSubject.next(user)
         return user
@@ -100,9 +123,11 @@ export class AuthenticationService {
     storedUser.professors = professors;
 
     let notificationList: Notification[] = []
-    for(let n of obj.tasks.notifications){
-      let notification = new Notification(n)
-      notificationList.push(notification)
+    if(obj.tasks != null && 'notifications' in obj.tasks){
+      for(let n of obj.tasks.notifications){
+        let notification = new Notification(n)
+        notificationList.push(notification)
+      }
     }
     storedUser.notifications = notificationList
 

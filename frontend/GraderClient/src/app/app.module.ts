@@ -15,6 +15,7 @@ import { HeaderComponent } from './components/header/header.component';
 import { InfoPageComponent } from './components/info-page/info-page.component';
 import { RankPageComponent } from './components/rank-page/rank-page.component';
 import { DatePipe } from '@angular/common';
+import { ProfilePageComponent } from './components/profile-page/profile-page.component';
 @NgModule({
   declarations: [
     AppComponent,
@@ -24,7 +25,8 @@ import { DatePipe } from '@angular/common';
     TaskComponent,
     HeaderComponent,
     InfoPageComponent,
-    RankPageComponent
+    RankPageComponent,
+    ProfilePageComponent
   ],
   imports: [
     BrowserModule,

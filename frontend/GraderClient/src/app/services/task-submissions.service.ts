@@ -9,8 +9,8 @@ import { AuthenticationService } from './authentication.service';
 })
 export class TaskSubmissionsService {
   private readonly urls = {
-    checkTask: "http://localhost:53000/server/checkTask",
-    askQuestion: "http://localhost:53000/message/askQuestion"
+    checkTask: `${AuthenticationService.SERVER_ADDRESS}/server/checkTask`,
+    askQuestion: `${AuthenticationService.SERVER_ADDRESS}/message/askQuestion`
   }
 
   constructor(private http : HttpClient, private auth: AuthenticationService) { }

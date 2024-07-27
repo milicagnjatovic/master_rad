@@ -5,6 +5,7 @@ import { StartPageComponent } from './components/start-page/start-page.component
 import { TasksPageComponent } from './components/tasks-page/tasks-page.component';
 import { InfoPageComponent } from './components/info-page/info-page.component';
 import { RankPageComponent } from './components/rank-page/rank-page.component';
+import { ProfilePageComponent } from './components/profile-page/profile-page.component';
 
 const routes: Routes = [
   { 
@@ -13,7 +14,8 @@ const routes: Routes = [
     children: [
       { path: '', component: InfoPageComponent},
       { path: 'tasks', component: TasksPageComponent},
-      { path: 'rank', component: RankPageComponent}
+      { path: 'rank', component: RankPageComponent},
+      { path: 'profile', component: ProfilePageComponent}
     ]
   },
   { path: '', component: StartPageComponent}

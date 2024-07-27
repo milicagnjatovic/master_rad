@@ -1,15 +1,4 @@
-<form *ngIf="showLoginForm" class="ui form" [formGroup]="loginForm" (ngSubmit)="signIn();" class="userForm">
-    <label for="usernameLogin">Korisničko ime:</label>
-    <input  id="usernameLogin" type="text" formControlName="username">
-    <label for="passwordLogin">Šifra:</label>
-    <input id="passwordLogin" type="password" formControlName="password">
-    <button type="submit">
-        uloguje se
-    </button>
-    <button type="button" (click)="setShowLoginForm(false)">napravi nalog</button>
-</form>
-
-<form *ngIf="!showLoginForm" [formGroup]="signUpForm" (ngSubmit)="signUp();" class="userForm">
+<form [formGroup]="updateUserForm" (ngSubmit)="changeInformation();" class="userForm">
     <label for="username">Korisničko ime:</label>
     <input id="username" type="text" formControlName="username">
 
@@ -27,7 +16,6 @@
     <label for="lastName">Prezime:</label>
     <input id="lastName" type="text" formControlName="lastName">
     <button type="submit">
-        napravi nalog
+        Izmeni informacije
     </button>
-    <button type="button" (click)="setShowLoginForm(true)">uloguje se</button>
 </form>

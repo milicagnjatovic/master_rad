@@ -7,25 +7,25 @@ import { AuthenticationService } from 'src/app/services/authentication.service';
   templateUrl: './user-page.component.html',
   styleUrls: ['./user-page.component.sass']
 })
-export class UserPageComponent implements OnInit{
-  public user: User | null;
-  constructor(private auth: AuthenticationService){
-    this.user = null
-    console.log('construct user compo')
-  }
+export class UserPageComponent {
+  // export class UserPageComponent implements OnInit{
+  // public user: User | null;
+  // constructor(private auth: AuthenticationService){
+  //   this.user = null
+  //   console.log('construct user compo')
+  // }
 
-  ngOnInit(): void {
-    console.log("inti")
-  //  this.user = this.auth.currentUser()
-   console.log(this.user)
-   this.auth.user.subscribe(
-     user => {
-      this.user = user
- 
-    },
-    error => {
-      console.log(error)
-    }
-   )   
-  }
+  // ngOnInit(): void {
+  //   console.log("inti")
+  //  this.user = this.auth.getCurrentUser()
+  //  console.log(this.user)
+  //  this.auth.user.subscribe(
+  //     user => {
+  //     this.user = user
+  //   },
+  //   error => {
+  //     console.log(error)
+  //   }
+  //  )   
+  // }
 }

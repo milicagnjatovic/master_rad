@@ -1,9 +1,9 @@
 <h2>DBGrader</h2>
-<div *ngIf="isLoggedIn()">
-    <button (click)="logout()">Izloguje se</button>
-    <button>Nalog</button>
+<div *ngIf="isLoggedIn()" class="no-select">
+    <button (click) = "logout()">Izloguje se</button>
+    <button (click) = "navigate('profile')">Nalog</button>
 </div>
-<table *ngIf="isLoggedIn()">
+<table *ngIf="isLoggedIn()" class="no-select">
     <tr>
     <td (click) = "navigate('')">Obaveštenja</td>
     <td (click) = "navigate('tasks')">Zadaci</td>
