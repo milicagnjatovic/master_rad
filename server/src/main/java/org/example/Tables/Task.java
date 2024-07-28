@@ -52,6 +52,9 @@ public class Task {
     @Column(name = "ORDERING")
     public String Ordering;
 
+    @Column(name = "ACTIVE")
+    public boolean Active = true;
+
     public Task(){}
 
     /**
@@ -78,6 +81,7 @@ public class Task {
         this.Grader = grader;
         this.Ordering = obj.optString("ordering", null);
         this.Name = obj.optString("name", null);
+        this.Active = obj.optBoolean("active", true);
     }
 
     public Task(Integer id){
@@ -146,7 +150,7 @@ public class Task {
             session.close();
 
         } catch (Exception err){
-            System.err.println("Error" + err.getMessage());
+            System.err.println("error" + err.getMessage());
             JSONObject ret = new JSONObject();
             ret.put("message", "Error | " + err.getMessage());
             errorArray.put(ret);
@@ -222,6 +226,9 @@ public class Task {
                 if (newTask.Name != null && !newTask.Name.isBlank())
                     task.Name = newTask.Name;
 
+                if (newTask.Active != task.Active)
+                    task.Active = newTask.Active;
+
                 task.LastGeneratedDate = new Date();
 
                 session.update(task);
@@ -274,7 +281,7 @@ public class Task {
         Session session = null;
         try {
             session = HibernateUtil.getSessionFactory().openSession();
-            Query queryTasks = session.createQuery("FROM Task WHERE Grader.Active = true", Task.class);
+            Query queryTasks = session.createQuery("FROM Task WHERE Grader.Active = true AND Active = true", Task.class);
             List<Task> tasks = queryTasks.list();
 
             Map<Integer, List<Task>> tasksPerGrader = new HashMap<>();

@@ -6,10 +6,8 @@ import jakarta.ws.rs.Path;
 import org.example.Tables.Notification;
 import org.example.Tables.Task;
 import org.example.Tables.User;
-import org.json.JSONArray;
 import org.json.JSONObject;
 
-import javax.ws.rs.GET;
 import javax.ws.rs.core.MediaType;
 import java.security.NoSuchAlgorithmException;
 
@@ -99,12 +97,12 @@ public class UserController {
             user = new User(request);
             System.out.println(user);
         } catch (NoSuchAlgorithmException e) {
-            return new JSONObject().put("Error", e.getMessage());
+            return new JSONObject().put("error", e.getMessage());
         }
 
         // new user missing fields
         if (user.Id == null && (user.Username == null || user.Email == null || user.Password == null)){
-            return new JSONObject().put("Error", "Username, email or password missing.");
+            return new JSONObject().put("error", "Username, email or password missing.");
         }
 
         String response = "";
@@ -120,6 +118,6 @@ public class UserController {
             ret.put("notifications", Notification.getNotificationsJSONArray(5));
             return ret;
         }
-        return new JSONObject().put("Error", response);
+        return new JSONObject().put("error", response);
     }
 }

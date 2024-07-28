@@ -88,6 +88,9 @@ public class TaskController {
             returnObject.put("graderResponse", new JSONObject().put("graderResponse", graderResponse));
         }
 
+        JSONObject referesh = new JSONObject(PageController.refreshTasks());
+        returnObject.put("refreshResponse", referesh);
+
         return returnObject.toString();
     }
 
@@ -221,6 +224,7 @@ public class TaskController {
                      responses.put(e.getMessage());
                  }
             }
+
             return responses.toString();
         } catch (Exception e) {
             return new JSONObject().put("error", e.getMessage()).toString();
@@ -285,7 +289,10 @@ public class TaskController {
 
         JSONObject returnObject = new JSONObject();
         returnObject.put("errors", errors);
-        returnObject.put("graderResponse", new JSONObject(graderResponse));
+        returnObject.put("graderResponse", graderResponse);
+
+        JSONObject referesh = new JSONObject(PageController.refreshTasks());
+        returnObject.put("refreshResponse", referesh);
 
         return returnObject.toString();
     }

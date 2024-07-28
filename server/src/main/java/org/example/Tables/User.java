@@ -188,6 +188,7 @@ public class User {
             user.LastName = existingUser.LastName;
             user.Email = existingUser.Email;
             user.Role = existingUser.Role;
+            user.Submissions = existingUser.Submissions;
 
 
             session.close();
