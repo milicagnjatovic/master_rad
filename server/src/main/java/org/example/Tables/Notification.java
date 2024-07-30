@@ -27,6 +27,14 @@ public class Notification {
     @Column(name = "CREATED_DATE")
     public Date CreatedDate = new Date();
 
+    public Notification(){}
+
+    public Notification(String title, String text){
+        this.Title = title;
+        this.Text = text;
+        this.CreatedDate = new Date();
+    }
+
     public static List<Notification> getLastXNotifications(Integer x){
         Session session = null;
 
@@ -58,9 +66,78 @@ public class Notification {
 
     public JSONObject toJSON(){
         JSONObject ret = new JSONObject();
+        ret.put("id", this.Id);
         ret.put("title", this.Title);
         ret.put("text", this.Text);
         ret.put("createdDate", this.CreatedDate);
         return ret;
+    }
+
+    public static void insertNotification(Notification notification){
+        Session session = null;
+        try {
+            session = HibernateUtil.getSessionFactory().openSession();
+            session.beginTransaction();
+
+            session.save(notification);
+
+            session.getTransaction().commit();
+            session.close();
+
+        } catch (Exception err){
+            System.err.println("error" + err.getMessage());
+        } finally {
+            if (session!=null && session.isOpen())
+                session.close();
+        }
+    }
+
+    public static void deleteNotification(Integer id){
+        Session session = null;
+        try {
+            session = HibernateUtil.getSessionFactory().openSession();
+            session.beginTransaction();
+
+            Notification notification = session.get(Notification.class, id);
+            session.delete(notification);
+
+            session.getTransaction().commit();
+            session.close();
+
+        } catch (Exception err){
+            System.err.println("error" + err.getMessage());
+        } finally {
+            if (session!=null && session.isOpen())
+                session.close();
+        }
+    }
+
+    public static void updateNotification(Integer id, String text, String title){
+        Session session = null;
+        try {
+            session = HibernateUtil.getSessionFactory().openSession();
+            session.beginTransaction();
+
+            Notification notification = session.get(Notification.class, id);
+            if (notification == null)
+                return;
+
+            if (title != null)
+                notification.Title = title;
+
+            if (text != null)
+                notification.Text = text;
+
+            session.update(notification);
+
+            session.getTransaction().commit();
+            session.close();
+
+        } catch (Exception err){
+            System.err.println("error" + err.getMessage());
+        } finally {
+            if (session!=null && session.isOpen())
+                session.close();
+        }
     }
 }

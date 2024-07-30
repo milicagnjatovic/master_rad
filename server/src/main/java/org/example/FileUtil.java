@@ -21,6 +21,12 @@ public class FileUtil {
      */
     public static final String FILE_WITH_STATS = "file_with_stats.json";
 
+
+    /**
+     * Naziv fajla u kom se čuvaju obavestenja.
+     */
+    public static final String FILE_WITH_NOTIFICATIONS = "file_with_notifications.json";
+
     /**
      *
      * @param fileName - naziv fajla u koji treba unesti podatke.

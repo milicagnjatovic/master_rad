@@ -3,9 +3,10 @@ package org.example.Conreollers;
 import jakarta.ws.rs.Consumes;
 import jakarta.ws.rs.POST;
 import jakarta.ws.rs.Path;
-import org.example.Tables.Notification;
+import org.example.FileUtil;
 import org.example.Tables.Task;
 import org.example.Tables.User;
+import org.json.JSONArray;
 import org.json.JSONObject;
 
 import javax.ws.rs.core.MediaType;
@@ -75,10 +76,13 @@ public class UserController {
     @Path("/login")
     @Consumes(MediaType.APPLICATION_JSON)
     public String login(String body){
+        System.out.println("login");
         try {
             JSONObject user = User.login(new JSONObject(body));
             JSONObject tasks = Task.getTasksForRole(user.optInt("roleId", -1));
             user.put("tasks", tasks);
+            JSONArray notifications = new JSONArray(FileUtil.readFromFile(FileUtil.FILE_WITH_NOTIFICATIONS));
+            user.put("notifications", notifications);
             return user.toString();
         } catch (NoSuchAlgorithmException e) {
             return new JSONObject().put("error", e.getMessage()).toString();
@@ -115,7 +119,8 @@ public class UserController {
             JSONObject ret = user.toJSON(request.getString("password"));
             JSONObject tasks = Task.getTasksForRole(user.Role.Id);
             ret.put("tasks", tasks);
-            ret.put("notifications", Notification.getNotificationsJSONArray(5));
+            String notifications = FileUtil.readFromFile(FileUtil.FILE_WITH_NOTIFICATIONS);
+            ret.put("notifications", notifications);
             return ret;
         }
         return new JSONObject().put("error", response);

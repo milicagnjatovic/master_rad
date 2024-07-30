@@ -72,7 +72,6 @@ public class PageController {
             JSONArray tasksJSON = Task.tasksToJSONArray(tasksPerRole.get(roleId));
             data.put("tasks", tasksJSON);
             data.put("professors", availableProfessors);
-            data.put("notifications", Notification.getNotificationsJSONArray(5));
 
             FileUtil.writeToFile(roleId + FileUtil.FILE_WITH_TASKS, data.toString());
         }
