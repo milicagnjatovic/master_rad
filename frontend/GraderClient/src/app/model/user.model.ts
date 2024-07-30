@@ -7,6 +7,7 @@ import { Task } from "./task.model";
 export class User {
     public professors: Professor[]
     public notifications: Notification[]
+    private timestamp
     constructor(
         public id: number,
         public username: string,
@@ -18,6 +19,7 @@ export class User {
         public tasks: Task[],
         submissions: Submisson[]
     ) {
+      this.timestamp = new Date()
       this.professors =[]
       this.notifications = []
       let taskIdToSubmission : Map<number, Submisson> = new Map<number, Submisson>(); 
@@ -37,14 +39,32 @@ export class User {
     }
 
     static storeUser(user: User | null): void {
-        localStorage.setItem(User.STORE_USER_KEY, JSON.stringify(user));
+      if (user!=null)
+        user.timestamp = new Date()
+      console.log("store")
+      console.log(user)
+      localStorage.setItem(User.STORE_USER_KEY, JSON.stringify(user));
     }
 
     static retreiveUser(): User | null {
         const storedUser = localStorage.getItem(this.STORE_USER_KEY);
         if (storedUser == null || storedUser == 'null')
             return null
+
         let data = JSON.parse(storedUser);
+
+        let dateChanged = new Date(data['timestamp'])
+        console.log("dateChanged")
+        console.log(dateChanged)
+        let twoHoursBackDate = new Date()
+        twoHoursBackDate.setHours(twoHoursBackDate.getHours()-2)
+        // twoHoursBackDate.setMinutes(twoHoursBackDate.getMinutes()-1)
+        console.log(twoHoursBackDate)
+        console.log(twoHoursBackDate > dateChanged)
+        if (twoHoursBackDate > dateChanged){
+          this.logout()
+          return null
+        }
 
 
         let tasksList: Task[] = [];

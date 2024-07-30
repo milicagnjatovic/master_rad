@@ -21,7 +21,7 @@ export class StartPageComponent {
   ){
     this.loginForm = new FormGroup({
       username: new FormControl("mi18009", [Validators.required]),
-      password: new FormControl("12345", [Validators.required])
+      password: new FormControl("1234", [Validators.required])
     })
 
     this.signUpForm = new FormGroup({

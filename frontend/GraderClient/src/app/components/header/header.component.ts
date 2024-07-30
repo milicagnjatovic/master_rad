@@ -20,11 +20,17 @@ export class HeaderComponent {
 
   logout(){
     this.authService.logout()
-    this.router.navigate([''])
+    this.router.navigate(['/'])
   }
 
   navigate(route: string) {
+    if (route == 'start') {
+      this.router.navigate(['/'])
+      return
+    }
+
     let routeList = ['home']
+
     if(route != '')
       routeList.push(route)
     this.router.navigate(routeList)

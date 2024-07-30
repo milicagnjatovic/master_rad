@@ -13,7 +13,8 @@ import { Notification } from '../model/notification.model';
 })
 export class AuthenticationService {
 
-  public static SERVER_ADDRESS = "http://grader.matf.bg.ac.rs:5200"
+  // public static SERVER_ADDRESS = "http://grader.matf.bg.ac.rs:5200"
+  public static SERVER_ADDRESS = "http://localhost:5200"
 
   private readonly urls = {
     login: `${AuthenticationService.SERVER_ADDRESS}/user/login`,
@@ -123,10 +124,10 @@ export class AuthenticationService {
     storedUser.professors = professors;
 
     let notificationList: Notification[] = []
-    if(obj.tasks != null && 'notifications' in obj.tasks){
-      for(let n of obj.tasks.notifications){
-        let notification = new Notification(n)
-        notificationList.push(notification)
+    if(obj != null && 'notifications' in obj){
+        for(let n of obj.notifications){
+          let notification = new Notification(n)
+          notificationList.push(notification)
       }
     }
     storedUser.notifications = notificationList

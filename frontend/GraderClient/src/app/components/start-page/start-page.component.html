@@ -6,7 +6,8 @@
     <button type="submit">
         uloguje se
     </button>
-    <button type="button" (click)="setShowLoginForm(false)">napravi nalog</button>
+    <br><br><hr><br>
+    <button type="button" (click)="setShowLoginForm(false)" class="space-up">napravi nalog</button>
 </form>
 
 <form *ngIf="!showLoginForm" [formGroup]="signUpForm" (ngSubmit)="signUp();" class="userForm">
@@ -29,5 +30,6 @@
     <button type="submit">
         napravi nalog
     </button>
-    <button type="button" (click)="setShowLoginForm(true)">uloguje se</button>
+    <br><br><hr><br>
+    <button type="button" (click)="setShowLoginForm(true)" class="space-up">uloguje se</button>
 </form>
