@@ -79,10 +79,18 @@ public class UserController {
         System.out.println("login");
         try {
             JSONObject user = User.login(new JSONObject(body));
+            if (user.has("error"))
+                return user.toString();
+
             JSONObject tasks = Task.getTasksForRole(user.optInt("roleId", -1));
             user.put("tasks", tasks);
+
             JSONArray notifications = new JSONArray(FileUtil.readFromFile(FileUtil.FILE_WITH_NOTIFICATIONS));
             user.put("notifications", notifications);
+
+            JSONObject stats = new JSONObject(FileUtil.readFromFile(FileUtil.FILE_WITH_STATS));
+            user.put("stats", stats);
+
             return user.toString();
         } catch (NoSuchAlgorithmException e) {
             return new JSONObject().put("error", e.getMessage()).toString();

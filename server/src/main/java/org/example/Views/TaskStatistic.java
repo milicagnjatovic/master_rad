@@ -2,15 +2,13 @@ package org.example.Views;
 
 
 import org.example.HibernateUtil;
+import org.example.Tables.Task;
 import org.hibernate.Session;
 import org.hibernate.query.Query;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.Id;
-import javax.persistence.Table;
+import javax.persistence.*;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -30,13 +28,17 @@ public class TaskStatistic {
     @Column(name = "PERCENT")
     public double SuccessPercantage;
 
+    @ManyToOne(fetch = FetchType.EAGER)
+    @JoinColumn(name = "TASK_ID", referencedColumnName = "ID", insertable = false, updatable = false)
+    public Task TaskForStats;
+
     public static List<TaskStatistic> getAllStats(){
         Session session = null;
         List<TaskStatistic> ret = new ArrayList<>();
         try {
             session = HibernateUtil.getSessionFactory().openSession();
 
-            Query query = session.createQuery("FROM TaskStatistic ORDER BY SuccessPercantage DESC", TaskStatistic.class);
+            Query query = session.createQuery("FROM TaskStatistic ORDER BY SuccessPercantage DESC", TaskStatistic.class).setMaxResults(10);
             ret.addAll(query.list());
             session.close();
             return ret;
@@ -54,8 +56,9 @@ public class TaskStatistic {
         for (TaskStatistic ts : stats){
             JSONObject obj = new JSONObject();
             obj.put("taskId", ts.TaskId);
+            obj.put("task", ts.TaskForStats.Name);
             obj.put("totalSubmissions", ts.TotalSubmissions);
-            obj.put("correctSubmissions", ts.TotalSubmissions);
+            obj.put("correctSubmissions", ts.CorrectSubmissions);
             obj.put("successPercantage", ts.SuccessPercantage);
             arr.put(obj);
         }

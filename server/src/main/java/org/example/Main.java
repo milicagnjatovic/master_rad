@@ -1,6 +1,10 @@
 package org.example;
 
 import java.net.URI;
+import java.util.Date;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
 
 import jakarta.ws.rs.core.UriBuilder;
 import org.example.Conreollers.*;
@@ -32,6 +36,17 @@ public class Main {
         System.out.println("Server running");
         JSONArray updatedNotifications = Notification.getNotificationsJSONArray(10);
         FileUtil.writeToFile(FileUtil.FILE_WITH_NOTIFICATIONS, updatedNotifications.toString());
+
+        PageController.refreshStats();
+
+        ScheduledExecutorService statRefreshService = Executors.newScheduledThreadPool(1);
+        Runnable statsRefreshTask = () -> {
+            PageController.refreshStats();
+            System.out.println(new Date());
+            System.out.println("refresh");
+        };
+
+        statRefreshService.scheduleAtFixedRate(statsRefreshTask, 0, 1, TimeUnit.HOURS);
 
         try {
             Thread.currentThread().join();

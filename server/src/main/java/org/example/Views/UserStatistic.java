@@ -1,15 +1,13 @@
 package org.example.Views;
 
 import org.example.HibernateUtil;
+import org.example.Tables.User;
 import org.hibernate.Session;
 import org.hibernate.query.Query;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.Id;
-import javax.persistence.Table;
+import javax.persistence.*;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -29,14 +27,20 @@ public class UserStatistic {
     @Column(name = "PERCENT")
     public double SuccessPercantage;
 
+    @ManyToOne(fetch = FetchType.EAGER)
+    @JoinColumn(name = "USER_ID", referencedColumnName = "ID", insertable = false, updatable = false)
+    public User UserForStats;
+
     public static List<UserStatistic> getAllStats(){
         Session session = null;
         List<UserStatistic> ret = new ArrayList<>();
         try {
             session = HibernateUtil.getSessionFactory().openSession();
 
-            Query query = session.createQuery("FROM UserStatistic ORDER BY SuccessPercantage DESC", UserStatistic.class);
+            Query query = session.createQuery("FROM UserStatistic ORDER BY SuccessPercantage DESC", UserStatistic.class).setMaxResults(10);
+            System.out.println("HERE1");
             ret.addAll(query.list());
+            System.out.println("HERE2");
             session.close();
             return ret;
         } catch (Error err){
@@ -53,8 +57,9 @@ public class UserStatistic {
         for (UserStatistic us : stats){
             JSONObject obj = new JSONObject();
             obj.put("userId", us.UserId);
+            obj.put("user", us.UserForStats.Username);
             obj.put("totalSubmissions", us.TotalSubmissions);
-            obj.put("correctSubmissions", us.TotalSubmissions);
+            obj.put("correctSubmissions", us.CorrectSubmissions);
             obj.put("successPercantage", us.SuccessPercantage);
             arr.put(obj);
         }

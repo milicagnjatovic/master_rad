@@ -135,7 +135,7 @@ public class PageController {
      */
     @GET
     @Path("/refreshStats")
-    public String refreshStats(){
+    public static String refreshStats(){
         System.out.println("[refreshStats]");
         List<TaskStatistic> taskStats = TaskStatistic.getAllStats();
         List<UserStatistic> userStats = UserStatistic.getAllStats();
