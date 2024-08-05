@@ -53,7 +53,15 @@ public class TaskHandler {
         ProcessBuilder executeCheckPB = new ProcessBuilder("bash", "./scripts/check_solution.sh", task.requestId, task.taskId.toString(), task.solution);
         Process executeCheckP = executeCheckPB.start();
 
-        String diff = new String(executeCheckP.getInputStream().readAllBytes());
+        InputStream scriptOutputStream = executeCheckP.getInputStream();
+        Scanner scriptOutputScanner = new Scanner(scriptOutputStream);
+
+        String diff = "";
+        if (scriptOutputScanner.hasNextLine())
+            diff = scriptOutputScanner.nextLine();
+
+        scriptOutputScanner.close();
+        scriptOutputStream.close();
         printConsoleResponse(executeCheckP.getErrorStream());
         executeCheckP.waitFor();
 
