@@ -132,6 +132,48 @@ public class Message {
         }
     }
 
+    public static String deleteMessage(MessageID messageId){
+        Session session = null;
+        try {
+            session = HibernateUtil.getSessionFactory().openSession();
+
+            Message existingMessage = session.get(Message.class, messageId);
+            if (existingMessage == null){
+                session.close();
+                return "Question does not exist";
+            }
+
+            session.beginTransaction();
+
+            System.out.println(existingMessage.Response);
+            if (existingMessage.Response!=null && !existingMessage.Response.isEmpty()){
+                session.close();
+                return "Cannot delete question that was already answered";
+            }
+
+            session.delete(existingMessage);
+            session.getTransaction().commit();
+            session.close();
+            return "";
+        } catch (ConstraintViolationException e){
+            System.err.println("Error | " + e.getMessage());
+            if (session!=null && session.isOpen()){
+                if (session.getTransaction().isActive())
+                    session.getTransaction().rollback();
+                session.close();
+            }
+            return "Constraint violation";
+        }
+        catch (Exception e){
+            System.err.println("Error | " + e.getMessage());
+            if (session!=null && session.isOpen()){
+                if (session.getTransaction().isActive())
+                    session.getTransaction().rollback();
+                session.close();
+            }
+            return e.getMessage();
+        }
+    }
     public Message(JSONObject obj){
         System.out.println(obj);
         Integer userId = obj.optInt("userId", -1);
@@ -139,6 +181,7 @@ public class Message {
         Integer professorId = obj.optInt("professorId", -1);
         if (userId==-1 || taskId==-1 || professorId==-1)
             return;
+
         this.Id = new MessageID(userId, taskId);
         this.Question = obj.optString("question", null);
         this.Response = obj.optString("response", null);

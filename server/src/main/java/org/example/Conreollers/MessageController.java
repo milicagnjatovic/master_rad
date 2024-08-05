@@ -4,6 +4,7 @@ import jakarta.ws.rs.GET;
 import jakarta.ws.rs.POST;
 import jakarta.ws.rs.Path;
 import org.example.Tables.Message;
+import org.example.Tables.MessageID;
 import org.example.Tables.User;
 import org.json.JSONArray;
 import org.json.JSONObject;
@@ -41,6 +42,21 @@ public class MessageController {
         String updateMessage = Message.responseToMessage(messages);
         return new JSONObject().put("error", updateMessage).toString();
     }
+
+    @POST
+    @Path("/deleteQuestion")
+    public static String deleteQuestion(String body){
+        System.out.println("[deleteQuestion]");
+        JSONObject req = new JSONObject(body);
+        if (!req.has("userId") || !req.has("taskId")){
+            return new JSONObject().put("error", "Missing userId or taskId").toString();
+        }
+
+        MessageID messageId = new MessageID(req);
+        String updateMessage = Message.deleteMessage(messageId);
+        return new JSONObject().put("error", updateMessage).toString();
+    }
+
 
     @POST()
     @Path("/getAllQuestionsForUser")
