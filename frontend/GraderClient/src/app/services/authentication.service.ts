@@ -1,12 +1,13 @@
 import { Injectable } from '@angular/core';
 import {HttpClient} from '@angular/common/http'
-import { Observable, tap, map, Subject, BehaviorSubject } from 'rxjs';
+import { Observable, tap, map, Subject, BehaviorSubject, range } from 'rxjs';
 import { User } from '../model/user.model';
 import { Task } from '../model/task.model';
 import { Submisson } from '../model/submission.model';
 import { Message } from '../model/message.model';
 import { Professor } from '../model/professor.model';
 import { Notification } from '../model/notification.model';
+import { Rank } from '../model/rank.model';
 
 @Injectable({
   providedIn: 'root'
@@ -112,7 +113,7 @@ export class AuthenticationService {
       submissionsList.push(submission)
     }
 
-    let storedUser = new User(obj.id, obj.username, obj.password, obj.email, obj.firstname, obj.lastname, obj.roleId, tasksList, submissionsList)
+    let storedUser = new User(obj.id, obj.username, obj.password, obj.email, obj.firstname, obj.lastname, obj.roleId, tasksList,[], [], submissionsList)
 
     let professors: Professor[] = []
     if('professors' in obj.tasks){
@@ -123,6 +124,7 @@ export class AuthenticationService {
 
     storedUser.professors = professors;
 
+    // notifications
     let notificationList: Notification[] = []
     if(obj != null && 'notifications' in obj){
         for(let n of obj.notifications){
@@ -131,6 +133,28 @@ export class AuthenticationService {
       }
     }
     storedUser.notifications = notificationList
+
+    // task rank
+    let taskRank: Rank[] = []
+    if (obj != null && 'stats' in obj && 'taskStats' in obj.stats){
+      for(let r of obj.stats.taskStats){
+        console.log(r)
+        let rank = new Rank(r)
+        taskRank.push(rank)
+      }
+    }
+    storedUser.taskRank = taskRank;
+
+
+    // task rank
+    let userRank: Rank[] = []
+    if (obj != null && 'stats' in obj && 'userStats' in obj.stats){
+      for(let r of obj.stats.userStats){
+        let rank = new Rank(r)
+        userRank.push(rank)
+      }
+    }
+    storedUser.userRank = userRank;
 
     console.log('retreived')
     console.log(storedUser)
@@ -180,6 +204,19 @@ export class AuthenticationService {
     for(let t of user.tasks){
       if(t.id == submission.taskId && t.submission) {
         t.submission.question = submission.question
+    }}
+    this.userSubject.next(user)
+  }
+
+  public deleteQuestion(submission: Submisson){
+    let user = this.getCurrentUser();
+
+    if(user?.tasks == null)
+      return
+
+    for(let t of user.tasks){
+      if(t.id == submission.taskId && t.submission) {
+        t.submission.question = null
     }}
     this.userSubject.next(user)
   }

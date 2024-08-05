@@ -1,1 +1,33 @@
-<p>rank-page works!</p>
+<main>
+    <div id="left">
+        <h1>Studenti</h1>
+        <table>
+            <tr>
+                <th>No.</th>
+                <th>Korisnik</th>
+                <th>Uspeh</th>
+            </tr>
+            <tr *ngFor="let rank of userRank; let i = index">
+                <td>{{i + 1}}</td>
+                <td>{{rank.subject}}</td>
+                <td>{{rank.score}}%</td>
+            </tr>
+        </table>
+    </div>
+
+    <div id="right">
+        <h1>Zadaci</h1>
+        <table>
+            <tr>
+                <th>No.</th>
+                <th>Zadatak</th>
+                <th>Uspeh</th>
+            </tr>
+            <tr *ngFor="let rank of taskRank; let i = index">
+                <td>{{i + 1}}</td>
+                <td>{{rank.subject}}</td>
+                <td>{{rank.score}}%</td>
+            </tr>
+        </table>
+    </div>
+</main>

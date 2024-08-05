@@ -1,7 +1,7 @@
 <main>
     <div *ngFor="let notification of notifications">
         <h2> {{ notification.title}}</h2>
-        <p> {{ notification.text}}</p>
+        <p [innerHTML]="notification.text"></p>
         <p class="date"> {{ this.datepipe.transform(notification.createdDate, 'dd/MM/yyyy') }}</p>
     </div>
 </main>

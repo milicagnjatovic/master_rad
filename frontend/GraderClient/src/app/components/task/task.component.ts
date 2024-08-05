@@ -92,6 +92,39 @@ export class TaskComponent {
     )
   }
 
+  deleteQuestion(){
+    if(this.task?.submission == null){
+      alert("Fali submission")
+      return
+    }
+    let user = this.authService.getCurrentUser()
+    if(user==null){
+      alert("Korisnik nije pronadjen")
+      return
+    }
+
+    let request = this.task.submission.prepareJsonRequestForDeletingQuestion(this.task.id, user.id);
+    // this.task.submission.question = null
+    // this.authService.deleteQuestion(this.task.submission) 
+    this.submissionService.deleteQuestion(request).subscribe(
+      ret => {
+        console.log('vracen odgovor')
+        let response = JSON.parse(JSON.stringify(ret))
+        if('error' in response && response.error != null && response.error != ""){
+          alert(response.error)
+        } else {
+          if (this.task != null && this.task.submission != null) {
+            this.task.submission.question = null
+            this.authService.deleteQuestion(this.task.submission)
+          }
+        }
+        this.showAskQuestion = false
+        console.log(ret)
+      }
+    )
+  }
+
+
   onFilePicked(event: any){
     let reader = new FileReader()
     reader.onload = () => {

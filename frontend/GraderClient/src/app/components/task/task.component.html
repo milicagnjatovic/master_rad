@@ -1,4 +1,5 @@
 <main>
+    <img alt="shema" src="/assets/dijagram_stud2020.png" class="diagram" title="Sliku možete prevući u novi tab.">
     <h2> Zadatak </h2>
     <h3> {{ task?.id }} {{ task?.name }}</h3>
     <p> {{ task?.text }}</p>
@@ -27,7 +28,8 @@
     </div>
 
 
-    <div *ngIf="task!=null && (task.submission==null || (task.submission!= null && !task.submission.isWaiting))">
+    <!-- <div *ngIf="task!=null && (task.submission==null || (task.submission!= null && !task.submission.isWaiting))"> -->
+    <div *ngIf="task!=null && (task.submission==null || (task.submission!= null && !task.submission.isWaiting && task.submission.question==null) || (task.submission.question!=null && task.submission.question.response!=null))">
         <form [formGroup]="checkTaskForm" (ngSubmit)="checkTask()">
             <input type="file" accept=".sql" formControlName="file" (change)="onFilePicked($event)" required value="izaberi fajl">
             <button type="submit">
@@ -55,5 +57,8 @@
         <h2>Pitanje</h2>
         <p>{{ task.submission.question.question}}</p>
         <p>{{ task.submission.question.response}}</p>
+        <button type="submit" class="showQuestionButton" (click)="deleteQuestion()">
+            Obriši pitanje
+        </button>
     </div>
 </main>

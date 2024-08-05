@@ -1,6 +1,7 @@
 import { Message } from "./message.model";
 import { Notification } from "./notification.model";
 import { Professor } from "./professor.model";
+import { Rank } from "./rank.model";
 import { Submisson } from "./submission.model";
 import { Task } from "./task.model";
 
@@ -17,6 +18,8 @@ export class User {
         public lastName: string,
         public roleId: string,
         public tasks: Task[],
+        public userRank: Rank[],
+        public taskRank: Rank[],
         submissions: Submisson[]
     ) {
       this.timestamp = new Date()
@@ -83,7 +86,7 @@ export class User {
           } 
         }
 
-        let user = new User(data.id, data.username, data.password,  data.email, data.name, data.lastName, data.roleId, tasksList, []);
+        let user = new User(data.id, data.username, data.password,  data.email, data.name, data.lastName, data.roleId, tasksList, [], [], []);
 
         let professors = []
         if(data.professors != null) {
@@ -94,13 +97,34 @@ export class User {
         }
 
         let notificationList: Notification[] = []
-        if(data.notification != null) {
+        if(data.notifications != null) {
           for(let n of data.notifications){
             let notification = new Notification(n)
             notificationList.push(notification)
           }
           user.notifications = notificationList
         }
+
+        // task rank
+        let taskRank: Rank[] = []
+        if (data != null && data.taskRank != null){
+          for(let r of data.taskRank){
+            let rank = new Rank(r)
+            taskRank.push(rank)
+          }
+        }
+        user.taskRank = taskRank;
+
+        // task rank
+        let userRank: Rank[] = []
+        if (data != null && data.userRank != null){
+          for(let r of data.userRank){
+            let rank = new Rank(r)
+            userRank.push(rank)
+          }
+        }
+        user.userRank = userRank;
+
 
         return user
     }

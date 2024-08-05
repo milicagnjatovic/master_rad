@@ -34,4 +34,11 @@ export class Submisson {
         }
         return JSON.stringify(obj)
     }
+
+    prepareJsonRequestForDeletingQuestion(taskId: number, userId: number){
+        let obj = {
+            userId, taskId
+        }
+        return JSON.stringify(obj)
+    }
 }
