@@ -1,13 +1,17 @@
 package org.example;
 
+import java.io.IOException;
 import java.net.URI;
+import java.security.NoSuchAlgorithmException;
 import java.util.Date;
+import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
 import jakarta.ws.rs.core.UriBuilder;
 import org.example.Conreollers.*;
+import org.example.LoadTests.GraderLoadTest;
 import org.example.Tables.Grader;
 import org.example.Tables.Notification;
 import org.glassfish.grizzly.http.server.HttpServer;
@@ -17,6 +21,18 @@ import org.json.JSONArray;
 
 public class Main {
     public static void main(String[] args) {
+        if(args.length > 0){
+            if (args[0].equalsIgnoreCase("test")){
+                try {
+                    GraderLoadTest.main(args);
+                } catch (ExecutionException | InterruptedException | IOException | NoSuchAlgorithmException e) {
+                    throw new RuntimeException(e);
+                }
+            }
+            System.out.println("Arguments present, not test");
+            return;
+        }
+
         Grader.retrieveGradersToMap();
 
         URI base = UriBuilder.fromUri("http://0.0.0.0").port(5200).build();
