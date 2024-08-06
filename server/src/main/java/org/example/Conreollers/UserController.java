@@ -127,8 +127,12 @@ public class UserController {
             JSONObject ret = user.toJSON(request.getString("password"));
             JSONObject tasks = Task.getTasksForRole(user.Role.Id);
             ret.put("tasks", tasks);
-            String notifications = FileUtil.readFromFile(FileUtil.FILE_WITH_NOTIFICATIONS);
+
+            JSONArray notifications = new JSONArray(FileUtil.readFromFile(FileUtil.FILE_WITH_NOTIFICATIONS));
             ret.put("notifications", notifications);
+
+            JSONObject stats = new JSONObject(FileUtil.readFromFile(FileUtil.FILE_WITH_STATS));
+            ret.put("stats", stats);
             return ret;
         }
         return new JSONObject().put("error", response);

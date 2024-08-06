@@ -54,12 +54,12 @@ public class Main {
         FileUtil.writeToFile(FileUtil.FILE_WITH_NOTIFICATIONS, updatedNotifications.toString());
 
         PageController.refreshStats();
+        PageController.refreshTasks();
 
         ScheduledExecutorService statRefreshService = Executors.newScheduledThreadPool(1);
         Runnable statsRefreshTask = () -> {
             PageController.refreshStats();
             System.out.println(new Date());
-            System.out.println("refresh");
         };
 
         statRefreshService.scheduleAtFixedRate(statsRefreshTask, 0, 1, TimeUnit.HOURS);

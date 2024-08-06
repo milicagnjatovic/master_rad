@@ -48,10 +48,9 @@ public class RequestHandlers {
         try (InputStream is = connection.getInputStream()){
             byte[] response = is.readAllBytes();
             responseMessage = new String(response, StandardCharsets.UTF_8);
-            System.out.println(responseMessage);
+//            System.out.println(responseMessage);
 
         }
-
         connection.disconnect();
         return responseMessage;
     }

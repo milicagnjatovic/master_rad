@@ -19,7 +19,8 @@ then
 fi
 
 function execute_query() {
-  connection_result="$(db2 connect to stud2020 user student using matf2024.)"
+  connection_result="$(db2 connect to stud2020)"
+#  connection_result="$(db2 connect to stud2020 user student using matf2024.)"
 #  echo $connection_result
   if [[ $connection_result != *Database\ Connection\ Information*  ]]; then
     echo "Server error | Unable to connect to database"

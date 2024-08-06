@@ -119,7 +119,7 @@ public class Submission {
      * @return Funkcija vrća JSON objekat koji treba iskoristiit u telu zahteva
      */
     public static JSONObject prepareGraderRequest(Integer userId, Integer taskId, String query, String ordering){
-        System.out.println("[prepareGraderRequest]");
+//        System.out.println("[prepareGraderRequest]");
         JSONObject graderRequest = new JSONObject();
         graderRequest.put("requestId", taskId + "-" + userId);
         graderRequest.put("taskId", taskId);
