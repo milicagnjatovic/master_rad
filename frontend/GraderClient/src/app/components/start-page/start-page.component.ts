@@ -20,13 +20,13 @@ export class StartPageComponent {
     private router: Router
   ){
     this.loginForm = new FormGroup({
-      username: new FormControl("mi18009", [Validators.required]),
-      password: new FormControl("1234", [Validators.required])
+      username: new FormControl("", [Validators.required]),
+      password: new FormControl("", [Validators.required])
     })
 
     this.signUpForm = new FormGroup({
-      username: new FormControl("mi18009", [Validators.required]),
-      password: new FormControl("12345", [Validators.required]),
+      username: new FormControl("", [Validators.required]),
+      password: new FormControl("", [Validators.required]),
       email: new FormControl("", [Validators.email, Validators.required]),
       firstName: new FormControl(""),
       lastName: new FormControl(""),
@@ -66,8 +66,11 @@ export class StartPageComponent {
     const data = this.signUpForm.value;
     // console.log(data)
 
-    if(this.loginForm.invalid) {
-      window.alert("Oba polja su obavezna");
+    if(this.signUpForm.invalid) {
+      if (this.signUpForm.controls["email"].invalid)
+        window.alert("Mejl adresa nije validna")
+      else
+        window.alert("Korisničko ime, mejl i šifra su obavezni.");
       return
     }
 
