@@ -16,6 +16,7 @@ import { InfoPageComponent } from './components/info-page/info-page.component';
 import { RankPageComponent } from './components/rank-page/rank-page.component';
 import { DatePipe } from '@angular/common';
 import { ProfilePageComponent } from './components/profile-page/profile-page.component';
+import { NewTaskFormComponent } from './components/new-task-form/new-task-form.component';
 @NgModule({
   declarations: [
     AppComponent,
@@ -26,7 +27,8 @@ import { ProfilePageComponent } from './components/profile-page/profile-page.com
     HeaderComponent,
     InfoPageComponent,
     RankPageComponent,
-    ProfilePageComponent
+    ProfilePageComponent,
+    NewTaskFormComponent,
   ],
   imports: [
     BrowserModule,

@@ -14,7 +14,6 @@ export class TasksPageComponent implements OnInit{
   constructor(private auth: AuthenticationService){
     this.user = auth.getCurrentUser()
     this.currentTask = null
-    console.log('construct user compo')
   }
 
   ngOnInit(): void {
@@ -22,7 +21,7 @@ export class TasksPageComponent implements OnInit{
    this.auth.user.subscribe(
      user => {
       this.user = user
-      console.log(user)
+      // console.log(user)
     },
     error => {
       console.log(error)
@@ -30,8 +29,8 @@ export class TasksPageComponent implements OnInit{
    )   
   }
 
-  public setCurrentTask(task: Task){
+  public setCurrentTask(task: Task | null){
     this.currentTask = task
-    console.log(this.currentTask)
+    // console.log(this.currentTask)
   }
 }

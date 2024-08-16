@@ -6,6 +6,7 @@ import { Submisson } from "./submission.model";
 import { Task } from "./task.model";
 
 export class User {
+    public static PROFESSOR_ROLES: [string] = ['2']
     public professors: Professor[]
     public notifications: Notification[]
     private timestamp
@@ -47,6 +48,10 @@ export class User {
       console.log("store")
       console.log(user)
       localStorage.setItem(User.STORE_USER_KEY, JSON.stringify(user));
+    }
+
+    public isProfessor(){
+      return User.PROFESSOR_ROLES.indexOf(this.roleId+'') != -1
     }
 
     static retreiveUser(): User | null {

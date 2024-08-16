@@ -1,0 +1,32 @@
+<main>
+    <h2> Novi zadatak </h2>
+    <form [formGroup]="insertNewTaskForm" (ngSubmit)="insertTask()">
+        <label for="name">Naziv</label>
+        <input type="text" id="name" formControlName="name" maxlength="45">
+
+        <label for="text">Tekst zadatka</label>
+        <textarea id="text" formControlName="text" maxlength="2950"></textarea>
+
+        <label for="solution">Rešenje</label>
+        <textarea id="solution" formControlName="solution" maxlength="2950"></textarea>
+
+        <label for="ordering">Sortiranje</label>
+        <input type="text" id="ordering" formControlName="ordering" maxlength="15">
+
+        <label for="grader">Ocenjivač</label>
+        <select formControlName="grader">
+            <option *ngFor="let g of graders" value="{{g.graderId}}">{{g.graderName}}</option>
+        </select>
+
+        <label for="active">Zadatak je aktivan</label>
+        <input type="checkbox" id="active" value="true" formControlName="active">
+
+        <button type="submit">
+            Dodaj zadatak
+        </button>
+
+        <pre *ngIf="serverResponse != ''" [ngClass]="responseClass">
+            {{ serverResponse }}
+        </pre>
+    </form>
+</main>

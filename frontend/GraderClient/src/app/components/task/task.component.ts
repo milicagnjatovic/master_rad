@@ -128,7 +128,6 @@ export class TaskComponent {
   onFilePicked(event: any){
     let reader = new FileReader()
     reader.onload = () => {
-      console.log(reader.result)
       this.task?.setSubmissionSolution(reader.result as string)
     }
     reader.readAsText(event.target.files[0])    

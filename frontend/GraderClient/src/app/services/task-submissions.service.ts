@@ -11,14 +11,14 @@ export class TaskSubmissionsService {
   private readonly urls = {
     checkTask: `${AuthenticationService.SERVER_ADDRESS}/server/checkTask`,
     askQuestion: `${AuthenticationService.SERVER_ADDRESS}/message/askQuestion`,
-    deleteQuestion: `${AuthenticationService.SERVER_ADDRESS}/message/deleteQuestion`
+    deleteQuestion: `${AuthenticationService.SERVER_ADDRESS}/message/deleteQuestion`,
+    addTask: `${AuthenticationService.SERVER_ADDRESS}/server/addTasks`
   }
 
   constructor(private http : HttpClient, private auth: AuthenticationService) { }
 
   public checkTask(request: string, submissoin: Submisson){
     const body = JSON.parse(request);
-    // console.log(body)
     const obs: Observable<string> = this.http.post<string>(this.urls.checkTask, body);
     
     this.auth.setSubmissionWaiting(submissoin);
@@ -86,5 +86,16 @@ export class TaskSubmissionsService {
     console.log(submission)
     this.auth.updateSubmission(submission);
     return submission
+  }
+
+  addTask(body: string){
+    const obs: Observable<string> = this.http.post<string>(this.urls.addTask, JSON.parse(body));
+
+    return obs.pipe(
+      tap((response:string) => {
+        console.log("Add task")
+        console.log(response)
+      })
+    )
   }
 }

@@ -1,12 +1,21 @@
 <main>
 <div class="tasks-column">
+    <button  class="new_button" (click)="setCurrentTask(null)" *ngIf="user?.isProfessor()">
+        Dodaj zadatak 
+    </button>
+
     <button  [ngClass]="{'correct': task.submission!=null && task.submission.correctSubmissions > 0}"  *ngFor="let task of user?.tasks" (click)="setCurrentTask(task)">
         {{task.id }}. {{task.name}} <br>
     </button>
 </div>
 
 <div *ngIf="currentTask !==null">
-    <app-task [task]="currentTask"></app-task>
+    <app-task [task]="currentTask"></app-task>   
 </div>
+
+<div *ngIf="currentTask==null && user?.isProfessor()" style="background-color: red;">
+    <app-new-task-form></app-new-task-form>
+</div>
+
 
 </main>
