@@ -1,6 +1,6 @@
 <main>
-    <h2> Novi zadatak </h2>
-    <form [formGroup]="insertNewTaskForm" (ngSubmit)="insertTask()">
+    <h1>{{ task==null ? 'Dodaj zadatak' : 'Izmeni zadatak' }}</h1>
+    <form [formGroup]="insertNewTaskForm" (ngSubmit)="sendRequest()">
         <label for="name">Naziv</label>
         <input type="text" id="name" formControlName="name" maxlength="45">
 
@@ -22,7 +22,11 @@
         <input type="checkbox" id="active" value="true" formControlName="active">
 
         <button type="submit">
-            Dodaj zadatak
+            {{ task==null ? 'Dodaj zadatak' : 'Izmeni zadatak' }}
+        </button>
+        
+        <button *ngIf="task!=null" (click)="cancel()">
+            Poništi
         </button>
 
         <pre *ngIf="serverResponse != ''" [ngClass]="responseClass">

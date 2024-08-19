@@ -61,4 +61,12 @@
             Obriši pitanje
         </button>
     </div>
+    <button *ngIf="user?.isProfessor()" (click)="showChangeTaskForm()" class="showQuestionButton">Izmeni zadatak</button>
 </main>
+
+
+<div *ngIf="user?.isProfessor && changeTask" style="background-color: pink;">
+    <app-new-task-form [task]="task"></app-new-task-form>
+</div>
+
+

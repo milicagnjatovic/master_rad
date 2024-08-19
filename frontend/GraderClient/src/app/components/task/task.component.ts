@@ -3,6 +3,7 @@ import { FormControl, FormGroup } from '@angular/forms';
 import { Message } from 'src/app/model/message.model';
 import { Professor } from 'src/app/model/professor.model';
 import { Task } from 'src/app/model/task.model';
+import { User } from 'src/app/model/user.model';
 import { AuthenticationService } from 'src/app/services/authentication.service';
 import { TaskSubmissionsService } from 'src/app/services/task-submissions.service';
 
@@ -16,8 +17,15 @@ export class TaskComponent {
 
   public professors : Professor[] = []
 
+  public static changeTask = false
+  get changeTask(){
+    return TaskComponent.changeTask
+  }
+
   checkTaskForm: FormGroup
   askQuestionForm: FormGroup
+
+  public user: User | null = null
 
   constructor(private submissionService: TaskSubmissionsService, private authService: AuthenticationService){
     this.checkTaskForm = new FormGroup({
@@ -27,9 +35,9 @@ export class TaskComponent {
       question: new FormControl("", []),
       professorId: new FormControl("", [])
     })
-    let user = authService.getCurrentUser()
-    if(user != null)
-      this.professors = user.professors
+    this.user = authService.getCurrentUser()
+    if(this.user != null)
+      this.professors = this.user.professors
   }
 
   checkTask(){
@@ -41,12 +49,12 @@ export class TaskComponent {
       alert("Fali submission")
       return
     }
-    let user = this.authService.getCurrentUser()
-    if(user==null){
+
+    if(this.user==null){
       alert("Korisnik nije pronadjen")
       return
     }
-    let request = this.task.submission.prepareJsonRequest(user?.id, this.task.ordering);
+    let request = this.task.submission.prepareJsonRequest(this.user?.id, this.task.ordering);
     this.submissionService.checkTask(request, this.task.submission).subscribe(
       ret => {
         console.log('vracen odgovor')
@@ -131,6 +139,10 @@ export class TaskComponent {
       this.task?.setSubmissionSolution(reader.result as string)
     }
     reader.readAsText(event.target.files[0])    
+  }
+
+  showChangeTaskForm(){
+    TaskComponent.changeTask = !TaskComponent.changeTask
   }
 }
  

@@ -13,8 +13,8 @@
     <app-task [task]="currentTask"></app-task>   
 </div>
 
-<div *ngIf="currentTask==null && user?.isProfessor()" style="background-color: red;">
-    <app-new-task-form></app-new-task-form>
+<div *ngIf="currentTask==null && user?.isProfessor()">
+    <app-new-task-form [task]="null"></app-new-task-form>
 </div>
 
 

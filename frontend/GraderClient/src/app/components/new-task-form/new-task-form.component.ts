@@ -1,17 +1,21 @@
-import { Component } from '@angular/core';
+import { Component, Input, OnChanges, SimpleChanges } from '@angular/core';
 import { FormControl, FormGroup, Validators } from '@angular/forms';
 import { User } from 'src/app/model/user.model';
 import { AuthenticationService } from 'src/app/services/authentication.service';
 import { Grader } from 'src/app/model/grader.model';
 import { TaskSubmissionsService } from 'src/app/services/task-submissions.service';
 import { catchError, of } from 'rxjs';
+import { Task } from 'src/app/model/task.model';
+import { TaskComponent } from '../task/task.component';
 
 @Component({
   selector: 'app-new-task-form',
   templateUrl: './new-task-form.component.html',
   styleUrls: ['./new-task-form.component.sass']
 })
-export class NewTaskFormComponent {
+export class NewTaskFormComponent implements OnChanges{
+  @Input() task : Task | null = null
+
   public user: User | null = null
   public insertNewTaskForm: FormGroup
 
@@ -23,19 +27,38 @@ export class NewTaskFormComponent {
 
   constructor(private auth: AuthenticationService, private taskService: TaskSubmissionsService){
     this.user = auth.getCurrentUser()
+    
+    console.log("TASK")
+    console.log(this.task)
+
     this.insertNewTaskForm = new FormGroup({
-      name: new FormControl("abc", [Validators.maxLength(45), Validators.required]),
-      text: new FormControl("c", [Validators.maxLength(2950), Validators.required]),
-      solution: new FormControl("d", [Validators.maxLength(2950), Validators.required]),
-      ordering: new FormControl("f", [Validators.maxLength(15)]),
-      grader: new FormControl("1", [Validators.required]),    
+      name: new FormControl(this.task==null ? '' : this.task.name, [Validators.maxLength(45), Validators.required]),
+      text: new FormControl(this.task==null ? '' : this.task.text, [Validators.maxLength(2950), Validators.required]),
+      solution: new FormControl('', [Validators.maxLength(2950), Validators.required]),
+      ordering: new FormControl(this.task==null ? '' : this.task.ordering, [Validators.maxLength(15)]),
+      grader: new FormControl(this.task==null ? '' : this.task.graderId, [Validators.required]),    
       active: new FormControl(true, [])  
     })
     this.graders = Grader.graders
     console.log(Grader.graders)
   }
 
-  insertTask(){
+  ngOnChanges(changes: SimpleChanges): void {
+    if(changes['task'] && changes['task']!=null){
+      console.log('changed')
+      console.log(this.task)
+      this.insertNewTaskForm = new FormGroup({
+        name: new FormControl(this.task==null ? '' : this.task.name, [Validators.maxLength(45), Validators.required]),
+        text: new FormControl(this.task==null ? '' : this.task.text, [Validators.maxLength(2950), Validators.required]),
+        solution: new FormControl(this.task != null ? this.user?.taskSolutions.get(this.task?.id) : '', [Validators.maxLength(2950), Validators.required]),
+        ordering: new FormControl(this.task==null ? '' : this.task.ordering, [Validators.maxLength(15)]),
+        grader: new FormControl(this.task==null ? '' : this.task.graderId, [Validators.required]),    
+        active: new FormControl(true, [])  
+      })
+    }
+  }
+
+  sendRequest(){
     if(this.insertNewTaskForm.invalid){
       let errorMessage = `Invalid form:
 name: ${this.insertNewTaskForm.controls['name'].invalid ? 'invalid' : 'valid'}
@@ -56,22 +79,42 @@ grader: ${this.insertNewTaskForm.controls['grader'].invalid ? 'invalid' : 'valid
     }
 
     const data = this.insertNewTaskForm.value;
-    const requestObject = {
+    
+    let requestObject = null
+    
+    if(this.task==null) {
+      requestObject = {
       graderId: Number.parseInt(data.grader),
       tasks: [
-        {
-          name: data.name,
-          task: data.text,
-          solution: data.solution,
-          ordering: data.ordering,
-          active: data.active
+          {
+            name: data.name,
+            task: data.text,
+            solution: data.solution,
+            ordering: data.ordering,
+            active: data.active
+          }
+        ]
+      }
+    } else {
+      requestObject = {
+        graderId: Number.parseInt(data.grader),
+        tasks: [
+            {
+              taskId: this.task.id,
+              name: data.name,
+              task: data.text,
+              solution: data.solution,
+              ordering: data.ordering,
+              active: data.active
+            }
+          ]
         }
-      ]
     }
-    console.log(requestObject)
-    console.log(JSON.stringify(requestObject))
 
-    this.taskService.addTask(JSON.stringify(requestObject)).pipe(
+    // console.log(requestObject)
+    // console.log(JSON.stringify(requestObject))
+
+    this.taskService.addTask(JSON.stringify(requestObject), this.task==null).pipe(
       catchError(error => {
         console.log(error)
         console.log(error.message)
@@ -101,6 +144,10 @@ Vreme izvršavanja: ${'tasks' in retObj.graderResponse && "time" in retObj.grade
         
       }
     )
+  }
+
+  cancel(){
+    TaskComponent.changeTask = false
   }
 
 }

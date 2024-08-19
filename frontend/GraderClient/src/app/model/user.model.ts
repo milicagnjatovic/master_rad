@@ -10,6 +10,10 @@ export class User {
     public professors: Professor[]
     public notifications: Notification[]
     private timestamp
+
+    public messagesForProfessor: Message[] = []
+    public taskSolutions = new Map<Number, string>() 
+
     constructor(
         public id: number,
         public username: string,
@@ -130,6 +134,23 @@ export class User {
         }
         user.userRank = userRank;
 
+
+      if(data != null && 'messagesForProfessor' in data) {
+        let questionsForProfessor = []
+        for(let m of data.messagesForProfessor){
+          let message = new Message(m);
+          questionsForProfessor.push(message)        
+        }
+        user.messagesForProfessor = questionsForProfessor
+      }
+
+      if(data != null && 'taskSolutions' in data) {
+        let taskSolutions = new Map<Number, string>()
+        for(let key in data.taskSolutions){
+            taskSolutions.set(Number.parseInt(key), data.taskSolutions[key])
+        }
+        user.taskSolutions = taskSolutions
+      }
 
         return user
     }

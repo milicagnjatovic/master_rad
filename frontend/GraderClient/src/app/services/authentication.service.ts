@@ -156,6 +156,23 @@ export class AuthenticationService {
     }
     storedUser.userRank = userRank;
 
+    if(obj != null && 'messagesForProfessor' in obj) {
+      let questionsForProfessor = []
+      for(let m of obj.messagesForProfessor){
+        let message = new Message(m);
+        questionsForProfessor.push(message)        
+      }
+      storedUser.messagesForProfessor = questionsForProfessor
+    }
+
+    if(obj != null && 'taskSolutions' in obj) {
+      let taskSolutions = new Map<Number, string>()
+      for(let sol of obj.taskSolutions){
+          taskSolutions.set(sol.taskId, sol.solution)
+      }
+      storedUser.taskSolutions = taskSolutions
+    }
+
     console.log('retreived')
     console.log(storedUser)
     this.userSubject.next(storedUser);

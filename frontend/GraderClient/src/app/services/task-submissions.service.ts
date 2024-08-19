@@ -12,7 +12,8 @@ export class TaskSubmissionsService {
     checkTask: `${AuthenticationService.SERVER_ADDRESS}/server/checkTask`,
     askQuestion: `${AuthenticationService.SERVER_ADDRESS}/message/askQuestion`,
     deleteQuestion: `${AuthenticationService.SERVER_ADDRESS}/message/deleteQuestion`,
-    addTask: `${AuthenticationService.SERVER_ADDRESS}/server/addTasks`
+    addTask: `${AuthenticationService.SERVER_ADDRESS}/server/addTasks`,
+    updateTask: `${AuthenticationService.SERVER_ADDRESS}/server/updateTasks`
   }
 
   constructor(private http : HttpClient, private auth: AuthenticationService) { }
@@ -25,8 +26,6 @@ export class TaskSubmissionsService {
 
     return obs.pipe(
       map((response: string) => {
-        console.log("Pipe")
-        console.log(response)
         this.parseResponse(response, submissoin)
     })
     )
@@ -88,8 +87,8 @@ export class TaskSubmissionsService {
     return submission
   }
 
-  addTask(body: string){
-    const obs: Observable<string> = this.http.post<string>(this.urls.addTask, JSON.parse(body));
+  addTask(body: string, update: boolean){
+    const obs: Observable<string> = this.http.post<string>(update? this.urls.updateTask : this.urls.addTask, JSON.parse(body));
 
     return obs.pipe(
       tap((response:string) => {
