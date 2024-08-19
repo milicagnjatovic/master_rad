@@ -124,7 +124,7 @@ public class UserController {
             response = User.updateUser(user);
 
         if (response.isEmpty()){
-            JSONObject ret = user.toJSON(request.getString("password"));
+            JSONObject ret = user.toJSON(request.getString("password"), null);
             JSONObject tasks = Task.getTasksForRole(user.Role.Id);
             ret.put("tasks", tasks);
 

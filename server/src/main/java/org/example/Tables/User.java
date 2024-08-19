@@ -182,7 +182,7 @@ public class User {
             session.evict(existingUser);
             session.refresh(existingUser);
 
-            System.out.println(existingUser.toJSON("123"));
+//            System.out.println(existingUser.toJSON("123"));
 
             user.FirstName = existingUser.FirstName;
             user.LastName = existingUser.LastName;
@@ -243,7 +243,7 @@ public class User {
                 return new JSONObject().put("error", "Wrong password.");
             }
 
-            return user.toJSON(password);
+            return user.toJSON(password, session);
         } catch (HibernateException e) {
             if (session.getTransaction().isActive()){
                 session.getTransaction().rollback();
@@ -321,7 +321,7 @@ public class User {
         return this.Username + " " + this.Id + " " + this.FirstName + " " + this.LastName + " " + this.Role.Id;
     }
 
-    public JSONObject toJSON(String password){
+    public JSONObject toJSON(String password, Session session){
         JSONObject ret = new JSONObject();
         ret.put("username", this.Username);
         ret.put("email", this.Email);
@@ -336,6 +336,43 @@ public class User {
             submissions.put(submission.toJSON());
         }
         ret.put("submissions", submissions);
+
+        if (this.Role.AbleToAnswerQuestions){
+            JSONArray messagesJSON = new JSONArray();
+            List<Message> messages = new ArrayList<>();
+            if (session != null) {
+                Query query = session.createQuery("FROM Message WHERE ProfessorId = :userId ORDER BY CreatedDate ASC", Message.class);
+                query.setParameter("userId", this.Id);
+                messages = query.getResultList();
+            }
+            for(Message m : messages) {
+                messagesJSON.put(m.toJSON());
+            }
+            ret.put("messagesForProfessor", messagesJSON);
+
+            Query permissionsQuery = session.createQuery("FROM RoleGraderPermission WHERE PermissionId.RoleId = :roleId", RoleGraderPermission.class);
+            permissionsQuery.setParameter("roleId", this.Role.Id);
+            List<RoleGraderPermission> permissions = permissionsQuery.list();
+
+            List<Integer> allowedGraders = new ArrayList<>();
+            for (RoleGraderPermission permission : permissions)
+                allowedGraders.add(permission.PermissionId.GraderId);
+
+            Query query = session.createQuery("FROM Task WHERE Grader.Id IN (:allowedGraders)", Task.class);
+            query.setParameterList("allowedGraders", allowedGraders);
+            List<Task> taskSolutions = query.list();
+
+            JSONArray taskSolutionsJSONArr = new JSONArray();
+
+            for (Task task : taskSolutions) {
+                JSONObject obj = new JSONObject();
+                obj.put("taskId", task.Id);
+                obj.put("solution", task.Solution);
+                taskSolutionsJSONArr.put(obj);
+            }
+
+            ret.put("taskSolutions", taskSolutionsJSONArr);
+        }
 
         return ret;
     }
