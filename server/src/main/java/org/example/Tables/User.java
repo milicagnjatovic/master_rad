@@ -341,12 +341,12 @@ public class User {
             JSONArray messagesJSON = new JSONArray();
             List<Message> messages = new ArrayList<>();
             if (session != null) {
-                Query query = session.createQuery("FROM Message WHERE ProfessorId = :userId ORDER BY CreatedDate ASC", Message.class);
+                Query query = session.createQuery("FROM Message WHERE ProfessorId = :userId AND Response = '' ORDER BY CreatedDate ASC", Message.class);
                 query.setParameter("userId", this.Id);
                 messages = query.getResultList();
             }
             for(Message m : messages) {
-                messagesJSON.put(m.toJSON());
+                messagesJSON.put(m.toExtendedJSON());
             }
             ret.put("messagesForProfessor", messagesJSON);
 

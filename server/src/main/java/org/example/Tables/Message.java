@@ -26,6 +26,11 @@ public class Message {
     @JoinColumn(name = "PROFESSOR_ID", referencedColumnName = "ID", insertable = false, updatable = false)
     public User Professor;
 
+
+    @ManyToOne(fetch = FetchType.EAGER)
+    @JoinColumn(name = "STUDENT_ID", referencedColumnName = "ID", insertable = false, updatable = false)
+    public User Student;
+
     @Column(name = "RESPONSE")
     public String Response;
 
@@ -232,6 +237,14 @@ public class Message {
         obj.put("response", this.Response);
         obj.put("createdDate", this.CreatedDate);
         obj.put("taskId", this.SubmissionInQuestion.Task.Id);
+        return obj;
+    }
+
+    public JSONObject toExtendedJSON(){
+        JSONObject obj = this.toJSON();
+        obj.put("studentUsername", this.Student.Username);
+        obj.put("submission", this.SubmissionInQuestion.Query);
+
         return obj;
     }
 }
