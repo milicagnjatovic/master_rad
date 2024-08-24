@@ -9,13 +9,15 @@ import { AuthenticationService } from 'src/app/services/authentication.service';
   styleUrls: ['./header.component.sass']
 })
 export class HeaderComponent {
-  
+  public user: User | null = null
+
   constructor(private router: Router, private authService: AuthenticationService){
+    this.user = this.authService.getCurrentUser()
   }
 
   isLoggedIn(): boolean {
-    let user = this.authService.getCurrentUser()
-    return user != null
+    this.user = this.authService.getCurrentUser()
+    return this.user != null
   }
 
   logout(){

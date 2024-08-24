@@ -12,6 +12,7 @@ export class TaskSubmissionsService {
     checkTask: `${AuthenticationService.SERVER_ADDRESS}/server/checkTask`,
     askQuestion: `${AuthenticationService.SERVER_ADDRESS}/message/askQuestion`,
     deleteQuestion: `${AuthenticationService.SERVER_ADDRESS}/message/deleteQuestion`,
+    respondToQuestion: `${AuthenticationService.SERVER_ADDRESS}/message/respondToQuestion`,
     addTask: `${AuthenticationService.SERVER_ADDRESS}/server/addTasks`,
     updateTask: `${AuthenticationService.SERVER_ADDRESS}/server/updateTasks`
   }
@@ -58,6 +59,18 @@ export class TaskSubmissionsService {
     )
   }
   
+  public respondToQuestion(request: string){
+    const body = JSON.parse(request)
+
+    const obs: Observable<string> = this.http.post<string>(this.urls.respondToQuestion, body);
+
+    return obs.pipe(
+      tap((response:string) => {
+        console.log(response)
+      })
+    )
+  }
+
   private parseResponse(response: string, submission: Submisson): Submisson | null{
     console.log("parseResponse")
     console.log(response)

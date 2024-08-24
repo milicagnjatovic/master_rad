@@ -1,0 +1,34 @@
+<main>
+    <div class="message-column">
+    
+        <!-- <button  [ngClass]="{'correct': task.submission!=null && task.submission.correctSubmissions > 0}"  *ngFor="let task of user?.tasks" (click)="setCurrentTask(task)"> -->
+        <button *ngFor="let message of user?.messagesForProfessor" (click)="setCurrentMessage(message)">
+            {{message.studentUsername }} | {{ message.taskId }}
+        </button>
+    </div>
+    
+    <div *ngIf="currentMessage !==null" class="currentMessage">
+        <p class="date"> {{ this.datepipe.transform(currentMessage.createdDate, 'dd/MM/yyyy') }}</p>
+
+        <h2>{{ currentMessage.studentUsername }}</h2>
+        <p>Zadatak: {{ currentMessage.taskId }}</p>
+        <h3> Pitanje: </h3>
+        <p> {{ currentMessage.question }} </p>
+        <h3> Studentski rad:  </h3>
+        <p class="smaller-font"> {{ currentMessage.submission }}</p>
+
+
+        <h3>Odgovor:</h3>
+
+        <form [formGroup]="respondForm" (ngSubmit)="onResponde()">
+            <textarea formControlName="response" placeholder="Odgovor..."  maxlength="255"></textarea>
+
+            <button type="submit">
+                Pošalji odgovor
+            </button>
+        </form>
+
+
+    </div>
+        
+</main>

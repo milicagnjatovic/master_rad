@@ -13,5 +13,6 @@
     <td (click) = "navigate('')">Obaveštenja</td>
     <td (click) = "navigate('tasks')">Zadaci</td>
     <td (click) = "navigate('rank')">Rang lista</td>
+    <td *ngIf="user?.isProfessor()" (click) = "navigate('message')">Pitanja</td>
     </tr>
 </table>

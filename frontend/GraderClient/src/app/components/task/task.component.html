@@ -40,7 +40,7 @@
         <button *ngIf="!showAskQuestion && task!=null && task.submission!=null && task.submission.question==null && task.submission.totalSubmissions>0" (click)="showAskQuestionForm()" class="showQuestionButton">Postavi pitanje</button>
 
         <form *ngIf="showAskQuestion && task!=null && task.submission!=null && task.submission.question==null && task.submission.totalSubmissions>0" [formGroup]="askQuestionForm" (ngSubmit)="askQuestion()" class="askQuestionForm">
-            <textarea formControlName="question" placeholder="Pitanje..."></textarea>
+            <textarea formControlName="question" placeholder="Pitanje..." maxlength="255"></textarea>
 
             <select formControlName="professorId" [ngModel]="0">
                 <option value="0" disabled>Izaberi profesora</option>

@@ -1,5 +1,5 @@
 import { Component, Input } from '@angular/core';
-import { FormControl, FormGroup } from '@angular/forms';
+import { FormControl, FormGroup, Validators } from '@angular/forms';
 import { Message } from 'src/app/model/message.model';
 import { Professor } from 'src/app/model/professor.model';
 import { Task } from 'src/app/model/task.model';
@@ -29,11 +29,11 @@ export class TaskComponent {
 
   constructor(private submissionService: TaskSubmissionsService, private authService: AuthenticationService){
     this.checkTaskForm = new FormGroup({
-      file: new FormControl("", [])
+      file: new FormControl("", [Validators.required])
     })
     this.askQuestionForm = new FormGroup({
-      question: new FormControl("", []),
-      professorId: new FormControl("", [])
+      question: new FormControl("", [Validators.required]),
+      professorId: new FormControl("", [Validators.required])
     })
     this.user = authService.getCurrentUser()
     if(this.user != null)
