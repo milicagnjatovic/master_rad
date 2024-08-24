@@ -17,7 +17,7 @@ fi
 
 mkdir -p results
 
-startX=$(date +%s.%N)
+start_x=$(date +%s.%N)
 time_limit=15
 step=0.02
 iterations=$(echo "$time_limit / $step" | bc)
@@ -28,19 +28,19 @@ while read -r task_id; do
 #  echo "$task_id $query"
 #  echo "------------------------"
 
-  shouldKillProcess=true
+  should_kill_process=true
 
   db2 "$query" | sed '/^$/d' > "results/$task_id" &
   pid=$!
   for ((i=0; i<$iterations; i++)); do
     sleep $step
     if ! ps -p $pid > /dev/null; then
-      shouldKillProcess=false
+      should_kill_process=false
       break
     fi
   done
 
-  if $shouldKillProcess; then
+  if $should_kill_process; then
     kill $pid
     echo "$task_id#Time limit exceeded"
     continue
@@ -52,23 +52,28 @@ while read -r task_id; do
       continue
   fi
 
-  lastline=$(tail -1 "results/$task_id")
-  if [[ ! $lastline == *record* ]] ; then
+  last_line=$(tail -1 "results/$task_id")
+  if ! echo "$last_line" | grep -qE '[0-9]+ record\(s\) selected\.'; then
     echo "$task_id#Number of rows missing"
     continue
   fi
 
   end=$(date +%s.%N)
   duration=$(echo "$end - $start" | bc)
-  numberOfRows=$(echo "$lastline" | sed 's/[^0-9]*\([0-9]\+\).*/\1/')
-  echo "$task_id#$duration#$numberOfRows"
+  number_of_rows=$(echo "$last_line" | sed 's/[^0-9]*\([0-9]\+\).*/\1/')
+  echo "$task_id#$duration#$number_of_rows"
 done < $1
 
-endX=$(date +%s.%N)
-duration=$(echo "$endX - $startX" | bc)
+end_x=$(date +%s.%N)
+duration=$(echo "$end_x - $start_x" | bc)
 echo "$duration"
 
-db2 connect reset > /dev/null
+#db2 connect reset > /dev/null
+connection_result="$(db2 connect reset)"
+if [[ $connection_result != *completed\ successfully*  ]]; then
+  echo "Server error | Error while disconnecting"
+  exit 1
+fi
 
 rm "$1"
 
