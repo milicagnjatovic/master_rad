@@ -36,7 +36,9 @@ export query="$query"
 export user_path="$user_path"
 
 start=$(date +%s.%N)
-timeout 15 bash -c "execute_query"
+#timeout 15 bash -c "execute_query"
+execute_query
+
 # if last command failed
 if [ $? -ne 0 ]; then
   echo "User error | Time limit exceeded"
