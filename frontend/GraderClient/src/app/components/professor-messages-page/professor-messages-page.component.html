@@ -1,4 +1,7 @@
 <main>
+    <div *ngIf="user!=null && user.messagesForProfessor.length==0" class="note">
+        <h2>Trenutno nema pitanja.</h2>
+    </div>
     <div class="message-column">
     
         <!-- <button  [ngClass]="{'correct': task.submission!=null && task.submission.correctSubmissions > 0}"  *ngFor="let task of user?.tasks" (click)="setCurrentTask(task)"> -->
