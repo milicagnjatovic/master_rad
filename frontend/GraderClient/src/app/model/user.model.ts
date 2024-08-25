@@ -12,7 +12,8 @@ export class User {
     private timestamp
 
     public messagesForProfessor: Message[] = []
-    public taskSolutions = new Map<Number, string>() 
+    public taskSolutions: Map<Number, string> = new Map<Number, string>() 
+    public taskSolutionString = ''
 
     constructor(
         public id: number,
@@ -51,6 +52,13 @@ export class User {
         user.timestamp = new Date()
       console.log("store")
       console.log(user)
+
+      let mapToArray = null
+      if(user != null) {
+        mapToArray = JSON.stringify(Array.from(user.taskSolutions.entries()))
+        user.taskSolutionString = mapToArray
+      }
+
       localStorage.setItem(User.STORE_USER_KEY, JSON.stringify(user));
     }
 
@@ -66,13 +74,9 @@ export class User {
         let data = JSON.parse(storedUser);
 
         let dateChanged = new Date(data['timestamp'])
-        console.log("dateChanged")
-        console.log(dateChanged)
         let twoHoursBackDate = new Date()
         twoHoursBackDate.setHours(twoHoursBackDate.getHours()-2)
         // twoHoursBackDate.setMinutes(twoHoursBackDate.getMinutes()-1)
-        console.log(twoHoursBackDate)
-        console.log(twoHoursBackDate > dateChanged)
         if (twoHoursBackDate > dateChanged){
           this.logout()
           return null
@@ -144,15 +148,12 @@ export class User {
         user.messagesForProfessor = questionsForProfessor
       }
 
-      if(data != null && 'taskSolutions' in data) {
-        let taskSolutions = new Map<Number, string>()
-        for(let key in data.taskSolutions){
-            taskSolutions.set(Number.parseInt(key), data.taskSolutions[key])
-        }
-        user.taskSolutions = taskSolutions
-      }
 
-        return user
+      if(data != null && 'taskSolutionString' in data) {
+        user.taskSolutions = new Map(JSON.parse(data.taskSolutionString))
+      } 
+
+      return user
     }
 
     static logout(): void {
