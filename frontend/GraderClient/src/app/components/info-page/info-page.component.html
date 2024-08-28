@@ -1,4 +1,16 @@
 <main>
+    <div>
+        <form [formGroup]="newNotificationForm" (ngSubmit)="onSubmit()">
+            <label for="naslov">Naslov</label>
+            <input id="naslov"  formControlName="title"  maxlength="125">
+            <label for="tekst">Tekst</label>
+            <textarea id="tekst" formControlName="text" maxlength="2995"></textarea>
+
+            <button type="submit">
+                Postavi obaveštenje
+            </button>
+        </form>
+    </div>
     <div *ngFor="let notification of notifications">
         <h2> {{ notification.title}}</h2>
         <p [innerHTML]="notification.text"></p>

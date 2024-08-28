@@ -20,7 +20,8 @@ export class AuthenticationService {
   private readonly urls = {
     login: `${AuthenticationService.SERVER_ADDRESS}/user/login`,
     signUp: `${AuthenticationService.SERVER_ADDRESS}/user/create`,
-    updateUser: `${AuthenticationService.SERVER_ADDRESS}/user/update`
+    updateUser: `${AuthenticationService.SERVER_ADDRESS}/user/update`,
+    addNotification: `${AuthenticationService.SERVER_ADDRESS}/notification/new`
   }
 
   private readonly userSubject: BehaviorSubject<User | null> = new BehaviorSubject<User | null>(null);
@@ -72,6 +73,17 @@ export class AuthenticationService {
         let user = this.parseUser(response) 
         this.userSubject.next(user)
         return user
+      })
+    )
+  }
+
+
+  public addNotification(body: string): Observable<string | null>{
+    const obs: Observable<string> = this.http.post<string>(this.urls.addNotification, JSON.parse(JSON.stringify(body)));
+
+    return obs.pipe(
+      map((response: string) =>  {
+        return response
       })
     )
   }
@@ -209,6 +221,18 @@ export class AuthenticationService {
           break;
         }
     }}
+    this.userSubject.next(user)
+  }
+
+  public addNotificationToLocalUser(notification: Notification){
+    let user = this.getCurrentUser();
+
+    if(user?.tasks == null)
+      return
+
+    user.notifications.unshift(notification)
+
+    User.storeUser(user)
     this.userSubject.next(user)
   }
 
